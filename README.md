@@ -1,7 +1,7 @@
 Turbolinks
 ===========
 
-Turbolinks makes following links in your web application faster. Instead of letting the browser recompiling the JavaScript and CSS between each page change, and potentially spend extra HTTP requests checking if the assets are up-to-date, we keep the current instance alive and replace only the body and the title in the head. Think CGI vs persistent process.
+Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, and potentially spend extra HTTP requests checking if the assets are up-to-date, we keep the current instance alive and replace only the body and the title in the head. Think CGI vs persistent process.
 
 This is similar to pjax, but instead of worrying about what element on the page to replace, and tailoring the server-side response to fit, we replace the entire body. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
 
