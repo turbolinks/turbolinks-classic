@@ -39,7 +39,7 @@ replaceHTML = (html) ->
 
 extractLink = (event) ->
   link = event.target
-  until link is this or link.nodeName is 'A'
+  until link is document or link.nodeName is 'A'
     link = link.parentNode
   link
 
