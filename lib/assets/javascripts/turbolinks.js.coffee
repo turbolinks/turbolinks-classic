@@ -25,12 +25,27 @@ triggerPageChange = ->
   event.initEvent 'page:change', true, true
   document.dispatchEvent event
 
-replaceHTML = (html) ->
-  doc = document.implementation.createHTMLDocument ""
-  doc.open "replace"
-  doc.write html
-  doc.close()
+createDocument = do ->
+  createDocumentUsingParser = (html) ->
+    (new DOMParser).parseFromString html, "text/html"
 
+  createDocumentUsingWrite = (html) ->
+    doc = document.implementation.createHTMLDocument ""
+    doc.open "replace"
+    doc.write html
+    doc.close
+    doc
+
+  if window.DOMParser
+    testDoc = createDocumentUsingParser "<html><body><p>test"
+
+  if testDoc?.body?.childNodes.length is 1
+    createDocumentUsingParser
+  else
+    createDocumentUsingWrite
+
+replaceHTML = (html) ->
+  doc = createDocument html
   originalBody = document.body
   document.documentElement.appendChild doc.body, originalBody
   document.documentElement.removeChild originalBody
@@ -39,7 +54,7 @@ replaceHTML = (html) ->
 
 extractLink = (event) ->
   link = event.target
-  link = link.parentNode until link is document or link.nodeName is 'A'    
+  link = link.parentNode until link is document or link.nodeName is 'A'
   link
 
 crossOriginLink = (link) ->
