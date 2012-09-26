@@ -11,7 +11,7 @@ fetchReplacement = (url) ->
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.onload  = -> fullReplacement xhr.responseText, url
-  xhr.onabort = -> console.log("Aborted turbolink fetch!")
+  xhr.onabort = -> console.log "Aborted turbolink fetch!"
   xhr.send()
 
 fullReplacement = (html, url) ->
