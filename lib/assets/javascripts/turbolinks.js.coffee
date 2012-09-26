@@ -8,8 +8,8 @@ visit = (url) ->
 
 fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
-  xhr.setRequestHeader 'Content-Type','text/html'
   xhr.open 'GET', url, true
+  xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.onload = -> fullReplacement xhr.responseText, url
   xhr.send()
 
