@@ -39,25 +39,24 @@ replaceHTML = (html) ->
 
 extractLink = (event) ->
   link = event.target
-  until link is document or link.nodeName is 'A'
-    link = link.parentNode
+  link = link.parentNode until link is document or link.nodeName is 'A'    
   link
 
 crossOriginLink = (link) ->
-  location.protocol isnt link.protocol || location.host isnt link.host
+  location.protocol isnt link.protocol or location.host isnt link.host
 
 anchoredLink = (link) ->
-  ((link.hash && link.href.replace(link.hash, '')) is location.href.replace(location.hash, '')) ||
+  ((link.hash and link.href.replace(link.hash, '')) is location.href.replace(location.hash, '')) or
     (link.href is location.href + '#')
 
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
 newTabClick = (event) ->
-  event.which > 1 || event.metaKey || event.ctrlKey
+  event.which > 1 or event.metaKey or event.ctrlKey
 
 ignoreClick = (event, link) ->
-  crossOriginLink(link) || anchoredLink(link) || noTurbolink(link) || newTabClick(event)
+  crossOriginLink(link) or anchoredLink(link) or noTurbolink(link) or newTabClick(event)
 
 handleClick = (event) ->
   link = extractLink event
@@ -67,8 +66,7 @@ handleClick = (event) ->
     event.preventDefault()
 
 
-browserSupportsPushState =
-  window.history && window.history.pushState && window.history.replaceState
+browserSupportsPushState = window.history and window.history.pushState and window.history.replaceState
 
 
 if browserSupportsPushState
