@@ -64,6 +64,9 @@ anchoredLink = (link) ->
   ((link.hash and link.href.replace(link.hash, '')) is location.href.replace(location.hash, '')) or
     (link.href is location.href + '#')
 
+nonHtmlLink = (link) ->
+  link.href.match(/\.[a-z]+$/g) and not link.href.match(/\.html?$/g)
+
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
@@ -71,7 +74,7 @@ newTabClick = (event) ->
   event.which > 1 or event.metaKey or event.ctrlKey
 
 ignoreClick = (event, link) ->
-  crossOriginLink(link) or anchoredLink(link) or noTurbolink(link) or newTabClick(event)
+  crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or newTabClick(event)
 
 handleClick = (event) ->
   link = extractLink event
