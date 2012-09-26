@@ -17,11 +17,7 @@ Turbolinks is designed to be as light-weight as possible (so you won't think twi
 The page:update event
 ---------------------
 
-Since pages will change without a full reload with Turbolinks, you can't by default rely on dom:loaded to trigger your JavaScript code. Instead, Turbolinks uses the page:update event. If you have existing JavaScript code that's made for dom:loaded, you can connect the two using:
-
-```
-$(document).on 'page:change', -> $(document).trigger 'dom:loaded'
-```
+Since pages will change without a full reload with Turbolinks, you can't by default rely on dom:loaded to trigger your JavaScript code. Instead, Turbolinks uses the page:update event.
 
 
 Triggering a Turbolinks visit manually
