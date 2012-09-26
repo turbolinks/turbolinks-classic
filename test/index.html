@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Home</title>
+  <script type="text/javascript" src="/js/turbolinks.js"></script>
+  <script type="text/javascript">
+    document.addEventListener("page:change", function() {
+      console.log("page changed");
+    });
+  </script>
+</head>
+<body>
+  <ul>
+    <li><a href="/test/other.html">Other page</a></li>
+    <li><a href="/test/other.html"><span>Wrapped link</span></a></li>
+    <li><a href="http://www.google.com/">Cross origin</a></li>
+  </ul>
+</body>
+</html>
