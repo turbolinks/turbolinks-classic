@@ -1,5 +1,5 @@
 visit = (url) ->
-  if browserSupportsPushState
+  if browserSupportsPushState?
     reflectNewUrl url
     fetchReplacement url
   else
@@ -10,7 +10,8 @@ fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
-  xhr.onload = -> fullReplacement xhr.responseText, url
+  xhr.onload  = -> fullReplacement xhr.responseText, url
+  xhr.onabort = -> console.log("Aborted turbolink fetch!")
   xhr.send()
 
 fullReplacement = (html, url) ->
@@ -86,8 +87,13 @@ handleClick = (event) ->
 
 browserSupportsPushState = window.history and window.history.pushState and window.history.replaceState
 
+rememberInitialPage = ->
+  window.history.replaceState { turbolinks: true }, "", document.location.href
+
 
 if browserSupportsPushState
+  rememberInitialPage()
+  
   window.addEventListener 'popstate', (event) ->
     if event.state?.turbolinks
       fetchReplacement document.location.href
