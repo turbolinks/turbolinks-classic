@@ -1,8 +1,9 @@
-
 historyCache = []
 lastState = null
+
 visit = (url) ->
-  if browserSupportsPushState? and document.location.href != url
+
+  if browserSupportsPushState? and document.location.href isnt url
     rememberPage()
     reflectNewUrl url
     fetchReplacement url
@@ -22,8 +23,7 @@ fetchReplacement = (url) ->
 
 fetchHistory = (state) ->
   rememberPage()
-  cache = historyCache[state.position]
-  if cache
+  if cache = historyCache[state.position]
     replaceBody cache.body, cache.title
     triggerPageChange()
     window.scrollTo(cache.pageXOffset,cache.pageYOffset)
