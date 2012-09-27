@@ -55,7 +55,8 @@ changePage = (title, body) ->
 
 
 reflectNewUrl = (url) ->
-  window.history.pushState { turbolinks: true, position: window.history.length }, '', url
+  if url isnt document.location.href
+    window.history.pushState { turbolinks: true, position: window.history.length }, '', url
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
