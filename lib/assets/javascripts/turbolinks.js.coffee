@@ -71,10 +71,9 @@ replaceHTML = (html) ->
   replaceDocument doc.body,title?.textContent, 'cache'
 
 
-replaceDocument = (body,title,cache) ->
+replaceDocument = (body, title, cache) ->
   originalBody = document.body
-  document.documentElement.appendChild body, originalBody
-  document.documentElement.removeChild originalBody
+  document.documentElement.replaceChild body, originalBody
   document.title = title
   historyCache[window.history.state.position] = url: document.location.href, body: body, title: title if cache
 
