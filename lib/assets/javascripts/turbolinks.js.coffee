@@ -1,86 +1,101 @@
-initialized  = false
-historyCache = []
+pageCache    = []
+currentState = null
+
 
 visit = (url) ->
-  if browserSupportsPushState? and document.location.href isnt url
-    rememberInitialPage()
+  if browserSupportsPushState
+    cacheCurrentPage()
     reflectNewUrl url
     fetchReplacement url
   else
     document.location.href = url
-
-rememberInitialPage = ->
-  unless initialized
-    window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, "", document.location.href
-    historyCache[window.history.state.position] = url: document.location.href, body: document.body, title: document.title
-    initialized
 
 
 fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
-  xhr.onload  = -> fullReplacement xhr.responseText, url
-  xhr.onabort = -> console.log "Aborted turbolink fetch!"
+  xhr.onload  = -> changePage extractTitleAndBody(xhr.responseText)...
+  xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
 
 fetchHistory = (state) ->
-  if cache = historyCache[state.position]
-    replaceBody cache.body, cache.title
-    triggerPageChange()
+  cacheCurrentPage()
+
+  if page = pageCache[state.position]
+    changePage page.title, page.body
+    recallScrollPosition page
   else
     fetchReplacement document.location.href
 
-fullReplacement = (html, url) ->
-  replaceHTML html
-  triggerPageChange()
+
+cacheCurrentPage = ->
+  pageCache[currentState.position] = 
+    url:       document.location.href,
+    body:      document.body,
+    title:     document.title,
+    positionY: window.pageYOffset,
+    positionX: window.pageXOffset
+
+changePage = (title, body) ->
+  document.title = title
+  document.documentElement.replaceChild body, document.body
+
+  currentState = window.history.state
+  triggerEvent 'page:change'
+
 
 reflectNewUrl = (url) ->
-  window.history.pushState { turbolinks: true, position: window.history.length }, "", url
+  window.history.pushState { turbolinks: true, position: window.history.length }, '', url
+
+rememberCurrentUrl = ->
+  window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
+
+rememberCurrentState = ->
+  currentState = window.history.state
+
+recallScrollPosition = (page) ->
+  window.scrollTo page.positionX, page.positionX
 
 
-
-triggerPageChange = ->
+triggerEvent = (name) ->
   event = document.createEvent 'Events'
-  event.initEvent 'page:change', true, true
+  event.initEvent name, true, true
   document.dispatchEvent event
+
+
+extractTitleAndBody = (html) ->
+  doc   = createDocument html
+  title = doc.querySelector 'title'
+  [ title?.textContent, doc.body ]
 
 createDocument = do ->
   createDocumentUsingParser = (html) ->
-    (new DOMParser).parseFromString html, "text/html"
+    (new DOMParser).parseFromString html, 'text/html'
 
   createDocumentUsingWrite = (html) ->
-    doc = document.implementation.createHTMLDocument ""
-    doc.open "replace"
+    doc = document.implementation.createHTMLDocument ''
+    doc.open 'replace'
     doc.write html
     doc.close
     doc
 
   if window.DOMParser
-    testDoc = createDocumentUsingParser "<html><body><p>test"
+    testDoc = createDocumentUsingParser '<html><body><p>test'
 
   if testDoc?.body?.childNodes.length is 1
     createDocumentUsingParser
   else
     createDocumentUsingWrite
 
-replaceHTML = (html) ->
-  doc = createDocument html
-  title = doc.querySelector "title"
-  replaceBody doc.body,title?.textContent, 'cache'
-
-
-replaceBody = (body, title, cache) ->
-  document.documentElement.replaceChild body, document.body
-  document.title = title
-  historyCache[window.history.state.position] = url: document.location.href, body: body, title: title if cache
-
-
 
 extractLink = (event) ->
   link = event.target
   link = link.parentNode until link is document or link.nodeName is 'A'
   link
+
+samePageLink = (link) ->
+  link.href is document.location.href
 
 crossOriginLink = (link) ->
   location.protocol isnt link.protocol or location.host isnt link.host
@@ -99,7 +114,8 @@ newTabClick = (event) ->
   event.which > 1 or event.metaKey or event.ctrlKey
 
 ignoreClick = (event, link) ->
-  crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or newTabClick(event)
+  samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
+  nonHtmlLink(link)  or noTurbolink(link)     or newTabClick(event)
 
 handleClick = (event) ->
   link = extractLink event
@@ -109,12 +125,16 @@ handleClick = (event) ->
     event.preventDefault()
 
 
-browserSupportsPushState = window.history and window.history.pushState and window.history.replaceState
+browserSupportsPushState =
+  window.history and window.history.pushState and window.history.replaceState
 
 if browserSupportsPushState
+  rememberCurrentUrl()
+  rememberCurrentState()
+
   window.addEventListener 'popstate', (event) ->
-    if event.state?.turbolinks
-      fetchHistory event.state
+    fetchHistory event.state if event.state?.turbolinks
+
   document.addEventListener 'click', (event) ->
     handleClick event
 

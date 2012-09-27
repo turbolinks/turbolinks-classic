@@ -43,5 +43,3 @@ Work left to do
 ---------------
 
 * CSS/JS asset change detection and reload
-* Add a DOM cache for faster back button
-* Remember scroll position when using back button 
