@@ -133,6 +133,9 @@ anchoredLink = (link) ->
 nonHtmlLink = (link) ->
   link.href.match(/\.[a-z]+(\?.*)?$/g) and not link.href.match(/\.html?(\?.*)?$/g)
 
+remoteLink = (link) ->
+  link.getAttribute('data-remote')?
+
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
@@ -141,7 +144,8 @@ newTabClick = (event) ->
 
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or noTurbolink(link)     or newTabClick(event)
+  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or 
+  newTabClick(event)
 
 
 browserSupportsPushState =
