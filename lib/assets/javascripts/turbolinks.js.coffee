@@ -1,7 +1,8 @@
-window.historyCache = []
-window.testArray = []
+@historyCache = []
+
 visit = (url) ->
   if browserSupportsPushState?
+    @historyCache.push({url:document.location.href,body:document.body,title:document.title})
     reflectNewUrl url
     fetchReplacement url
   else
@@ -17,8 +18,8 @@ fetchReplacement = (url) ->
   xhr.send()
 
 fetchHistory = (url) ->
-  while(window.historyCache.length > 0)
-    cache = window.historyCache.pop()
+  while(@historyCache.length > 0)
+    cache = @historyCache.pop()
     if cache.url == url
       replaceDocument cache.body, cache.title
       triggerPageChange
@@ -65,10 +66,9 @@ replaceHTML = (html) ->
 
 replaceDocument = (body,title,cache) ->
   originalBody = document.body
-  document.documentElement.appendChild body.cloneNode(true), originalBody
+  document.documentElement.appendChild body, originalBody
   document.documentElement.removeChild originalBody
   document.title = title
-  window.historyCache.push({url: document.location.href, title:title,body:body}) if cache
 
 
 extractLink = (event) ->
@@ -107,7 +107,6 @@ browserSupportsPushState = window.history and window.history.pushState and windo
 
 rememberInitialPage = ->
   window.history.replaceState { turbolinks: true }, "", document.location.href
-
 
 if browserSupportsPushState
   rememberInitialPage()
