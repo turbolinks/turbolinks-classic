@@ -1,8 +1,7 @@
-@historyCache = []
+historyCache = []
 
 visit = (url) ->
   if browserSupportsPushState? and document.location.href != url
-    @historyCache.push({url:document.location.href,body:document.body,title:document.title})
     reflectNewUrl url
     fetchReplacement url
   else
@@ -17,22 +16,24 @@ fetchReplacement = (url) ->
   xhr.onabort = -> console.log("Aborted turbolink fetch!")
   xhr.send()
 
-fetchHistory = (url) ->
-  while(@historyCache.length > 0)
-    cache = @historyCache.pop()
-    if cache.url == url
-      replaceDocument cache.body, cache.title
-      triggerPageChange
-      return
-
-  fetchReplacement url
+fetchHistory = (state) ->
+  cache = historyCache[state.position]
+  if cache
+    console.log(state.position)
+    console.log(cache)
+    replaceDocument cache.body, cache.title
+    triggerPageChange
+  else
+    fetchReplacement document.location.href
 
 fullReplacement = (html, url) ->
   replaceHTML html
   triggerPageChange()
 
 reflectNewUrl = (url) ->
-  window.history.pushState { turbolinks: true }, "", url
+  window.history.pushState { turbolinks: true,position: window.history.length }, "", url
+
+
 
 triggerPageChange = ->
   event = document.createEvent 'Events'
@@ -69,6 +70,8 @@ replaceDocument = (body,title,cache) ->
   document.documentElement.appendChild body, originalBody
   document.documentElement.removeChild originalBody
   document.title = title
+  historyCache[window.history.state.position] = {url:document.location.href,body:body,title:title} if cache
+
 
 
 extractLink = (event) ->
@@ -106,15 +109,15 @@ handleClick = (event) ->
 browserSupportsPushState = window.history and window.history.pushState and window.history.replaceState
 
 rememberInitialPage = ->
-  window.history.replaceState { turbolinks: true }, "", document.location.href
+  window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
+  historyCache[window.history.state.position] = {url:document.location.href,body:document.body,title:document.title}
 
 if browserSupportsPushState
-  rememberInitialPage()
-
+  document.addEventListener 'DOMContentLoaded', (event) ->
+    rememberInitialPage()
   window.addEventListener 'popstate', (event) ->
     if event.state?.turbolinks
-      fetchHistory document.location.href
-
+      fetchHistory event.state
   document.addEventListener 'click', (event) ->
     handleClick event
 
