@@ -12,10 +12,14 @@ visit = (url) ->
 
 
 fetchReplacement = (url) ->
+  triggerEvent 'page:fetch'
+
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
-  xhr.onload  = -> changePage extractTitleAndBody(xhr.responseText)...
+  xhr.onload  = ->
+    changePage extractTitleAndBody(xhr.responseText)...
+    triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
 
@@ -25,6 +29,7 @@ fetchHistory = (state) ->
   if page = pageCache[state.position]
     changePage page.title, page.body.cloneNode(true)
     recallScrollPosition page
+    triggerEvent 'page:restore'
   else
     fetchReplacement document.location.href
 
@@ -50,7 +55,6 @@ changePage = (title, body) ->
   document.documentElement.replaceChild body, document.body
 
   currentState = window.history.state
-  triggerEvent 'page:change'
 
 
 reflectNewUrl = (url) ->

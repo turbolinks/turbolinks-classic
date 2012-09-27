@@ -14,10 +14,17 @@ No jQuery or any other framework
 Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other framework to work. But it works great _with_ jQuery or Prototype or whatever else have you.
 
 
-The `page:change` event
----------------------
+Events
+------
 
-Since pages will change without a full reload with Turbolinks, you can't by default rely on `dom:loaded` to trigger your JavaScript code. Instead, Turbolinks uses the `page:change` event. Existing code will not be compatible with this style automatically, so it's your job to ensure that your initialization code will work with this change in events.
+Since pages will change without a full reload with Turbolinks, you can't by default rely on `dom:loaded` to trigger your JavaScript code. Instead, Turbolinks gives you a range of events to deal with the lifecycle of the page:
+
+* `page:fetch` -- ...starting to fetch the target page.
+* `page:load` -- ...fetched page is being retrieved fresh from the server.
+* `page:restore` -- ...fetched page is being retrieved from the 10-slot client-side cache.
+* `page:change` -- ...page has changed to the newly fetched version.
+
+So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:change` to stop it. If you have DOM transformation that are not idempotent (the best way), you can hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
 
 Triggering a Turbolinks visit manually
