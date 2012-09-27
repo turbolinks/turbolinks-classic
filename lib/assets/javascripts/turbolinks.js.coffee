@@ -1,8 +1,8 @@
-initialized = false
+initialized  = false
 historyCache = []
 
 visit = (url) ->
-  if browserSupportsPushState? and document.location.href != url
+  if browserSupportsPushState? and document.location.href isnt url
     rememberInitialPage()
     reflectNewUrl url
     fetchReplacement url
@@ -10,10 +10,10 @@ visit = (url) ->
     document.location.href = url
 
 rememberInitialPage = ->
-  return if initialized
-  window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
-  historyCache[window.history.state.position] = url: document.location.href, body: document.body, title: document.title
-  initialized
+  unless initialized
+    window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, "", document.location.href
+    historyCache[window.history.state.position] = url: document.location.href, body: document.body, title: document.title
+    initialized
 
 
 fetchReplacement = (url) ->
@@ -25,8 +25,7 @@ fetchReplacement = (url) ->
   xhr.send()
 
 fetchHistory = (state) ->
-  cache = historyCache[state.position]
-  if cache
+  if cache = historyCache[state.position]
     replaceBody cache.body, cache.title
     triggerPageChange()
   else
