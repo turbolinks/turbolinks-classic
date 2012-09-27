@@ -27,8 +27,6 @@ fetchReplacement = (url) ->
 fetchHistory = (state) ->
   cache = historyCache[state.position]
   if cache
-    console.log(state.position)
-    console.log(cache)
     replaceDocument cache.body, cache.title
     triggerPageChange()
   else
