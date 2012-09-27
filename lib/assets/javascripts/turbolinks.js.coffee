@@ -119,7 +119,7 @@ anchoredLink = (link) ->
     (link.href is location.href + '#')
 
 nonHtmlLink = (link) ->
-  link.href.match(/\.[a-z]+$/g) and not link.href.match(/\.html?$/g)
+  link.href.match(/\.[a-z]+(\?.*)?$/g) and not link.href.match(/\.html?(\?.*)?$/g)
 
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
