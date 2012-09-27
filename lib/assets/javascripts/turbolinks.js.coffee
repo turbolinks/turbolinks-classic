@@ -37,7 +37,7 @@ fullReplacement = (html, url) ->
   triggerPageChange()
 
 reflectNewUrl = (url) ->
-  window.history.pushState { turbolinks: true,position: window.history.length }, "", url
+  window.history.pushState { turbolinks: true, position: window.history.length }, "", url
 
 
 
@@ -76,7 +76,7 @@ replaceDocument = (body,title,cache) ->
   document.documentElement.appendChild body, originalBody
   document.documentElement.removeChild originalBody
   document.title = title
-  historyCache[window.history.state.position] = {url:document.location.href,body:body,title:title} if cache
+  historyCache[window.history.state.position] = url: document.location.href, body: body, title: title if cache
 
 
 
@@ -122,4 +122,4 @@ if browserSupportsPushState
     handleClick event
 
 # Call Turbolinks.visit(url) from client code
-@Turbolinks = { visit: visit }
+@Turbolinks = visit: visit
