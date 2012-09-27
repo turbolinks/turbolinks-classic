@@ -14,11 +14,18 @@ No jQuery or any other framework
 Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other framework to work. But it works great _with_ jQuery or Prototype or whatever else have you.
 
 
-The page:update event
+The `page:change` event
 ---------------------
 
-Since pages will change without a full reload with Turbolinks, you can't by default rely on dom:loaded to trigger your JavaScript code. Instead, Turbolinks uses the page:update event.
+Since pages will change without a full reload with Turbolinks, you can't by default rely on `dom:loaded` to trigger your JavaScript code. Instead, Turbolinks uses the `page:change` event.
 
+Installation
+------------
+
+1. Add `gem turbolinks` to your Gemfile.
+1. Run `bundle install`.
+1. Add `//= require turbolinks` to your Javascript manifest file (usually found at `app/assets/javascripts/application.js`).
+1. Restart your server and you're now using turbolinks!
 
 Triggering a Turbolinks visit manually
 ---------------------------------------

@@ -25,7 +25,7 @@ fetchHistory = (state) ->
   cache = historyCache[state.position]
   if cache
     replaceDocument cache.body, cache.title
-    triggerPageChange
+    triggerPageChange()
     window.scrollTo(cache.pageXOffset,cache.pageYOffset)
   else
     fetchReplacement document.location.href
