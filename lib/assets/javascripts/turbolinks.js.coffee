@@ -2,7 +2,6 @@ pageCache    = []
 currentState = null
 initialized  = false
 
-
 visit = (url) ->
   if browserSupportsPushState
     cacheCurrentPage()
@@ -56,7 +55,7 @@ changePage = (title, body) ->
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
-    window.history.pushState { turbolinks: true, position: window.history.length }, '', url
+    window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
