@@ -1,4 +1,4 @@
-historyCache = []
+window.historyCache = []
 visit = (url) ->
   if browserSupportsPushState?
     reflectNewUrl url
@@ -16,8 +16,8 @@ fetchReplacement = (url) ->
   xhr.send()
 
 fetchHistory = (url) ->
-  while(historyCache.length > 0)
-    cache = historyCache.pop()
+  while(window.historyCache.length > 0)
+    cache = window.historyCache.pop()
     if cache.url == url
       replaceHTML cache.html
       triggerPageChange
@@ -62,7 +62,7 @@ replaceHTML = (html,cache) ->
   document.documentElement.appendChild doc.body, originalBody
   document.documentElement.removeChild originalBody
   document.title = title.textContent if title = doc.querySelector "title"
-  historyCache.push({url: document.location.href, html:html}) if cache
+  window.historyCache.push({url: document.location.href, html:html}) if cache
 
 
 extractLink = (event) ->
