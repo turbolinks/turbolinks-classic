@@ -27,7 +27,7 @@ fetchReplacement = (url) ->
 fetchHistory = (state) ->
   cache = historyCache[state.position]
   if cache
-    replaceDocument cache.body, cache.title
+    replaceBody cache.body, cache.title
     triggerPageChange()
   else
     fetchReplacement document.location.href
@@ -68,12 +68,11 @@ createDocument = do ->
 replaceHTML = (html) ->
   doc = createDocument html
   title = doc.querySelector "title"
-  replaceDocument doc.body,title?.textContent, 'cache'
+  replaceBody doc.body,title?.textContent, 'cache'
 
 
-replaceDocument = (body, title, cache) ->
-  originalBody = document.body
-  document.documentElement.replaceChild body, originalBody
+replaceBody = (body, title, cache) ->
+  document.documentElement.replaceChild body, document.body
   document.title = title
   historyCache[window.history.state.position] = url: document.location.href, body: body, title: title if cache
 
