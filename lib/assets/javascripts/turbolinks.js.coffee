@@ -74,7 +74,7 @@ rememberInitialPage = ->
     initialized = true
 
 recallScrollPosition = (page) ->
-  window.scrollTo page.positionX, page.positionX
+  window.scrollTo page.positionX, page.positionY
 
 
 triggerEvent = (name) ->
