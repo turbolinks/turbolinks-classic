@@ -1,27 +1,16 @@
-initialized = false
-historyCache = []
 
+historyCache = []
+lastState = null
 visit = (url) ->
   if browserSupportsPushState? and document.location.href != url
-    rememberInitialPage()
-    saveScrollOffset()
+    rememberPage()
     reflectNewUrl url
     fetchReplacement url
   else
     document.location.href = url
 
-rememberInitialPage = ->
-  return if initialized
-  window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
-  historyCache[window.history.state.position] = url: document.location.href, body: document.body, title: document.title
-  initialized
-
-saveScrollOffset = ->
-  cache = historyCache[window.history.state.position]
-  cache.scrollTop = window.pageYOffset
-  cache.scrollLeft = window.pageXOffset
-
-
+rememberPage = ->
+  historyCache[lastState.position] = url: document.location.href, body: document.body, title: document.title, pageYOffset: window.pageYOffset, pageXOffset: window.pageXOffset
 
 fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
@@ -32,11 +21,12 @@ fetchReplacement = (url) ->
   xhr.send()
 
 fetchHistory = (state) ->
+  rememberPage()
   cache = historyCache[state.position]
   if cache
     replaceDocument cache.body, cache.title
     triggerPageChange
-    window.scrollTo(cache.scrollLeft,cache.scrollTop)
+    window.scrollTo(cache.pageXOffset,cache.pageYOffset)
   else
     fetchReplacement document.location.href
 
@@ -79,13 +69,12 @@ replaceHTML = (html) ->
   replaceDocument doc.body,title?.textContent, 'cache'
 
 
-replaceDocument = (body,title,cache) ->
+replaceDocument = (body,title) ->
   originalBody = document.body
   document.documentElement.appendChild body, originalBody
   document.documentElement.removeChild originalBody
   document.title = title
-  historyCache[window.history.state.position] = {url:document.location.href,body:body,title:title} if cache
-
+  lastState = window.history.state
 
 
 extractLink = (event) ->
@@ -119,10 +108,14 @@ handleClick = (event) ->
     visit link.href
     event.preventDefault()
 
+rememberInitialPage = ->
+  window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
+  lastState = window.history.state
 
 browserSupportsPushState = window.history and window.history.pushState and window.history.replaceState
 
 if browserSupportsPushState
+  rememberInitialPage()
   window.addEventListener 'popstate', (event) ->
     if event.state?.turbolinks
       fetchHistory event.state
