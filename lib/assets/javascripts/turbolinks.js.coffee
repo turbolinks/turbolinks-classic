@@ -1,4 +1,5 @@
 window.historyCache = []
+window.testArray = []
 visit = (url) ->
   if browserSupportsPushState?
     reflectNewUrl url
@@ -19,14 +20,14 @@ fetchHistory = (url) ->
   while(window.historyCache.length > 0)
     cache = window.historyCache.pop()
     if cache.url == url
-      replaceHTML cache.html
+      replaceDocument cache.body, cache.title
       triggerPageChange
       return
 
   fetchReplacement url
 
 fullReplacement = (html, url) ->
-  replaceHTML html, "cache"
+  replaceHTML html
   triggerPageChange()
 
 reflectNewUrl = (url) ->
@@ -56,13 +57,18 @@ createDocument = do ->
   else
     createDocumentUsingWrite
 
-replaceHTML = (html,cache) ->
+replaceHTML = (html) ->
   doc = createDocument html
+  title = doc.querySelector "title"
+  replaceDocument doc.body,title?.textContent, 'cache'
+
+
+replaceDocument = (body,title,cache) ->
   originalBody = document.body
-  document.documentElement.appendChild doc.body, originalBody
+  document.documentElement.appendChild body.cloneNode(true), originalBody
   document.documentElement.removeChild originalBody
-  document.title = title.textContent if title = doc.querySelector "title"
-  window.historyCache.push({url: document.location.href, html:html}) if cache
+  document.title = title
+  window.historyCache.push({url: document.location.href, title:title,body:body}) if cache
 
 
 extractLink = (event) ->
