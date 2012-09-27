@@ -30,7 +30,7 @@ fetchHistory = (state) ->
     console.log(state.position)
     console.log(cache)
     replaceDocument cache.body, cache.title
-    triggerPageChange
+    triggerPageChange()
   else
     fetchReplacement document.location.href
 
