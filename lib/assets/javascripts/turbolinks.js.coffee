@@ -1,7 +1,7 @@
-
 pageCache    = []
 currentState = null
 initialized  = false
+
 
 visit = (url) ->
   if browserSupportsPushState
@@ -22,27 +22,28 @@ fetchReplacement = (url) ->
 
 fetchHistory = (state) ->
   cacheCurrentPage()
+
   if page = pageCache[state.position]
     changePage page.title, page.body.cloneNode(true)
     recallScrollPosition page
-
   else
     fetchReplacement document.location.href
 
 
 cacheCurrentPage = ->
   rememberInitialPage()
+
   pageCache[currentState.position] =
     url:       document.location.href,
     body:      document.body,
     title:     document.title,
     positionY: window.pageYOffset,
     positionX: window.pageXOffset
-  garbageCollectCache()
 
-garbageCollectCache = ->
-  if currentState.position == window.history.length - 1 and pageCache[currentState.position - 10] != undefined
-    delete pageCache[currentState.position - 10]
+  constrainPageCacheTo(10)
+
+constrainPageCacheTo = (limit) ->
+  delete pageCache[currentState.position - limit] if currentState.position == window.history.length - 1
 
 
 changePage = (title, body) ->
@@ -137,12 +138,11 @@ handleClick = (event) ->
     visit link.href
     event.preventDefault()
 
+
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState
 
-
 if browserSupportsPushState
-
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
 
