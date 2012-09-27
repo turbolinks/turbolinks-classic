@@ -45,3 +45,4 @@ Work left to do
 ---------------
 
 * CSS/JS asset change detection and reload
+* Add proper unit tests
