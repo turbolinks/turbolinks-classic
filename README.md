@@ -19,6 +19,13 @@ The page:update event
 
 Since pages will change without a full reload with Turbolinks, you can't by default rely on dom:loaded to trigger your JavaScript code. Instead, Turbolinks uses the page:update event.
 
+Installation
+------------
+
+1. Add `gem turbolinks` to your Gemfile.
+1. Run `bundle install`.
+1. Add `//= require turbolinks` to your Javascript manifest file (usually found at `app/assets/javascripts/application.js`).
+1. Restart your server and you're now using turbolinks!
 
 Triggering a Turbolinks visit manually
 ---------------------------------------
