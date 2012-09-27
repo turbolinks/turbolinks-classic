@@ -24,7 +24,7 @@ fetchHistory = (state) ->
   rememberPage()
   cache = historyCache[state.position]
   if cache
-    replaceDocument cache.body, cache.title
+    replaceBody cache.body, cache.title
     triggerPageChange()
     window.scrollTo(cache.pageXOffset,cache.pageYOffset)
   else
@@ -35,7 +35,7 @@ fullReplacement = (html, url) ->
   triggerPageChange()
 
 reflectNewUrl = (url) ->
-  window.history.pushState { turbolinks: true,position: window.history.length }, "", url
+  window.history.pushState { turbolinks: true, position: window.history.length }, "", url
 
 
 
@@ -66,13 +66,10 @@ createDocument = do ->
 replaceHTML = (html) ->
   doc = createDocument html
   title = doc.querySelector "title"
-  replaceDocument doc.body,title?.textContent, 'cache'
+  replaceBody doc.body,title?.textContent, 'cache'
 
-
-replaceDocument = (body,title) ->
-  originalBody = document.body
-  document.documentElement.appendChild body, originalBody
-  document.documentElement.removeChild originalBody
+replaceBody = (body, title, cache) ->
+  document.documentElement.replaceChild body, document.body
   document.title = title
   lastState = window.history.state
 
@@ -123,4 +120,4 @@ if browserSupportsPushState
     handleClick event
 
 # Call Turbolinks.visit(url) from client code
-@Turbolinks = { visit: visit }
+@Turbolinks = visit: visit
