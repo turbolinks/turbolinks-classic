@@ -1,9 +1,10 @@
 historyCache = []
 lastState = null
-
+initialized = false
 visit = (url) ->
 
   if browserSupportsPushState? and document.location.href isnt url
+    rememberInitialPage()
     rememberPage()
     reflectNewUrl url
     fetchReplacement url
@@ -12,6 +13,12 @@ visit = (url) ->
 
 rememberPage = ->
   historyCache[lastState.position] = url: document.location.href, body: document.body, title: document.title, pageYOffset: window.pageYOffset, pageXOffset: window.pageXOffset
+
+rememberInitialPage = ->
+  unless initialized
+    window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
+    lastState = window.history.state
+    initialized = true
 
 fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
@@ -105,14 +112,9 @@ handleClick = (event) ->
     visit link.href
     event.preventDefault()
 
-rememberInitialPage = ->
-  window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
-  lastState = window.history.state
-
 browserSupportsPushState = window.history and window.history.pushState and window.history.replaceState
 
 if browserSupportsPushState
-  rememberInitialPage()
   window.addEventListener 'popstate', (event) ->
     if event.state?.turbolinks
       fetchHistory event.state
