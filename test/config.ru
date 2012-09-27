@@ -11,4 +11,4 @@ map "/js" do
   run Assets
 end
 
-run Rack::Directory.new(Root)
+run Rack::Directory.new(File.join(Root, "test"))
