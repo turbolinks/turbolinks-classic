@@ -1,7 +1,7 @@
 @historyCache = []
 
 visit = (url) ->
-  if browserSupportsPushState?
+  if browserSupportsPushState? and document.location.href != url
     @historyCache.push({url:document.location.href,body:document.body,title:document.title})
     reflectNewUrl url
     fetchReplacement url
