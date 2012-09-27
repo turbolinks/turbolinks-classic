@@ -4,6 +4,7 @@ historyCache = []
 visit = (url) ->
   if browserSupportsPushState? and document.location.href != url
     rememberInitialPage()
+    saveScrollOffset()
     reflectNewUrl url
     fetchReplacement url
   else
@@ -14,6 +15,12 @@ rememberInitialPage = ->
   window.history.replaceState { turbolinks: true, position: window.history.length - 1}, "", document.location.href
   historyCache[window.history.state.position] = url: document.location.href, body: document.body, title: document.title
   initialized
+
+saveScrollOffset = ->
+  cache = historyCache[window.history.state.position]
+  cache.scrollTop = window.pageYOffset
+  cache.scrollLeft = window.pageXOffset
+
 
 
 fetchReplacement = (url) ->
@@ -27,10 +34,9 @@ fetchReplacement = (url) ->
 fetchHistory = (state) ->
   cache = historyCache[state.position]
   if cache
-    console.log(state.position)
-    console.log(cache)
     replaceDocument cache.body, cache.title
     triggerPageChange
+    window.scrollTo(cache.scrollLeft,cache.scrollTop)
   else
     fetchReplacement document.location.href
 
