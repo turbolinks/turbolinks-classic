@@ -104,6 +104,14 @@ createDocument = do ->
   else
     createDocumentUsingWrite
 
+
+handleClick = (event) ->
+  link = extractLink event
+
+  if link.nodeName is 'A' and !ignoreClick(event, link)
+    visit link.href
+    event.preventDefault()
+
 extractLink = (event) ->
   link = event.target
   link = link.parentNode until link is document or link.nodeName is 'A'
@@ -131,13 +139,6 @@ newTabClick = (event) ->
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
   nonHtmlLink(link)  or noTurbolink(link)     or newTabClick(event)
-
-handleClick = (event) ->
-  link = extractLink event
-
-  if link.nodeName is 'A' and !ignoreClick(event, link)
-    visit link.href
-    event.preventDefault()
 
 
 browserSupportsPushState =
