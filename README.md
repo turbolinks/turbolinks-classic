@@ -3,9 +3,17 @@ Turbolinks
 
 Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, we keep the current page instance alive and replace only the body and the title in the head (and potentially spend extra HTTP requests checking if the assets are up-to-date). Think CGI vs persistent process.
 
-This is similar to pjax, but instead of worrying about what element on the page to replace, and tailoring the server-side response to fit, we replace the entire body. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
+This is similar to [pjax](https://github.com/defunkt/jquery-pjax), but instead of worrying about what element on the page to replace, and tailoring the server-side response to fit, we replace the entire body. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
 
 By default, all internal links will be funneled through Turbolinks, but you can opt out by marking links with data-no-turbolink.
+
+
+How much faster is it really?
+-----------------------------
+
+It depends. The more CSS and JavaScript you have, the bigger the benefit of not throwing away the browser instance and recompiling all of it for every page. Just like a CGI script that says "hello world" will be fast, but a CGI script loading Rails on every request will not.
+
+In any case, the benefit ranges from [twice as fast](https://github.com/steveklabnik/turbolinks_test) on apps with little JS/CSS, to [three times as fast](https://github.com/steveklabnik/turbolinks_test/tree/all_the_assets) in apps with lots of it. Of course, your mileage may vary, be dependent on your browser version, the moon cycle, and all other factors affecting performance testing. But at least it's a yardstick.
 
 
 No jQuery or any other framework
