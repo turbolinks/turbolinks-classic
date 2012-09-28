@@ -103,10 +103,6 @@ createDocument = do ->
   else
     createDocumentUsingWrite
 
-stopEverything = (event) ->
-  event.preventDefault()
-  event.stopImmediatePropagation();
-
 handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
@@ -120,7 +116,7 @@ handleAfterClick = (event) ->
   unless event.defaultPrevented
       link = extractLink event
       visit link.href
-      stopEverything(event)
+      event.preventDefault()
 
 handleBeforeClick = (event) ->
   document.removeEventListener 'click', handleBeforeClick, true
