@@ -165,4 +165,4 @@ if browserSupportsPushState
   document.addEventListener 'click', handleClick,true
 
 # Call Turbolinks.visit(url) from client code
-@Turbolinks = visit: visit
+@Turbolinks = {visit}
