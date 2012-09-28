@@ -108,8 +108,6 @@ handleClick = (event) ->
     link = extractLink event
     if link.nodeName is 'A' and !ignoreClick(event, link)
       document.removeEventListener 'click', handleAfterClick
-      document.removeEventListener 'click', handleClick, true
-      document.addEventListener 'click', handleBeforeClick,true
       document.addEventListener 'click', handleAfterClick
 
 handleAfterClick = (event) ->
@@ -118,9 +116,6 @@ handleAfterClick = (event) ->
       visit link.href
       event.preventDefault()
 
-handleBeforeClick = (event) ->
-  document.removeEventListener 'click', handleBeforeClick, true
-  document.addEventListener 'click', handleClick, true
 
 extractLink = (event) ->
   link = event.target
