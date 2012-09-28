@@ -105,13 +105,13 @@ createDocument = do ->
 
 handleClick = (event) ->
   unless event.defaultPrevented
-    link = extractLink event
-    if link.nodeName is 'A' and !ignoreClick(event, link)
-      document.removeEventListener 'click', handleAfterClick
-      document.addEventListener 'click', handleAfterClick
+    document.removeEventListener 'click', handleAfterClick
+    document.addEventListener 'click', handleAfterClick
 
 handleAfterClick = (event) ->
   unless event.defaultPrevented
+    link = extractLink event
+    if link.nodeName is 'A' and !ignoreClick(event, link)
       link = extractLink event
       visit link.href
       event.preventDefault()
