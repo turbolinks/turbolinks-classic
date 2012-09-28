@@ -1,7 +1,7 @@
 pageCache    = []
 currentState = null
 initialized  = false
-
+clickstate = false
 visit = (url) ->
   if browserSupportsPushState
     cacheCurrentPage()
@@ -103,13 +103,33 @@ createDocument = do ->
   else
     createDocumentUsingWrite
 
+stopEverything = (event) ->
+  event.preventDefault()
+  event.stopImmediatePropagation();
+
+refireClickEvent = (target) ->
+  event = document.createEvent 'Events'
+  event.initEvent 'click', true, true
+  event.target = event.target
+  target.dispatchEvent event
 
 handleClick = (event) ->
-  link = extractLink event
+  unless clickstate or event.defaultPrevented
+    document.addEventListener 'click', handleLinkClick
+    clickstate = true
+    stopEverything(event)
+    refireClickEvent(event.target)
 
-  if link.nodeName is 'A' and !ignoreClick(event, link)
-    visit link.href
-    event.preventDefault()
+handleLinkClick = (event) ->
+  unless event.defaultPrevented
+    link = extractLink event
+    if link.nodeName is 'A' and !ignoreClick(event, link)
+      visit link.href
+      stopEverything(event)
+
+resetClickEvent = (event) ->
+  document.removeEventListener 'click', handleLinkClick
+  clickstate = false
 
 extractLink = (event) ->
   link = event.target
@@ -147,8 +167,7 @@ if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
 
-  document.addEventListener 'click', (event) ->
-    handleClick event
-
+  document.addEventListener 'click', handleClick
+  document.addEventListener 'page:change', resetClickEvent
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = visit: visit
