@@ -55,6 +55,7 @@ changePage = (title, body) ->
   document.documentElement.replaceChild body, document.body
 
   currentState = window.history.state
+  triggerEvent 'page:change'
 
 
 reflectNewUrl = (url) ->
