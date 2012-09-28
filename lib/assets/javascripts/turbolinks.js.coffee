@@ -107,12 +107,6 @@ stopEverything = (event) ->
   event.preventDefault()
   event.stopImmediatePropagation();
 
-refireClickEvent = (target) ->
-  event = document.createEvent 'Events'
-  event.initEvent 'click', true, true
-  event.target = event.target
-  target.dispatchEvent event
-
 handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
@@ -121,8 +115,6 @@ handleClick = (event) ->
       document.removeEventListener 'click', handleClick, true
       document.addEventListener 'click', handleBeforeClick,true
       document.addEventListener 'click', handleAfterClick
-      stopEverything(event)
-      refireClickEvent(event.target)
 
 handleAfterClick = (event) ->
   unless event.defaultPrevented
