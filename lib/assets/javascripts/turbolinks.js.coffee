@@ -12,10 +12,14 @@ visit = (url) ->
 
 
 fetchReplacement = (url) ->
+  triggerEvent 'page:fetch'
+
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
-  xhr.onload  = -> changePage extractTitleAndBody(xhr.responseText)...
+  xhr.onload  = ->
+    changePage extractTitleAndBody(xhr.responseText)...
+    triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
 
@@ -25,6 +29,7 @@ fetchHistory = (state) ->
   if page = pageCache[state.position]
     changePage page.title, page.body.cloneNode(true)
     recallScrollPosition page
+    triggerEvent 'page:restore'
   else
     fetchReplacement document.location.href
 
@@ -70,7 +75,7 @@ rememberInitialPage = ->
     initialized = true
 
 recallScrollPosition = (page) ->
-  window.scrollTo page.positionX, page.positionX
+  window.scrollTo page.positionX, page.positionY
 
 
 triggerEvent = (name) ->
@@ -135,6 +140,9 @@ anchoredLink = (link) ->
 nonHtmlLink = (link) ->
   link.href.match(/\.[a-z]+(\?.*)?$/g) and not link.href.match(/\.html?(\?.*)?$/g)
 
+remoteLink = (link) ->
+  link.getAttribute('data-remote')?
+
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
@@ -143,7 +151,8 @@ newTabClick = (event) ->
 
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or noTurbolink(link)     or newTabClick(event)
+  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or 
+  newTabClick(event)
 
 
 browserSupportsPushState =

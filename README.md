@@ -3,9 +3,17 @@ Turbolinks
 
 Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, we keep the current page instance alive and replace only the body and the title in the head (and potentially spend extra HTTP requests checking if the assets are up-to-date). Think CGI vs persistent process.
 
-This is similar to pjax, but instead of worrying about what element on the page to replace, and tailoring the server-side response to fit, we replace the entire body. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
+This is similar to [pjax](https://github.com/defunkt/jquery-pjax), but instead of worrying about what element on the page to replace, and tailoring the server-side response to fit, we replace the entire body. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
 
 By default, all internal links will be funneled through Turbolinks, but you can opt out by marking links with data-no-turbolink.
+
+
+How much faster is it really?
+-----------------------------
+
+It depends. The more CSS and JavaScript you have, the bigger the benefit of not throwing away the browser instance and recompiling all of it for every page. Just like a CGI script that says "hello world" will be fast, but a CGI script loading Rails on every request will not.
+
+In any case, the benefit ranges from [twice as fast](https://github.com/steveklabnik/turbolinks_test) on apps with little JS/CSS, to [three times as fast](https://github.com/steveklabnik/turbolinks_test/tree/all_the_assets) in apps with lots of it. Of course, your mileage may vary, be dependent on your browser version, the moon cycle, and all other factors affecting performance testing. But at least it's a yardstick.
 
 
 No jQuery or any other framework
@@ -14,10 +22,17 @@ No jQuery or any other framework
 Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other framework to work. But it works great _with_ jQuery or Prototype or whatever else have you.
 
 
-The `page:change` event
----------------------
+Events
+------
 
-Since pages will change without a full reload with Turbolinks, you can't by default rely on `dom:loaded` to trigger your JavaScript code. Instead, Turbolinks uses the `page:change` event. Existing code will not be compatible with this style automatically, so it's your job to ensure that your initialization code will work with this change in events.
+Since pages will change without a full reload with Turbolinks, you can't by default rely on `dom:loaded` to trigger your JavaScript code. Instead, Turbolinks gives you a range of events to deal with the lifecycle of the page:
+
+* `page:fetch` ...starting to fetch the target page.
+* `page:load` ...fetched page is being retrieved fresh from the server.
+* `page:restore` ...fetched page is being retrieved from the 10-slot client-side cache.
+* `page:change` ...page has changed to the newly fetched version.
+
+So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:change` to stop it. If you have DOM transformation that are not idempotent (the best way), you can hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
 
 Triggering a Turbolinks visit manually
