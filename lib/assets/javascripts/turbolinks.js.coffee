@@ -1,7 +1,7 @@
 pageCache    = []
 currentState = null
 initialized  = false
-clickstate = false
+
 visit = (url) ->
   if browserSupportsPushState
     cacheCurrentPage()
@@ -114,22 +114,25 @@ refireClickEvent = (target) ->
   target.dispatchEvent event
 
 handleClick = (event) ->
-  unless clickstate or event.defaultPrevented
-    document.addEventListener 'click', handleLinkClick
-    clickstate = true
-    stopEverything(event)
-    refireClickEvent(event.target)
-
-handleLinkClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
     if link.nodeName is 'A' and !ignoreClick(event, link)
+      document.removeEventListener 'click', handleAfterClick
+      document.removeEventListener 'click', handleClick, true
+      document.addEventListener 'click', handleBeforeClick,true
+      document.addEventListener 'click', handleAfterClick
+      stopEverything(event)
+      refireClickEvent(event.target)
+
+handleAfterClick = (event) ->
+  unless event.defaultPrevented
+      link = extractLink event
       visit link.href
       stopEverything(event)
 
-resetClickEvent = (event) ->
-  document.removeEventListener 'click', handleLinkClick
-  clickstate = false
+handleBeforeClick = (event) ->
+  document.removeEventListener 'click', handleBeforeClick, true
+  document.addEventListener 'click', handleClick, true
 
 extractLink = (event) ->
   link = event.target
@@ -167,7 +170,7 @@ if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
 
-  document.addEventListener 'click', handleClick
-  document.addEventListener 'page:change', resetClickEvent
+  document.addEventListener 'click', handleClick,true
+
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = visit: visit
