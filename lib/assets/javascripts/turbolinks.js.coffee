@@ -17,6 +17,7 @@ fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
+  xhr.setRequestHeader 'Accept-Encoding', 'gzip, deflate'
   xhr.onload  = ->
     changePage extractTitleAndBody(xhr.responseText)...
     triggerEvent 'page:load'
