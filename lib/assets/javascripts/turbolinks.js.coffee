@@ -18,6 +18,7 @@ fetchReplacement = (url) ->
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-Push-State-Referer', referer
+
   xhr.onload  = ->
     checkHeaders xhr
     changePage extractTitleAndBody(xhr.responseText)...
