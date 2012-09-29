@@ -5,7 +5,7 @@ module Turbolinks
     initializer :turbolinks_headers do |config|
       ActionController::Base.class_eval do
         include Turbolinks::PushStateFilter
-        after_filter :set_push_state_location
+        before_filter :set_push_state_location
       end
     end
   end

@@ -7,7 +7,6 @@ module ActionController
       end
 
       def _compute_redirect_to_location_with_turbolinks(options)
-        logger.debug "YES IM HERE"
         if options == :back and request.headers["X-Push-State-Referer"]
           _compute_redirect_to_location_without_turbolinks(request.headers["X-Push-State-Referer"])
         else
@@ -24,7 +23,10 @@ module Turbolinks
   module PushStateFilter
     private
       def set_push_state_location
-          response.headers['X-Push-State-Location'] = flash[:x_push_state_location] if flash[:x_push_state_location]
+        if flash[:x_push_state_location]
+          response.headers['X-Push-State-Location'] = flash[:x_push_state_location]
+          flash[:x_push_state_location] = nil
+        end
       end
   end
 end
