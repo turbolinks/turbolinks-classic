@@ -89,9 +89,10 @@ extractTitleAndBody = (html) ->
   title = doc.querySelector 'title'
   [ title?.textContent, doc.body ]
 
-createDocument = do ->
+createDocument = (html) ->
   createDocumentUsingParser = (html) ->
-    (new DOMParser).parseFromString html, 'text/html'
+    try
+      (new DOMParser).parseFromString html, 'text/html'
 
   createDocumentUsingWrite = (html) ->
     doc = document.implementation.createHTMLDocument ''
@@ -104,9 +105,11 @@ createDocument = do ->
     testDoc = createDocumentUsingParser '<html><body><p>test'
 
   if testDoc?.body?.childNodes.length is 1
-    createDocumentUsingParser
+    createDocument = createDocumentUsingParser
   else
-    createDocumentUsingWrite
+    createDocument = createDocumentUsingWrite
+
+  createDocument html
 
 
 handleClick = (event) ->
@@ -145,7 +148,7 @@ newTabClick = (event) ->
 
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or 
+  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or
   newTabClick(event)
 
 
