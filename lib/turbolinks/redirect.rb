@@ -25,7 +25,7 @@ module Turbolinks
       def set_push_state_location
         if flash[:x_push_state_location]
           response.headers['X-Push-State-Location'] = flash[:x_push_state_location]
-          flash[:x_push_state_location] = nil
+          flash.delete :x_push_state_location
         end
       end
   end
