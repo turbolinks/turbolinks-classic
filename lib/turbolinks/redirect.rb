@@ -7,7 +7,6 @@ module ActionController
       end
 
       def _compute_redirect_to_location_with_turbolinks(options)
-        logger.debug "YES IM HERE"
         if options == :back and request.headers["X-Push-State-Referer"]
           _compute_redirect_to_location_without_turbolinks(request.headers["X-Push-State-Referer"])
         else
