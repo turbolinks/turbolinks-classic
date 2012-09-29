@@ -24,7 +24,10 @@ module Turbolinks
   module PushStateFilter
     private
       def set_push_state_location
-          response.headers['X-Push-State-Location'] = flash[:x_push_state_location] if flash[:x_push_state_location]
+        if flash[:x_push_state_location]
+          response.headers['X-Push-State-Location'] = flash[:x_push_state_location]
+          flash[:x_push_state_location] = nil
+        end
       end
   end
 end
