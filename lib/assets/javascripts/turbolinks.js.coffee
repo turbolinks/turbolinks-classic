@@ -1,6 +1,7 @@
 pageCache    = []
 currentState = null
 initialized  = false
+referer = document.location.href
 
 visit = (url) ->
   if browserSupportsPushState
@@ -13,15 +14,20 @@ visit = (url) ->
 
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
-
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
+  xhr.setRequestHeader 'X-Push-State-Referer', referer
   xhr.onload  = ->
+    checkHeaders xhr
     changePage extractTitleAndBody(xhr.responseText)...
     triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
+
+checkHeaders = (xhr) ->
+  if(location = xhr.getResponseHeader('X-Push-State-Location'))
+    window.history.replaceState currentState, '', location
 
 fetchHistory = (state) ->
   cacheCurrentPage()
@@ -60,6 +66,7 @@ changePage = (title, body) ->
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
+    referer = document.location.href
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 rememberCurrentUrl = ->
