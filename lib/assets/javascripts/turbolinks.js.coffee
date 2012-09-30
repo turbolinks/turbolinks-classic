@@ -1,6 +1,7 @@
 pageCache    = []
 currentState = null
 initialized  = false
+historyState = null
 
 visit = (url) ->
   if browserSupportsPushState
@@ -54,19 +55,19 @@ changePage = (title, body) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
 
-  currentState = window.history.state
+  currentState = historyState
   triggerEvent 'page:change'
 
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
-    window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
+    historyPushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 rememberCurrentUrl = ->
-  window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
+  historyReplaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
 
 rememberCurrentState = ->
-  currentState = window.history.state
+  currentState = historyState
 
 rememberInitialPage = ->
   unless initialized
@@ -145,15 +146,23 @@ newTabClick = (event) ->
 
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or 
+  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or
   newTabClick(event)
 
+historyReplaceState = (state, title, url) ->
+  window.history.replaceState state, title, url
+  historyState = state
+
+historyPushState = (state, title, url) ->
+  window.history.pushState state, title, url
+  historyState = state
 
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState
 
 if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
+    historyState = event.state
     fetchHistory event.state if event.state?.turbolinks
 
   document.addEventListener 'click', (event) ->
