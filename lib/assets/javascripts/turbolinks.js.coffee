@@ -29,7 +29,7 @@ fetchReplacement = (url) ->
 
 checkHeaders = (xhr) ->
   if(location = xhr.getResponseHeader('X-Push-State-Location'))
-    window.history.replaceState currentState, '', location
+    historyReplaceState currentState, '', location
 
 fetchHistory = (state) ->
   cacheCurrentPage()
