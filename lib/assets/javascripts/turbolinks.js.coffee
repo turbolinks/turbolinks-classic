@@ -53,10 +53,10 @@ cacheCurrentPage = ->
     positionX: window.pageXOffset
 
   constrainPageCacheTo(10)
+  console.log pageCache
 
 constrainPageCacheTo = (limit) ->
-  delete pageCache[currentState.position - limit] if currentState.position == window.history.length - 1
-
+  delete pageCache[currentState.position - limit]
 
 changePage = (title, body) ->
   document.title = title
@@ -172,6 +172,7 @@ historyReplaceState = (state, title, url) ->
 historyPushState = (state, title, url) ->
   window.history.pushState state, title, url
   historyState = state
+
 
 
 browserSupportsPushState =
