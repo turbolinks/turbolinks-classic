@@ -47,8 +47,7 @@ cacheCurrentPage = ->
   constrainPageCacheTo(10)
 
 constrainPageCacheTo = (limit) ->
-  delete pageCache[currentState.position - limit] if currentState.position == window.history.length - 1
-
+  delete pageCache[currentState.position - limit]
 
 changePage = (title, body) ->
   document.title = title
@@ -145,7 +144,7 @@ newTabClick = (event) ->
 
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or 
+  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or
   newTabClick(event)
 
 
