@@ -162,9 +162,8 @@ newTabClick = (event) ->
   event.which > 1 or event.metaKey or event.ctrlKey
 
 ignoreClick = (event, link) ->
-  samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or
-  newTabClick(event)
+  crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
+  remoteLink(link)      or noTurbolink(link)  or newTabClick(event)
 
 historyReplaceState = (state, title, url) ->
   window.history.replaceState state, title, url
@@ -173,6 +172,7 @@ historyReplaceState = (state, title, url) ->
 historyPushState = (state, title, url) ->
   window.history.pushState state, title, url
   historyState = state
+
 
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState
