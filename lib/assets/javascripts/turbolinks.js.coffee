@@ -53,8 +53,7 @@ cacheCurrentPage = ->
   constrainPageCacheTo(10)
 
 constrainPageCacheTo = (limit) ->
-  delete pageCache[currentState.position - limit] if currentState.position == window.history.length - 1
-
+  delete pageCache[currentState.position - limit]
 
 changePage = (title, body) ->
   document.title = title
@@ -115,13 +114,19 @@ createDocument = do ->
   else
     createDocumentUsingWrite
 
-
 handleClick = (event) ->
-  link = extractLink event
+  unless event.defaultPrevented
+    document.removeEventListener 'click', handleAfterClick
+    document.addEventListener 'click', handleAfterClick
 
-  if link.nodeName is 'A' and !ignoreClick(event, link)
-    visit link.href
-    event.preventDefault()
+handleAfterClick = (event) ->
+  unless event.defaultPrevented
+    link = extractLink event
+    if link.nodeName is 'A' and !ignoreClick(event, link)
+      link = extractLink event
+      visit link.href
+      event.preventDefault()
+
 
 extractLink = (event) ->
   link = event.target
@@ -163,8 +168,7 @@ if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
 
-  document.addEventListener 'click', (event) ->
-    handleClick event
+  document.addEventListener 'click', handleClick,true
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = {visit}
