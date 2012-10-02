@@ -139,13 +139,13 @@ remoteLink = (link) ->
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
-newTabClick = (event) ->
-  event.which > 1 or event.metaKey or event.ctrlKey
+nonStandardClick = (event) ->
+  event.which > 1 or event.metaKey or event.ctrlKey or event.shiftKey or event.altKey
 
 ignoreClick = (event, link) ->
   samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
   nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or
-  newTabClick(event)
+  nonStandardClick(event)
 
 
 browserSupportsPushState =
