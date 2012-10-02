@@ -137,7 +137,10 @@ remoteLink = (link) ->
   link.getAttribute('data-remote')?
 
 noTurbolink = (link) ->
-  link.getAttribute('data-no-turbolink')?
+  until ignore or link is document
+    ignore = link.getAttribute('data-no-turbolink')?
+    link = link.parentNode
+  ignore
 
 nonStandardClick = (event) ->
   event.which > 1 or event.metaKey or event.ctrlKey or event.shiftKey or event.altKey
