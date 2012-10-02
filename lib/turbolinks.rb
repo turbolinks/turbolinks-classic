@@ -1,12 +1,5 @@
 module Turbolinks
-  module SetXHRCurrentLocation
-    private
-      def set_xhr_current_location
-        response.headers['X-XHR-Current-Location'] = request.fullpath
-      end
-  end
-
-  module RedirectCatchXHRReferer
+  module XHRHeaders
     extend ActiveSupport::Concern
 
     included do
@@ -21,13 +14,16 @@ module Turbolinks
           _compute_redirect_to_location_without_xhr_referer(options)
         end
       end
+
+      def set_xhr_current_location
+        response.headers['X-XHR-Current-Location'] = request.fullpath
+      end
   end
 
   class Engine < ::Rails::Engine
     initializer :turbolinks_set_xhr_current_location do |config|
       ActionController::Base.class_eval do
-        include Turbolinks::SetXHRCurrentLocation
-        include RedirectCatchXHRReferer
+        include XHRHeaders
         after_filter :set_xhr_current_location
       end
     end
