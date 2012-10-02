@@ -61,8 +61,7 @@ changePage = (title, body) ->
   triggerEvent 'page:change'
 
 executeScriptTags = ->
-  scripts = document.body.getElementsByTagName 'script'
-  eval(script.innerHTML) for script in scripts
+  eval(script.innerHTML) for script in document.body.getElementsByTagName 'script'
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
