@@ -4,7 +4,6 @@ initialized  = false
 referer      = document.location.href
 
 
-
 visit = (url) ->
   if browserSupportsPushState
     cacheCurrentPage()
@@ -63,13 +62,14 @@ changePage = (title, body) ->
 executeScriptTags = ->
   eval(script.innerHTML) for script in document.body.getElementsByTagName 'script'
 
+
 reflectNewUrl = (url) ->
   if url isnt document.location.href
     referer = document.location.href
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 reflectRedirectedUrl = (xhr) ->
-  if location = xhr.getResponseHeader('X-XHR-Current-Location')
+  if (location = xhr.getResponseHeader('X-XHR-Current-Location'))
     window.history.replaceState currentState, '', location
 
 rememberCurrentUrl = ->
