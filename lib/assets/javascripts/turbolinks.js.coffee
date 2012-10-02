@@ -118,6 +118,7 @@ createDocument = (html) ->
   else
     createDocumentUsingWrite html
 
+
 installClickHandlerLast = (event) ->
   unless event.defaultPrevented
     document.removeEventListener 'click', handleClick
@@ -161,7 +162,7 @@ nonStandardClick = (event) ->
 
 ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
-  noTurbolink(link)  or nonStandardClick(event)
+  noTurbolink(link)     or nonStandardClick(event)
 
 
 browserSupportsPushState =
@@ -174,4 +175,4 @@ if browserSupportsPushState
   document.addEventListener 'click', installClickHandlerLast, true
 
 # Call Turbolinks.visit(url) from client code
-@Turbolinks = {visit}
+@Turbolinks = { visit }
