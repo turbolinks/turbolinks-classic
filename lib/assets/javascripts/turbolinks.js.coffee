@@ -22,15 +22,10 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
   xhr.onload  = ->
     changePage extractTitleAndBody(xhr.responseText)...
-    checkHeaders xhr
+    reflectRedirectedUrl xhr
     triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
-
-checkHeaders = (xhr) ->
-  if location = xhr.getResponseHeader('X-XHR-Current-Location')
-    window.history.replaceState currentState, '', location
-
 
 fetchHistory = (state) ->
   cacheCurrentPage()
@@ -70,6 +65,10 @@ reflectNewUrl = (url) ->
   if url isnt document.location.href
     referer = document.location.href
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
+
+reflectRedirectedUrl = (xhr) ->
+  if location = xhr.getResponseHeader('X-XHR-Current-Location')
+    window.history.replaceState currentState, '', location
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
@@ -151,9 +150,6 @@ anchoredLink = (link) ->
 nonHtmlLink = (link) ->
   link.href.match(/\.[a-z]+(\?.*)?$/g) and not link.href.match(/\.html?(\?.*)?$/g)
 
-remoteLink = (link) ->
-  link.getAttribute('data-remote')?
-
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
@@ -162,7 +158,7 @@ nonStandardClick = (event) ->
 
 ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
-  remoteLink(link)      or noTurbolink(link)  or nonStandardClick(event)
+  noTurbolink(link)  or nonStandardClick(event)
 
 
 browserSupportsPushState =

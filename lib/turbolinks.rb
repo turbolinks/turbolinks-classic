@@ -1,7 +1,4 @@
-
-
 module Turbolinks
-
   module SetXHRCurrentLocation
     private
       def set_xhr_current_location
@@ -30,13 +27,8 @@ module Turbolinks
     initializer :turbolinks_set_xhr_current_location do |config|
       ActionController::Base.class_eval do
         include Turbolinks::SetXHRCurrentLocation
-        after_filter :set_xhr_current_location
-      end
-    end
-
-    initializer :turbolinks_set_redirect_to_catch_xhr_referer do |config|
-      ActionController::Base.class_eval do
         include RedirectCatchXHRReferer
+        after_filter :set_xhr_current_location
       end
     end
   end
