@@ -55,7 +55,6 @@ cacheCurrentPage = ->
     positionX: window.pageXOffset
 
   constrainPageCacheTo(10)
-  console.log pageCache
 
 constrainPageCacheTo = (limit) ->
   delete pageCache[currentState.position - limit]
