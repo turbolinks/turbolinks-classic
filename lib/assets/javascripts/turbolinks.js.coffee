@@ -1,6 +1,9 @@
 pageCache    = []
 currentState = null
 initialized  = false
+referer      = document.location.href
+
+
 
 visit = (url) ->
   if browserSupportsPushState
@@ -13,12 +16,13 @@ visit = (url) ->
 
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
-
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
+  xhr.setRequestHeader 'X-XHR-Referer', referer
   xhr.onload  = ->
     changePage extractTitleAndBody(xhr.responseText)...
+    reflectRedirectedUrl xhr
     triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
@@ -52,14 +56,21 @@ constrainPageCacheTo = (limit) ->
 changePage = (title, body) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
-
+  executeScriptTags()
   currentState = window.history.state
   triggerEvent 'page:change'
 
+executeScriptTags = ->
+  eval(script.innerHTML) for script in document.body.getElementsByTagName 'script'
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
+    referer = document.location.href
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
+
+reflectRedirectedUrl = (xhr) ->
+  if location = xhr.getResponseHeader('X-XHR-Current-Location')
+    window.history.replaceState currentState, '', location
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
@@ -88,7 +99,7 @@ extractTitleAndBody = (html) ->
   title = doc.querySelector 'title'
   [ title?.textContent, doc.body ]
 
-createDocument = do ->
+createDocument = (html) ->
   createDocumentUsingParser = (html) ->
     (new DOMParser).parseFromString html, 'text/html'
 
@@ -103,17 +114,25 @@ createDocument = do ->
     testDoc = createDocumentUsingParser '<html><body><p>test'
 
   if testDoc?.body?.childNodes.length is 1
-    createDocumentUsingParser
+    createDocument = createDocumentUsingParser
   else
-    createDocumentUsingWrite
+    createDocument = createDocumentUsingWrite
 
+  createDocument html
+
+installClickHandlerLast = (event) ->
+  unless event.defaultPrevented
+    document.removeEventListener 'click', handleClick
+    document.addEventListener 'click', handleClick
 
 handleClick = (event) ->
-  link = extractLink event
+  unless event.defaultPrevented
+    link = extractLink event
+    if link.nodeName is 'A' and !ignoreClick(event, link)
+      link = extractLink event
+      visit link.href
+      event.preventDefault()
 
-  if link.nodeName is 'A' and !ignoreClick(event, link)
-    visit link.href
-    event.preventDefault()
 
 extractLink = (event) ->
   link = event.target
@@ -133,9 +152,6 @@ anchoredLink = (link) ->
 nonHtmlLink = (link) ->
   link.href.match(/\.[a-z]+(\?.*)?$/g) and not link.href.match(/\.html?(\?.*)?$/g)
 
-remoteLink = (link) ->
-  link.getAttribute('data-remote')?
-
 noTurbolink = (link) ->
   until ignore or link is document
     ignore = link.getAttribute('data-no-turbolink')?
@@ -146,20 +162,18 @@ nonStandardClick = (event) ->
   event.which > 1 or event.metaKey or event.ctrlKey or event.shiftKey or event.altKey
 
 ignoreClick = (event, link) ->
-  samePageLink(link) or crossOriginLink(link) or anchoredLink(link) or
-  nonHtmlLink(link)  or remoteLink(link)      or noTurbolink(link)  or
-  nonStandardClick(event)
+  crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
+  noTurbolink(link)  or nonStandardClick(event)
 
 
 browserSupportsPushState =
-  window.history and window.history.pushState and window.history.replaceState
+  window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
 if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
 
-  document.addEventListener 'click', (event) ->
-    handleClick event
+  document.addEventListener 'click', installClickHandlerLast, true
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = {visit}
