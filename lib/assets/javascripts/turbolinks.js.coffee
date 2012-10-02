@@ -52,10 +52,13 @@ constrainPageCacheTo = (limit) ->
 changePage = (title, body) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
-
+  executeScriptTags()
   currentState = window.history.state
   triggerEvent 'page:change'
 
+executeScriptTags = ->
+  scripts = document.body.getElementsByTagName 'script'
+  eval(script.innerHTML) for script in scripts
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
