@@ -19,8 +19,8 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-Push-State-Referer', referer
   xhr.onload  = ->
-    checkHeaders xhr
     changePage extractTitleAndBody(xhr.responseText)...
+    checkHeaders xhr
     triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
