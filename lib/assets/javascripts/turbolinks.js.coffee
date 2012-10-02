@@ -2,7 +2,6 @@ pageCache    = []
 currentState = null
 initialized  = false
 referer      = document.location.href
-historyState = null
 
 
 
@@ -29,7 +28,7 @@ fetchReplacement = (url) ->
   xhr.send()
 
 checkHeaders = (xhr) ->
-  if(location = xhr.getResponseHeader('X-XHR-Location'))
+  if location = xhr.getResponseHeader('X-XHR-Current-Location')
     window.history.replaceState currentState, '', location
 
 
@@ -63,20 +62,20 @@ changePage = (title, body) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
 
-  currentState = historyState
+  currentState = window.history.state
   triggerEvent 'page:change'
 
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
     referer = document.location.href
-    historyPushState { turbolinks: true, position: currentState.position + 1 }, '', url
+    window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 rememberCurrentUrl = ->
-  historyReplaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
+  window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
 
 rememberCurrentState = ->
-  currentState = historyState
+  currentState = window.history.state
 
 rememberInitialPage = ->
   unless initialized
@@ -101,8 +100,7 @@ extractTitleAndBody = (html) ->
 
 createDocument = (html) ->
   createDocumentUsingParser = (html) ->
-    try
-      (new DOMParser).parseFromString html, 'text/html'
+    (new DOMParser).parseFromString html, 'text/html'
 
   createDocumentUsingWrite = (html) ->
     doc = document.implementation.createHTMLDocument ''
@@ -121,12 +119,12 @@ createDocument = (html) ->
 
   createDocument html
 
-handleClick = (event) ->
+installClickHandlerLast = (event) ->
   unless event.defaultPrevented
-    document.removeEventListener 'click', handleAfterClick
-    document.addEventListener 'click', handleAfterClick
+    document.removeEventListener 'click', handleClick
+    document.addEventListener 'click', handleClick
 
-handleAfterClick = (event) ->
+handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
     if link.nodeName is 'A' and !ignoreClick(event, link)
@@ -166,24 +164,15 @@ ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
   remoteLink(link)      or noTurbolink(link)  or nonStandardClick(event)
 
-historyReplaceState = (state, title, url) ->
-  window.history.replaceState state, title, url
-  historyState = state
-
-historyPushState = (state, title, url) ->
-  window.history.pushState state, title, url
-  historyState = state
-
 
 browserSupportsPushState =
-  window.history and window.history.pushState and window.history.replaceState
+  window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
 if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
-    historyState = event.state
     fetchHistory event.state if event.state?.turbolinks
 
-  document.addEventListener 'click', handleClick,true
+  document.addEventListener 'click', installClickHandlerLast,true
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = {visit}
