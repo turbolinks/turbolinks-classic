@@ -172,7 +172,7 @@ if browserSupportsPushState
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
 
-  document.addEventListener 'click', installClickHandlerLast,true
+  document.addEventListener 'click', installClickHandlerLast, true
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = {visit}
