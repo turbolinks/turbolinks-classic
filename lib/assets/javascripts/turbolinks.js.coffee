@@ -1,7 +1,8 @@
 pageCache    = []
 currentState = null
 initialized  = false
-referer = document.location.href
+referer      = document.location.href
+
 
 visit = (url) ->
   if browserSupportsPushState
