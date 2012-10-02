@@ -21,8 +21,8 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'X-Push-State-Referer', referer
 
   xhr.onload  = ->
-    checkHeaders xhr
     changePage extractTitleAndBody(xhr.responseText)...
+    checkHeaders xhr
     triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
@@ -158,12 +158,12 @@ remoteLink = (link) ->
 noTurbolink = (link) ->
   link.getAttribute('data-no-turbolink')?
 
-newTabClick = (event) ->
-  event.which > 1 or event.metaKey or event.ctrlKey
+nonStandardClick = (event) ->
+  event.which > 1 or event.metaKey or event.ctrlKey or event.shiftKey or event.altKey
 
 ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
-  remoteLink(link)      or noTurbolink(link)  or newTabClick(event)
+  remoteLink(link)      or noTurbolink(link)  or nonStandardClick(event)
 
 historyReplaceState = (state, title, url) ->
   window.history.replaceState state, title, url
@@ -172,7 +172,6 @@ historyReplaceState = (state, title, url) ->
 historyPushState = (state, title, url) ->
   window.history.pushState state, title, url
   historyState = state
-
 
 
 browserSupportsPushState =
