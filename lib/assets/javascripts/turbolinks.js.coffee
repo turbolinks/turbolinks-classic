@@ -114,11 +114,9 @@ createDocument = (html) ->
     testDoc = createDocumentUsingParser '<html><body><p>test'
 
   if testDoc?.body?.childNodes.length is 1
-    createDocument = createDocumentUsingParser
+    createDocumentUsingParser html
   else
-    createDocument = createDocumentUsingWrite
-
-  createDocument html
+    createDocumentUsingWrite html
 
 installClickHandlerLast = (event) ->
   unless event.defaultPrevented
