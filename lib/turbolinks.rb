@@ -21,7 +21,7 @@ module Turbolinks
   end
 
   class Engine < ::Rails::Engine
-    initializer :turbolinks_set_xhr_current_location do |config|
+    initializer :turbolinks_xhr_headers do |config|
       ActionController::Base.class_eval do
         include XHRHeaders
         after_filter :set_xhr_current_location
