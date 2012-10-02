@@ -17,7 +17,7 @@ fetchReplacement = (url) ->
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
-  xhr.setRequestHeader 'X-Push-State-Referer', referer
+  xhr.setRequestHeader 'X-XHR-Referer', referer
   xhr.onload  = ->
     changePage extractTitleAndBody(xhr.responseText)...
     checkHeaders xhr
@@ -26,7 +26,7 @@ fetchReplacement = (url) ->
   xhr.send()
 
 checkHeaders = (xhr) ->
-  if(location = xhr.getResponseHeader('X-Push-State-Location'))
+  if(location = xhr.getResponseHeader('X-XHR-Location'))
     window.history.replaceState currentState, '', location
 
 fetchHistory = (state) ->
