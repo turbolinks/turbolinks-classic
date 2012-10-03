@@ -1,9 +1,9 @@
-initialized  = false
-currentState = null
-referer      = document.location.href
-assets       = []
-pageCache    = []
-
+initialized    = false
+currentState   = null
+referer        = document.location.href
+assets         = []
+pageCache      = []
+createDocument = null
 
 visit = (url) ->
   if browserSupportsPushState
@@ -91,7 +91,7 @@ rememberCurrentState = ->
 
 rememberCurrentAssets = ->
   assets = extractAssets document
-  
+
 rememberInitialPage = ->
   unless initialized
     rememberCurrentUrl()
@@ -126,8 +126,6 @@ intersection = (a, b) ->
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
   [ title?.textContent, doc.body ]
-
-createDocument = null
 
 browserCompatibleDocumentParser = ->
   createDocumentUsingParser = (html) ->
