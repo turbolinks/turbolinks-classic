@@ -80,3 +80,9 @@ Installation
 1. Run `bundle install`.
 1. Add `//= require turbolinks` to your Javascript manifest file (usually found at `app/assets/javascripts/application.js`).
 1. Restart your server and you're now using turbolinks!
+
+
+Credits
+-------
+
+Thanks to Chris Wanstrath for his original work on Pjax. Thanks to Sam Stephenson and Josh Peek for their additional work on Pjax and Stacker and their help with getting Turbolinks released. Thanks to David Estes for handling the lion's share of post-release issues and feature requests. And thanks to everyone else who's fixed or reported an issue!
