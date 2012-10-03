@@ -20,7 +20,7 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
   xhr.onload  = ->
     doc   = createDocument xhr.responseText
-    unless assetsChanged extractAssetsFrom doc
+    unless assetsChanged doc
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl xhr
       resetScrollPosition()
@@ -101,7 +101,8 @@ extractAssetsFrom = (doc) ->
     headAssets.push link.href if link.href
   headAssets
 
-assetsChanged = (headAssets)->
+assetsChanged = (doc)->
+  headAssets = extractAssetsFrom doc
   if assets.length == headAssets.length
     for asset, index in assets
       unless asset == headAssets[index]
