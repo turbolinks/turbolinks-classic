@@ -97,7 +97,7 @@ rememberInitialPage = ->
     rememberCurrentUrl()
     rememberCurrentState()
     rememberCurrentAssets()
-    createDocument = generateBrowserCompatibleDocumentParser()
+    createDocument = browserCompatibleDocumentParser()
     initialized = true
 
 recallScrollPosition = (page) ->
@@ -129,7 +129,7 @@ extractTitleAndBody = (doc) ->
 
 createDocument = null
 
-generateBrowserCompatibleDocumentParser = ->
+browserCompatibleDocumentParser = ->
   createDocumentUsingParser = (html) ->
     (new DOMParser).parseFromString html, 'text/html'
 
