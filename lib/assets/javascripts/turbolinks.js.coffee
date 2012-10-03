@@ -41,7 +41,7 @@ fetchHistory = (state) ->
   cacheCurrentPage()
 
   if page = pageCache[state.position]
-    changePage page.title, page.body.cloneNode(true)
+    changePage page.title, page.body
     recallScrollPosition page
     triggerEvent 'page:restore'
   else
