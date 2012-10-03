@@ -104,8 +104,8 @@ extractAssetsFrom = (doc) ->
 assetsChanged = (doc)->
   headAssets = extractAssetsFrom doc
   if assets.length == headAssets.length
-    for asset, index in assets
-      unless asset == headAssets[index]
+    for asset in assets
+      unless asset in headAssets
         document.location.reload()
         return true
   false
