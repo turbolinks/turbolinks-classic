@@ -1,9 +1,9 @@
-initialized  = false
-currentState = null
-referer      = document.location.href
-assets       = []
-pageCache    = []
-
+initialized    = false
+currentState   = null
+referer        = document.location.href
+assets         = []
+pageCache      = []
+createDocument = null
 
 visit = (url) ->
   if browserSupportsPushState
@@ -91,12 +91,13 @@ rememberCurrentState = ->
 
 rememberCurrentAssets = ->
   assets = extractAssets document
-  
+
 rememberInitialPage = ->
   unless initialized
     rememberCurrentUrl()
     rememberCurrentState()
     rememberCurrentAssets()
+    createDocument = browserCompatibleDocumentParser()
     initialized = true
 
 recallScrollPosition = (page) ->
@@ -126,7 +127,7 @@ extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
   [ title?.textContent, doc.body ]
 
-createDocument = (html) ->
+browserCompatibleDocumentParser = ->
   createDocumentUsingParser = (html) ->
     (new DOMParser).parseFromString html, 'text/html'
 
@@ -141,9 +142,9 @@ createDocument = (html) ->
     testDoc = createDocumentUsingParser '<html><body><p>test'
 
   if testDoc?.body?.childNodes.length is 1
-    createDocumentUsingParser html
+    createDocumentUsingParser
   else
-    createDocumentUsingWrite html
+    createDocumentUsingWrite
 
 
 installClickHandlerLast = (event) ->
