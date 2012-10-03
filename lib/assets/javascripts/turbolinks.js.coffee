@@ -2,7 +2,7 @@ pageCache    = []
 currentState = null
 initialized  = false
 referer      = document.location.href
-
+assets       = []
 
 visit = (url) ->
   if browserSupportsPushState
@@ -12,7 +12,6 @@ visit = (url) ->
   else
     document.location.href = url
 
-
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
   xhr = new XMLHttpRequest
@@ -20,9 +19,11 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
   xhr.onload  = ->
-    changePage extractTitleAndBody(xhr.responseText)...
-    reflectRedirectedUrl xhr
-    triggerEvent 'page:load'
+    doc   = createDocument xhr.responseText
+    unless assetsChanged extractAssetsFrom doc
+      changePage extractTitleAndBody(doc)...
+      reflectRedirectedUrl xhr
+      triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
 
@@ -80,6 +81,7 @@ rememberCurrentState = ->
 
 rememberInitialPage = ->
   unless initialized
+    assets = extractAssetsFrom document
     rememberCurrentUrl()
     rememberCurrentState()
     initialized = true
@@ -87,6 +89,21 @@ rememberInitialPage = ->
 recallScrollPosition = (page) ->
   window.scrollTo page.positionX, page.positionY
 
+extractAssetsFrom = (doc) ->
+  headAssets = []
+  for script in document.head.getElementsByTagName 'script'
+    headAssets.push script.src if script.src
+  for link in document.head.getElementsByTagName 'link'
+    headAssets.push link.href if link.href
+  headAssets
+
+assetsChanged = (headAssets)->
+  if assets.length == headAssets.length
+    for asset, index in assets
+      unless asset == headAssets[index]
+        document.location.reload()
+        return true
+  false
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
@@ -94,8 +111,7 @@ triggerEvent = (name) ->
   document.dispatchEvent event
 
 
-extractTitleAndBody = (html) ->
-  doc   = createDocument html
+extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
   [ title?.textContent, doc.body ]
 
