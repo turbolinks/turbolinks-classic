@@ -71,7 +71,7 @@ changePage = (title, body) ->
   triggerEvent 'page:change'
 
 executeScriptTags = ->
-  eval(script.innerHTML) for script in document.body.getElementsByTagName 'script'
+  eval(script.innerHTML) for script in document.body.getElementsByTagName 'script' when script.type in ['','text/javascript']
 
 
 reflectNewUrl = (url) ->
