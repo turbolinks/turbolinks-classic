@@ -187,18 +187,17 @@ nonStandardClick = (event) ->
   event.which > 1 or event.metaKey or event.ctrlKey or event.shiftKey or event.altKey
 
 ignoreClick = (event, link) ->
-  crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or
-  noTurbolink(link)     or nonStandardClick(event)
+  crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or nonStandardClick(event)
 
 
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
 if browserSupportsPushState
+  document.addEventListener 'click', installClickHandlerLast, true
+
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
-
-  document.addEventListener 'click', installClickHandlerLast, true
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = { visit }
