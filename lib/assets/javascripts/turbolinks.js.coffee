@@ -1,8 +1,9 @@
-pageCache    = []
-currentState = null
 initialized  = false
+currentState = null
 referer      = document.location.href
 assets       = []
+pageCache    = []
+
 
 visit = (url) ->
   if browserSupportsPushState
@@ -12,20 +13,28 @@ visit = (url) ->
   else
     document.location.href = url
 
+
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
+
   xhr = new XMLHttpRequest
   xhr.open 'GET', url, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
-  xhr.onload  = ->
-    doc   = createDocument xhr.responseText
-    unless assetsChanged doc
+
+  xhr.onload = =>
+    doc = createDocument xhr.responseText
+
+    if assetsChanged doc
+      document.location.href = url
+    else
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl xhr
       resetScrollPosition()
       triggerEvent 'page:load'
+
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
+
   xhr.send()
 
 fetchHistory = (state) ->
@@ -80,11 +89,14 @@ rememberCurrentUrl = ->
 rememberCurrentState = ->
   currentState = window.history.state
 
+rememberCurrentAssets = ->
+  assets = extractAssets document
+  
 rememberInitialPage = ->
   unless initialized
-    assets = extractAssetsFrom document
     rememberCurrentUrl()
     rememberCurrentState()
+    rememberCurrentAssets()
     initialized = true
 
 recallScrollPosition = (page) ->
@@ -93,20 +105,22 @@ recallScrollPosition = (page) ->
 resetScrollPosition = ->
   window.scrollTo 0, 0
 
-extractAssetsFrom = (doc) ->
-  (node.src || node.href) for node in document.head.childNodes when node.src or node.href
-
-assetsChanged = (doc)->
-  intersection(extractAssetsFrom(doc), assets).length != assets.length
-
-intersection = (a, b) ->
-  [a, b] = [b, a] if a.length > b.length
-  value for value in a when value in b
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
   event.initEvent name, true, true
   document.dispatchEvent event
+
+
+extractAssets = (doc) ->
+  (node.src || node.href) for node in doc.head.childNodes when node.src or node.href
+
+assetsChanged = (doc)->
+  intersection(extractAssets(doc), assets).length != assets.length
+
+intersection = (a, b) ->
+  [a, b] = [b, a] if a.length > b.length
+  value for value in a when value in b
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
