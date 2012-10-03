@@ -94,27 +94,19 @@ resetScrollPosition = ->
   window.scrollTo 0, 0
 
 extractAssetsFrom = (doc) ->
-  headAssets = []
-  for script in document.head.getElementsByTagName 'script'
-    headAssets.push script.src if script.src
-  for link in document.head.getElementsByTagName 'link'
-    headAssets.push link.href if link.href
-  headAssets
+  (node.src || node.href) for node in document.head.childNodes when node.src or node.href
 
 assetsChanged = (doc)->
-  headAssets = extractAssetsFrom doc
-  if assets.length == headAssets.length
-    for asset in assets
-      unless asset in headAssets
-        document.location.reload()
-        return true
-  false
+  intersection(extractAssetsFrom(doc), assets).length != assets.length
+
+intersection = (a, b) ->
+  [a, b] = [b, a] if a.length > b.length
+  value for value in a when value in b
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
   event.initEvent name, true, true
   document.dispatchEvent event
-
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
@@ -149,7 +141,6 @@ handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
     if link.nodeName is 'A' and !ignoreClick(event, link)
-      link = extractLink event
       visit link.href
       event.preventDefault()
 
