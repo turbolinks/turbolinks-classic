@@ -23,6 +23,7 @@ fetchReplacement = (url) ->
     unless assetsChanged extractAssetsFrom doc
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl xhr
+      resetScrollPosition()
       triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
@@ -88,6 +89,9 @@ rememberInitialPage = ->
 
 recallScrollPosition = (page) ->
   window.scrollTo page.positionX, page.positionY
+
+resetScrollPosition = ->
+  window.scrollTo 0, 0
 
 extractAssetsFrom = (doc) ->
   headAssets = []
