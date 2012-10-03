@@ -2,7 +2,7 @@ pageCache    = []
 currentState = null
 initialized  = false
 referer      = document.location.href
-
+assets       = []
 
 visit = (url) ->
   if browserSupportsPushState
@@ -12,7 +12,6 @@ visit = (url) ->
   else
     document.location.href = url
 
-
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
   xhr = new XMLHttpRequest
@@ -20,9 +19,12 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
   xhr.onload  = ->
-    changePage extractTitleAndBody(xhr.responseText)...
-    reflectRedirectedUrl xhr
-    triggerEvent 'page:load'
+    doc   = createDocument xhr.responseText
+    unless assetsChanged doc
+      changePage extractTitleAndBody(doc)...
+      reflectRedirectedUrl xhr
+      resetScrollPosition()
+      triggerEvent 'page:load'
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
   xhr.send()
 
@@ -80,6 +82,7 @@ rememberCurrentState = ->
 
 rememberInitialPage = ->
   unless initialized
+    assets = extractAssetsFrom document
     rememberCurrentUrl()
     rememberCurrentState()
     initialized = true
@@ -87,15 +90,25 @@ rememberInitialPage = ->
 recallScrollPosition = (page) ->
   window.scrollTo page.positionX, page.positionY
 
+resetScrollPosition = ->
+  window.scrollTo 0, 0
+
+extractAssetsFrom = (doc) ->
+  (node.src || node.href) for node in document.head.childNodes when node.src or node.href
+
+assetsChanged = (doc)->
+  intersection(extractAssetsFrom(doc), assets).length != assets.length
+
+intersection = (a, b) ->
+  [a, b] = [b, a] if a.length > b.length
+  value for value in a when value in b
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
   event.initEvent name, true, true
   document.dispatchEvent event
 
-
-extractTitleAndBody = (html) ->
-  doc   = createDocument html
+extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
   [ title?.textContent, doc.body ]
 
@@ -128,7 +141,6 @@ handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
     if link.nodeName is 'A' and !ignoreClick(event, link)
-      link = extractLink event
       visit link.href
       event.preventDefault()
 
