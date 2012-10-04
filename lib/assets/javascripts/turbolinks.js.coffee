@@ -96,7 +96,6 @@ rememberInitialPage = ->
   unless initialized
     rememberCurrentUrl()
     rememberCurrentState()
-    rememberCurrentAssets()
     createDocument = browserCompatibleDocumentParser()
     initialized = true
 
@@ -195,6 +194,7 @@ browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
 if browserSupportsPushState
+  rememberCurrentAssets()
   document.addEventListener 'click', installClickHandlerLast, true
 
   window.addEventListener 'popstate', (event) ->
