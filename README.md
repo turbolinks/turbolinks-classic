@@ -37,6 +37,21 @@ Since pages will change without a full reload with Turbolinks, you can't by defa
 So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:change` to stop it. If you have DOM transformation that are not idempotent (the best way), you can hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
 
+Initialization
+--------------
+
+Turbolinks will be enabled **only** if the server has rendered a `GET` request.
+
+Some examples, given a standard RESTful resource:
+
+* `POST :create` => resource successfully created => redirect to `GET :show`
+  * Turbolinks **ENABLED**
+* `POST :create` => resource creation failed => render `:new`
+  * Turbolinks **DISABLED**
+
+**Why not all request types?** Some browsers track the request method of each page load, but triggering pushState methods don't change this value.  This could lead to the situation where pressing the browser's reload button on a page that was fetched with Turbolinks would attempt a `POST` (or something other than `GET`) because the last full page load used that method.
+
+
 Opting out of Turbolinks
 ------------------------
 
