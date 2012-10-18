@@ -63,10 +63,10 @@ cacheCurrentPage = ->
 constrainPageCacheTo = (limit) ->
   delete pageCache[currentState.position - limit]
 
-changePage = (title, body) ->
+changePage = (title, body, runScripts) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
-  executeScriptTags()
+  executeScriptTags() if runScripts
   currentState = window.history.state
   triggerEvent 'page:change'
 
@@ -124,7 +124,7 @@ intersection = (a, b) ->
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
-  [ title?.textContent, doc.body ]
+  [ title?.textContent, doc.body, 'runScripts' ]
 
 browserCompatibleDocumentParser = ->
   createDocumentUsingParser = (html) ->
