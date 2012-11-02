@@ -172,7 +172,7 @@ handleClick = (event) ->
 
 extractLink = (event) ->
   link = event.target
-  link = link.parentNode until link is document or !link or link.nodeName is 'A'
+  link = link.parentNode until !link.parentNode or link.nodeName is 'A'
   link
 
 crossOriginLink = (link) ->
