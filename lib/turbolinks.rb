@@ -24,7 +24,7 @@ module Turbolinks
     initializer :turbolinks_xhr_headers do |config|
       ActionController::Base.class_eval do
         include XHRHeaders
-        after_filter :set_xhr_current_location
+        before_filter :set_xhr_current_location
       end
     end
   end
