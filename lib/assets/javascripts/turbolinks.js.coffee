@@ -134,7 +134,7 @@ browserCompatibleDocumentParser = ->
     doc = document.implementation.createHTMLDocument ''
     doc.open 'replace'
     doc.write html
-    doc.close
+    doc.close()
     doc
 
   if window.DOMParser
