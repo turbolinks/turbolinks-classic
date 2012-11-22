@@ -84,7 +84,7 @@ reflectRedirectedUrl = (xhr) ->
     window.history.replaceState currentState, '', location
 
 rememberCurrentUrl = ->
-  window.history.replaceState { turbolinks: true, position: window.history.length - 1 }, '', document.location.href
+  window.history.replaceState { turbolinks: true, position: Date.now() }, '', document.location.href
 
 rememberCurrentState = ->
   currentState = window.history.state
