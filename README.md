@@ -54,6 +54,8 @@ Turbolinks will remember what assets were linked or referenced in the head of th
 
 When this happens, you'll technically be requesting the same page twice. Once through Turbolinks to detect that the assets changed, and then again when we do a full redirect to that page.
 
+A common case where this could happen is when a Javascript snippet (like the one from [Google Analytics](https://developers.google.com/analytics/devguides/collection/gajs/)) adds a script tag to the head dynamically. Make sure to load Turbolinks __before__ such snippets. Turbolinks will then only remember the assets which are present when it's loaded and ignore scripts which are added later.
+
 
 Evaluating script tags
 ----------------------
