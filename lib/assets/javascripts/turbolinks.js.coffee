@@ -165,9 +165,6 @@ extractLink = (event) ->
   link = link.parentNode until link is document or link.nodeName is 'A'
   link
 
-samePageLink = (link) ->
-  link.href is document.location.href
-
 crossOriginLink = (link) ->
   location.protocol isnt link.protocol or location.host isnt link.host
 
