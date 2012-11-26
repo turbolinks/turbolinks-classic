@@ -72,7 +72,16 @@ changePage = (title, body, runScripts) ->
   triggerEvent 'page:change'
 
 executeScriptTags = ->
-  eval(script.innerHTML) for script in document.body.getElementsByTagName 'script' when script.type in ['', 'text/javascript']
+  for script in document.body.getElementsByTagName 'script' when script.type in ['', 'text/javascript']
+    if script.src? and not script.getAttribute('data-turbolinks-evaluated')?
+      copy = document.createElement 'script'
+      copy.setAttribute attr.name, attr.value for attr in script.attributes
+      copy.setAttribute 'data-turbolinks-evaluated', ''
+      parent = script.parentNode
+      parent.removeChild script
+      parent.insertBefore copy, parent.childNodes[0]
+    else
+      eval(script.innerHTML)
 
 
 reflectNewUrl = (url) ->
