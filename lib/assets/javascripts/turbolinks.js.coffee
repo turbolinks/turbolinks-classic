@@ -26,7 +26,7 @@ fetchReplacement = (url) ->
     doc = createDocument xhr.responseText
 
     if assetsChanged doc
-      document.location.href = url
+      document.location.reload()
     else
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl xhr
