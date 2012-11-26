@@ -2,7 +2,7 @@ initialized    = false
 currentState   = null
 referer        = document.location.href
 assets         = []
-pageCache      = []
+pageCache      = {}
 createDocument = null
 
 visit = (url) ->
@@ -61,7 +61,8 @@ cacheCurrentPage = ->
   constrainPageCacheTo(10)
 
 constrainPageCacheTo = (limit) ->
-  delete pageCache[currentState.position - limit]
+  for own key, value of pageCache
+    pageCache[key] = null if key <= currentState.position - limit
 
 changePage = (title, body) ->
   document.title = title
