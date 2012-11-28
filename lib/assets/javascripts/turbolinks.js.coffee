@@ -165,7 +165,7 @@ installClickHandlerLast = (event) ->
 handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
-    if link?.nodeName is 'A' and !ignoreClick(event, link)
+    if link.nodeName is 'A' and !ignoreClick(event, link)
       visit link.href
       event.preventDefault()
 
