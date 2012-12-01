@@ -90,8 +90,8 @@ reflectNewUrl = (url) ->
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 reflectRedirectedUrl = (xhr) ->
-  if (location = xhr.getResponseHeader('X-XHR-Current-Location'))
-    window.history.replaceState currentState, '', location
+  unless (location = xhr.getResponseHeader 'X-XHR-Current-Location') is document.location.pathname + document.location.search
+    window.history.replaceState currentState, '', location + document.location.hash
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: Date.now() }, '', document.location.href
