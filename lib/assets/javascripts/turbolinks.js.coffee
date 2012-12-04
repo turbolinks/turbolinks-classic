@@ -1,7 +1,7 @@
 initialized    = false
 currentState   = null
 referer        = document.location.href
-trackingAssets = []
+loadedAssets   = null
 pageCache      = {}
 createDocument = null
 
@@ -99,9 +99,6 @@ rememberCurrentUrl = ->
 rememberCurrentState = ->
   currentState = window.history.state
 
-rememberCurrentTrackingAssets = ->
-  trackingAssets = extractTrackAssets document
-
 rememberInitialPage = ->
   unless initialized
     rememberCurrentUrl()
@@ -121,13 +118,14 @@ triggerEvent = (name) ->
   event.initEvent name, true, true
   document.dispatchEvent event
 
+
 extractTrackAssets = (doc) ->
   (node.src || node.href) for node in doc.head.childNodes when node.getAttribute?('data-turbolinks-track')?
 
-
-assetsChanged = (doc)->
-  extractedTrackAssets = extractTrackAssets doc
-  extractedTrackAssets.length isnt trackingAssets.length or intersection(extractedTrackAssets, trackingAssets).length != trackingAssets.length
+assetsChanged = (doc) ->
+  loadedAssets ||= extractTrackAssets document
+  fetchedAssets  = extractTrackAssets doc
+  fetchedAssets.length isnt loadedAssets.length or intersection(fetchedAssets, loadedAssets).length isnt loadedAssets.length
 
 intersection = (a, b) ->
   [a, b] = [b, a] if a.length > b.length
@@ -205,7 +203,6 @@ browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
 if browserSupportsPushState
-  rememberCurrentTrackingAssets()
   document.addEventListener 'click', installClickHandlerLast, true
 
   window.addEventListener 'popstate', (event) ->
