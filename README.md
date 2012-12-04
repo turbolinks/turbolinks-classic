@@ -50,11 +50,13 @@ Also, Turbolinks is installed as the last click handler for links. So if you ins
 Asset change detection
 ----------------------
 
-Turbolinks will remember what assets were linked or referenced in the head of the initial page. If those assets change, either more or added or existing ones have a new URL, the page will do a full reload instead of going through Turbolinks. This ensures that all Turbolinks sessions will always be running off your latest JavaScript and CSS.
+You can track certain assets, like application.js and application.css, that you want to ensure are always of the latest version inside a Turbolinks session. This is done by marking those asset links with data-turbolinks-track, like so:
+
+  <link href="/assets/application.css?9bd64a86adb3cd9ab3b16e9dca67a33a.css" media="screen" rel="stylesheet" type="text/css" data-turbolinks-track>
+
+If those assets change URLs (embed an md5 stamp to ensure this), the page will do a full reload instead of going through Turbolinks. This ensures that all Turbolinks sessions will always be running off your latest JavaScript and CSS.
 
 When this happens, you'll technically be requesting the same page twice. Once through Turbolinks to detect that the assets changed, and then again when we do a full redirect to that page.
-
-A common case where this could happen is when a Javascript snippet (like the one from [Google Analytics](https://developers.google.com/analytics/devguides/collection/gajs/)) adds a script tag to the head dynamically. Make sure to load Turbolinks __before__ such snippets. Turbolinks will then only remember the assets which are present when it's loaded and ignore scripts which are added later.
 
 
 Evaluating script tags
