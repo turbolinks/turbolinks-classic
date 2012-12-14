@@ -17,8 +17,11 @@ visit = (url) ->
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
 
+  # Remove hash from url to ensure IE 10 compatibility 
+  safeUrl = removeHash url
+  
   xhr = new XMLHttpRequest
-  xhr.open 'GET', removeHash(url), true
+  xhr.open 'GET', safeUrl, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
