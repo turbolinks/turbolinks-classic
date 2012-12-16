@@ -30,7 +30,10 @@ fetchReplacement = (url) ->
     else
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl xhr
-      resetScrollPosition()
+      if document.location.hash
+        document.location.href = document.location.href
+      else
+        resetScrollPosition()
       triggerEvent 'page:load'
 
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
