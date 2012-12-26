@@ -17,8 +17,11 @@ visit = (url) ->
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
 
+  # Remove hash from url to ensure IE 10 compatibility 
+  safeUrl = removeHash url
+  
   xhr = new XMLHttpRequest
-  xhr.open 'GET', url, true
+  xhr.open 'GET', safeUrl, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
@@ -112,6 +115,13 @@ recallScrollPosition = (page) ->
 resetScrollPosition = ->
   window.scrollTo 0, 0
 
+removeHash = (url) ->
+  link = url
+  unless url.href?
+    link = document.createElement 'A'
+    link.href = url
+  link.href.replace link.hash, ''
+
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
@@ -177,7 +187,7 @@ crossOriginLink = (link) ->
   location.protocol isnt link.protocol or location.host isnt link.host
 
 anchoredLink = (link) ->
-  ((link.hash and link.href.replace(link.hash, '')) is location.href.replace(location.hash, '')) or
+  ((link.hash and removeHash(link)) is removeHash(location)) or
     (link.href is location.href + '#')
 
 nonHtmlLink = (link) ->
