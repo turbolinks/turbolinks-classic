@@ -17,9 +17,9 @@ visit = (url) ->
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch'
 
-  # Remove hash from url to ensure IE 10 compatibility 
+  # Remove hash from url to ensure IE 10 compatibility
   safeUrl = removeHash url
-  
+
   xhr = new XMLHttpRequest
   xhr.open 'GET', safeUrl, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
@@ -40,6 +40,10 @@ fetchReplacement = (url) ->
       triggerEvent 'page:load'
 
   xhr.onabort = -> console.log 'Aborted turbolink fetch!'
+
+  xhr.onerror = ->
+    console.log 'turbolink fetch Failed!'
+    document.location.href = url
 
   xhr.send()
 
