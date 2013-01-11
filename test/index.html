@@ -20,9 +20,13 @@
     <li><a href="/dummy.gif?12345">Query Param Image Link</a></li>
     <li><a href="#">Hash link</a></li>
     <li><a href="/reload.html#foo">New assets track with hash link</a></li>
+    <li><h5>If you stop the server or go into airplane/offline mode</h5></li>
+    <li><a href="/doesnotexist.html">A page that errors should error out</a></li>
+    <li><a href="/fallback.html">A page that has a fallback in appcache should fallback</a></li>
   </ul>
 
   <div style="background:#ccc;height:5000px;width:200px;">
   </div>
+  <iframe height='1' scrolling='no' src='/offline.html' style='display: none;' width='1'></iframe>
 </body>
 </html>
