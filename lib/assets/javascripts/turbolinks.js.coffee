@@ -4,6 +4,7 @@ referer        = document.location.href
 loadedAssets   = null
 pageCache      = {}
 createDocument = null
+requestMethod  = document.cookie.match(/request_method=(\w+)/)?[1].toUpperCase() or ''
 xhr            = null
 
 visit = (url) ->
@@ -215,14 +216,18 @@ ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or targetLink(link) or nonStandardClick(event)
 
 
+initializeTurbolinks = ->
+  document.addEventListener 'click', installClickHandlerLast, true
+  window.addEventListener 'popstate', (event) ->
+    fetchHistory event.state if event.state?.turbolinks
+
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
-if browserSupportsPushState
-  document.addEventListener 'click', installClickHandlerLast, true
+requestMethodIsSafe = 
+  requestMethod in ['GET','']
 
-  window.addEventListener 'popstate', (event) ->
-    fetchHistory event.state if event.state?.turbolinks
+initializeTurbolinks() if browserSupportsPushState and requestMethodIsSafe
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = { visit }

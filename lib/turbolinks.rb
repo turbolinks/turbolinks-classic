@@ -20,11 +20,18 @@ module Turbolinks
       end
   end
 
+  module Cookies
+    private
+      def set_request_method_cookie
+        cookies[:request_method] = request.request_method
+      end
+  end
+  
   class Engine < ::Rails::Engine
     initializer :turbolinks_xhr_headers do |config|
       ActionController::Base.class_eval do
-        include XHRHeaders
-        before_filter :set_xhr_current_location
+        include XHRHeaders, Cookies
+        before_filter :set_xhr_current_location, :set_request_method_cookie
       end
     end
   end
