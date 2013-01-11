@@ -224,10 +224,13 @@ initializeTurbolinks = ->
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
 
-requestMethodIsSafe = 
+browserIsntBuggy =
+  !navigator.userAgent.match /CriOS\//
+
+requestMethodIsSafe =
   requestMethod in ['GET','']
 
-initializeTurbolinks() if browserSupportsPushState and requestMethodIsSafe
+initializeTurbolinks() if browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
 
 # Call Turbolinks.visit(url) from client code
 @Turbolinks = { visit }
