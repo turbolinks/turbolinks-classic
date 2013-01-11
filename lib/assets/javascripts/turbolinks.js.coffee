@@ -4,6 +4,7 @@ referer        = document.location.href
 loadedAssets   = null
 pageCache      = {}
 createDocument = null
+xhr            = null
 
 visit = (url) ->
   if browserSupportsPushState
@@ -20,11 +21,13 @@ fetchReplacement = (url) ->
   # Remove hash from url to ensure IE 10 compatibility
   safeUrl = removeHash url
 
+  xhr.abort() if xhr
   xhr = new XMLHttpRequest
   xhr.open 'GET', safeUrl, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
-
+  xhr.onabort = ->
+    xhr = null
   xhr.onload = =>
     doc = createDocument xhr.responseText
 
@@ -38,12 +41,11 @@ fetchReplacement = (url) ->
       else
         resetScrollPosition()
       triggerEvent 'page:load'
-
-  xhr.onabort = -> console.log 'Aborted turbolink fetch!'
+    xhr = null
 
   xhr.onerror = ->
-    console.log 'turbolink fetch Failed!'
     document.location.href = url
+    xhr = null
 
   xhr.send()
 
