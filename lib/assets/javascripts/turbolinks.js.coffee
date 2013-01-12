@@ -22,13 +22,12 @@ fetchReplacement = (url) ->
   # Remove hash from url to ensure IE 10 compatibility
   safeUrl = removeHash url
 
-  xhr.abort() if xhr
+  xhr?.abort()
   xhr = new XMLHttpRequest
   xhr.open 'GET', safeUrl, true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
-  xhr.onabort = ->
-    xhr = null
+
   xhr.onload = =>
     doc = createDocument xhr.responseText
 
@@ -42,11 +41,10 @@ fetchReplacement = (url) ->
       else
         resetScrollPosition()
       triggerEvent 'page:load'
-    xhr = null
 
-  xhr.onerror = ->
-    document.location.href = url
-    xhr = null
+  xhr.onloadend = -> xhr = null
+  xhr.onabort   = -> rememberCurrentUrl()
+  xhr.onerror   = -> document.location.href = url
 
   xhr.send()
 
@@ -54,6 +52,7 @@ fetchHistory = (state) ->
   cacheCurrentPage()
 
   if page = pageCache[state.position]
+    xhr?.abort()
     changePage page.title, page.body
     recallScrollPosition page
     triggerEvent 'page:restore'
