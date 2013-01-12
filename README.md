@@ -62,6 +62,19 @@ Note that internal links to files not ending in .html, or having no extension, w
 Also, Turbolinks is installed as the last click handler for links. So if you install another handler that calls event.preventDefault(), Turbolinks will not run. This ensures that you can safely use Turbolinks with stuff like `data-method`, `data-remote`, or `data-confirm` from Rails.
 
 
+jquery.turbolinks
+-----------------
+
+If you have a lot of existing JavaScript that binds elements on jQuery.ready(), you can pull the [jquery.turbolinks](https://github.com/kossnocorp/jquery.turbolinks) library into your project that will trigger ready() when Turbolinks triggers the the `page:load` event. It may restore functionality of some libraries.
+
+Add the gem to your project, then add the following line to your JavaScript manifest file, after `jquery.js` but before `turbolinks.js`:
+
+``` js
+//= require jquery.turbolinks
+```
+
+Additional details and configuration options can be found in the [jquery.turbolinks README](https://github.com/kossnocorp/jquery.turbolinks/blob/master/README.md).
+
 Asset change detection
 ----------------------
 
