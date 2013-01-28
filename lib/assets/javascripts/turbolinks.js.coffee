@@ -155,6 +155,11 @@ browserCompatibleDocumentParser = ->
   createDocumentUsingParser = (html) ->
     (new DOMParser).parseFromString html, 'text/html'
 
+  createDocumentUsingDOM = (html) ->
+    doc = document.implementation.createHTMLDocument ''
+    doc.documentElement.innerHTML = html
+    doc
+
   createDocumentUsingWrite = (html) ->
     doc = document.implementation.createHTMLDocument ''
     doc.open 'replace'
@@ -162,13 +167,16 @@ browserCompatibleDocumentParser = ->
     doc.close()
     doc
 
-  if window.DOMParser
-    testDoc = createDocumentUsingParser '<html><body><p>test'
-
-  if testDoc?.body?.childNodes.length is 1
-    createDocumentUsingParser
-  else
-    createDocumentUsingWrite
+  try
+    if window.DOMParser
+      testDoc = createDocumentUsingParser '<html><body><p>test'
+      createDocumentUsingParser
+  catch e
+    testDoc = createDocumentUsingDOM '<html><body><p>test'
+    createDocumentUsingDOM
+  finally
+    unless testDoc?.body?.childNodes.length is 1
+      return createDocumentUsingWrite
 
 
 installClickHandlerLast = (event) ->
