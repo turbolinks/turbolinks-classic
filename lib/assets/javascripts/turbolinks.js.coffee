@@ -167,6 +167,16 @@ browserCompatibleDocumentParser = ->
     doc.close()
     doc
 
+  # Use createDocumentUsingParser if DOMParser is defined and natively 
+  # supports 'text/html' parsing (Firefox 12+, IE 10)
+  #
+  # Use createDocumentUsingDOM if createDocumentUsingParser throws an exception
+  # due to unsupported type 'text/html' (Firefox < 12, Opera)  
+  #
+  # Use createDocumentUsingWrite if:
+  #  - DOMParser isn't defined
+  #  - createDocumentUsingParser returns null due to unsupported type 'text/html' (Chrome, Safari)
+  #  - createDocumentUsingDOM doesn't create a valid HTML document (safeguarding against potential edge cases)
   try
     if window.DOMParser
       testDoc = createDocumentUsingParser '<html><body><p>test'
