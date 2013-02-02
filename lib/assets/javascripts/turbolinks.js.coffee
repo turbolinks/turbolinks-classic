@@ -79,6 +79,7 @@ constrainPageCacheTo = (limit) ->
 changePage = (title, body, runScripts) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
+  removeNoscriptTags()
   executeScriptTags() if runScripts
   currentState = window.history.state
   triggerEvent 'page:change'
@@ -92,6 +93,8 @@ executeScriptTags = ->
     parentNode.removeChild script
     parentNode.insertBefore copy, nextSibling
 
+removeNoscriptTags = ->
+  noscript.parentNode.removeChild noscript for noscript in document.body.getElementsByTagName 'noscript'
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
