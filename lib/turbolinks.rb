@@ -33,6 +33,13 @@ module Turbolinks
         include XHRHeaders, Cookies
         before_filter :set_xhr_current_location, :set_request_method_cookie
       end
+      
+      ActionDispatch::Request.class_eval do
+        def referer
+          self.headers['X-XHR-Referer'] || super
+        end
+        alias referrer referer
+      end
     end
   end
 end
