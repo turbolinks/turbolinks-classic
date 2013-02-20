@@ -94,7 +94,8 @@ executeScriptTags = ->
     parentNode.insertBefore copy, nextSibling
 
 removeNoscriptTags = ->
-  noscript.parentNode.removeChild noscript for noscript in document.body.getElementsByTagName 'noscript'
+  noscriptTags = Array::slice.call document.body.getElementsByTagName 'noscript'
+  noscript.parentNode.removeChild noscript for noscript in noscriptTags
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
