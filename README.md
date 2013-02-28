@@ -13,7 +13,7 @@ How much faster is it really?
 
 It depends. The more CSS and JavaScript you have, the bigger the benefit of not throwing away the browser instance and recompiling all of it for every page. Just like a CGI script that says "hello world" will be fast, but a CGI script loading Rails on every request will not.
 
-In any case, the benefit ranges from [twice as fast](https://github.com/steveklabnik/turbolinks_test) on apps with little JS/CSS, to [three times as fast](https://github.com/steveklabnik/turbolinks_test/tree/all_the_assets) in apps with lots of it. Of course, your mileage may vary, be dependent on your browser version, the moon cycle, and all other factors affecting performance testing. But at least it's a yardstick.
+In any case, the benefit can be up to [twice as fast](https://github.com/steveklabnik/turbolinks_test/tree/all_the_assets) in apps with lots of JS and CSS. Of course, your mileage may vary, be dependent on your browser version, the moon cycle, and all other factors affecting performance testing. But at least it's a yardstick.
 
 The best way to find out just how fast it is? Try it on your own application. It hardly takes any effort at all.
 
