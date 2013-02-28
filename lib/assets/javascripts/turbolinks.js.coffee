@@ -85,7 +85,8 @@ changePage = (title, body, runScripts) ->
   triggerEvent 'page:change'
 
 executeScriptTags = ->
-  for script in document.body.getElementsByTagName 'script' when script.type in ['', 'text/javascript']
+  scripts = Array::slice.call document.body.getElementsByTagName 'script'
+  for script in scripts when script.type in ['', 'text/javascript']
     copy = document.createElement 'script'
     copy.setAttribute attr.name, attr.value for attr in script.attributes
     copy.appendChild document.createTextNode script.innerHTML
