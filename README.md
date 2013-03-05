@@ -92,6 +92,7 @@ Evaluating script tags
 
 Turbolinks will evaluate any script tags in pages it visit, if those tags do not have a type or if the type is text/javascript. All other script tags will be ignored.
 
+As a rule of thumb when switching to Turbolinks, move all of your javascript tags inside the `head` and then work backwards, only moving javascript code back to the body if absolutely necessary.
 
 Triggering a Turbolinks visit manually
 ---------------------------------------
