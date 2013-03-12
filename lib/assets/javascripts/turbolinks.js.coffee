@@ -172,11 +172,11 @@ browserCompatibleDocumentParser = ->
     doc.close()
     doc
 
-  # Use createDocumentUsingParser if DOMParser is defined and natively 
+  # Use createDocumentUsingParser if DOMParser is defined and natively
   # supports 'text/html' parsing (Firefox 12+, IE 10)
   #
   # Use createDocumentUsingDOM if createDocumentUsingParser throws an exception
-  # due to unsupported type 'text/html' (Firefox < 12, Opera)  
+  # due to unsupported type 'text/html' (Firefox < 12, Opera)
   #
   # Use createDocumentUsingWrite if:
   #  - DOMParser isn't defined
@@ -196,8 +196,8 @@ browserCompatibleDocumentParser = ->
 
 installClickHandlerLast = (event) ->
   unless event.defaultPrevented
-    document.removeEventListener 'click', handleClick
-    document.addEventListener 'click', handleClick
+    document.removeEventListener 'click', handleClick, false
+    document.addEventListener 'click', handleClick, false
 
 handleClick = (event) ->
   unless event.defaultPrevented
@@ -242,6 +242,7 @@ initializeTurbolinks = ->
   document.addEventListener 'click', installClickHandlerLast, true
   window.addEventListener 'popstate', (event) ->
     fetchHistory event.state if event.state?.turbolinks
+  , false
 
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
