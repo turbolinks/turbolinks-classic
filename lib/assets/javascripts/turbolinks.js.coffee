@@ -29,7 +29,7 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
   xhr.onload = =>
-    triggerEvent 'page:received'
+    triggerEvent 'page:receive'
     doc = createDocument xhr.responseText
 
     if assetsChanged doc

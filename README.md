@@ -33,6 +33,7 @@ Since pages will change without a full reload with Turbolinks, you can't by defa
 * `page:load`    fetched page is being retrieved fresh from the server.
 * `page:restore` fetched page is being retrieved from the 10-slot client-side cache.
 * `page:change`  page has changed to the newly fetched version.
+* `page:receive` page has been fetched from the server, but not yet parsed.
 
 So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:change` to stop it. If you have DOM transformation that are not idempotent (the best way), you can hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
