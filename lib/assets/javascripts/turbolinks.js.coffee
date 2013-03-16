@@ -29,9 +29,7 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
   xhr.onload = =>
-    doc = createDocument xhr.responseText
-
-    if assetsChanged doc
+    if invalidContent(xhr) or assetsChanged (doc = createDocument xhr.responseText)
       document.location.reload()
     else
       changePage extractTitleAndBody(doc)...
@@ -140,6 +138,9 @@ triggerEvent = (name) ->
   document.dispatchEvent event
 
 
+invalidContent = (xhr) ->
+  !xhr.getResponseHeader('Content-Type').match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
+
 extractTrackAssets = (doc) ->
   (node.src || node.href) for node in doc.head.childNodes when node.getAttribute?('data-turbolinks-track')?
 
@@ -220,7 +221,8 @@ anchoredLink = (link) ->
     (link.href is location.href + '#')
 
 nonHtmlLink = (link) ->
-  link.href.match(/\.[a-z]+(\?.*)?$/g) and not link.href.match(/\.html?(\?.*)?$/g)
+  url = removeHash link
+  url.match(/\.[a-z]+(\?.*)?$/g) and not url.match(/\.html?(\?.*)?$/g)
 
 noTurbolink = (link) ->
   until ignore or link is document
