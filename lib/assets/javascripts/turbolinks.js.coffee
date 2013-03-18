@@ -29,6 +29,8 @@ fetchReplacement = (url) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
   xhr.onload = =>
+    triggerEvent 'page:receive'
+    
     if invalidContent(xhr) or assetsChanged (doc = createDocument xhr.responseText)
       document.location.reload()
     else
