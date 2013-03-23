@@ -29,16 +29,16 @@ module Turbolinks
 
   module XDomainBlocker
     private
-    def is_sameorigin(a, b)
+    def same_origin?(a, b)
       a = URI.parse(a)
       b = URI.parse(b)
-      a.scheme + a.host + a.port.to_s == b.scheme + b.host + b.port.to_s
+      [a.scheme, a.host, a.port] == [b.scheme, b.host, b.port]
     end
 
     def abort_xdomain_redirect
       to_uri = response.headers['Location'] || ""
       current = request.headers['X-XHR-Referer'] || ""
-      if (!to_uri.empty? && !current.empty? && !is_sameorigin(current, to_uri))
+      unless to_uri.blank? || current.blank? || same_origin?(current, to_uri)
         self.status = 403
       end
     end
