@@ -26,12 +26,30 @@ module Turbolinks
         cookies[:request_method] = request.request_method
       end
   end
-  
+
+  module XDomainBlocker
+    private
+    def same_origin?(a, b)
+      a = URI.parse(a)
+      b = URI.parse(b)
+      [a.scheme, a.host, a.port] == [b.scheme, b.host, b.port]
+    end
+
+    def abort_xdomain_redirect
+      to_uri = response.headers['Location'] || ""
+      current = request.headers['X-XHR-Referer'] || ""
+      unless to_uri.blank? || current.blank? || same_origin?(current, to_uri)
+        self.status = 403
+      end
+    end
+  end
+
   class Engine < ::Rails::Engine
     initializer :turbolinks_xhr_headers do |config|
       ActionController::Base.class_eval do
-        include XHRHeaders, Cookies
+        include XHRHeaders, Cookies, XDomainBlocker
         before_filter :set_xhr_current_location, :set_request_method_cookie
+        after_filter :abort_xdomain_redirect
       end
       
       ActionDispatch::Request.class_eval do
