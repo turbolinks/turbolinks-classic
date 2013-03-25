@@ -8,7 +8,7 @@ requestMethod  = document.cookie.match(/request_method=(\w+)/)?[1].toUpperCase()
 xhr            = null
 
 visit = (url) ->
-  if browserSupportsPushState
+  if browserSupportsPushState && browserIsntBuggy
     cacheCurrentPage()
     reflectNewUrl url
     fetchReplacement url
