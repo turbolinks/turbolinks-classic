@@ -27,7 +27,7 @@ Turbolinks is designed to be as light-weight as possible (so you won't think twi
 Events
 ------
 
-Since pages will change without a full reload with Turbolinks, you can't by default rely on `DOMContentLoaded` to trigger your JavaScript code or jQuery.ready(). Instead, Turbolinks gives you a range of events to deal with the lifecycle of the page:
+Since pages will change without a full reload with Turbolinks, you can't by default rely on `DOMContentLoaded` to trigger your JavaScript code or jQuery.ready(). Instead, Turbolinks fires events on `document` to provide hooks into the lifecycle of the page:
 
 * `page:fetch`   starting to fetch the target page (only called if loading fresh, not from cache).
 * `page:load`    fetched page is being retrieved fresh from the server.
@@ -35,8 +35,12 @@ Since pages will change without a full reload with Turbolinks, you can't by defa
 * `page:change`  page has changed to the newly fetched version.
 * `page:receive` page has been fetched from the server, but not yet parsed.
 
-So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:change` to stop it. If you have DOM transformation that are not idempotent (the best way), you can hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
+So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
 
+    document.addEventListener("page:fetch", startSpinner);
+    document.addEventListener("page:receive", stopSpinner);
+    
+If you have DOM transformation that are not idempotent (the best way), you can hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
 Initialization
 --------------
