@@ -75,6 +75,7 @@ cacheCurrentPage = ->
 constrainPageCacheTo = (limit) ->
   for own key, value of pageCache
     pageCache[key] = null if key <= currentState.position - limit
+  return
 
 changePage = (title, body, runScripts) ->
   document.title = title
@@ -93,10 +94,12 @@ executeScriptTags = ->
     { parentNode, nextSibling } = script
     parentNode.removeChild script
     parentNode.insertBefore copy, nextSibling
+  return
 
 removeNoscriptTags = ->
   noscriptTags = Array::slice.call document.body.getElementsByTagName 'noscript'
   noscript.parentNode.removeChild noscript for noscript in noscriptTags
+  return
 
 reflectNewUrl = (url) ->
   if url isnt document.location.href
