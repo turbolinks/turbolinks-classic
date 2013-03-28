@@ -1,5 +1,10 @@
 ## Turbolinks (Unreleased) ##
 
+*   Improve performance of `constrainPageCacheTo`, `executeScriptTags`, and `removeNoscriptTags`
+    by not gathering and returning the results of the loop comprehensions.
+   
+    *Tim Ruffles*
+
 *   Change page without Turbolinks when Turbolinks.visit is called in Chrome on iOS
 
     *Frank Showalter*
