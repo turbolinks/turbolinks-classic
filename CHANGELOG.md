@@ -1,4 +1,4 @@
-## Turbolinks (Unreleased) ##
+## Turbolinks 1.1.1 (April 3, 2013) ##
 
 *   Improve performance of `constrainPageCacheTo`, `executeScriptTags`, and `removeNoscriptTags`
     by not gathering and returning the results of the loop comprehensions.
@@ -8,6 +8,11 @@
 *   Change page without Turbolinks when Turbolinks.visit is called in Chrome on iOS
 
     *Frank Showalter*
+
+*   Maintain the latest CSRF authenticity token in the `<meta name="csrf-token">` head tag, if it
+    exists.
+    
+    *Nick Reed*
     
 ## Turbolinks 1.1.0 (March 24, 2013) ##
 
