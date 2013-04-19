@@ -30,9 +30,11 @@ fetchReplacement = (url) ->
 
   xhr.onload = =>
     triggerEvent 'page:receive'
-    
-    if invalidContent(xhr) or assetsChanged (doc = createDocument xhr.responseText)
-      document.location.reload()
+
+    if xhr.status.toString().match(/^4/)
+      locationReplace(url)
+    else if invalidContent(xhr) or assetsChanged (doc = createDocument xhr.responseText)
+        document.location.reload()
     else
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl xhr
@@ -137,12 +139,19 @@ removeHash = (url) ->
     link.href = url
   link.href.replace link.hash, ''
 
+# Work for webkit
+#   https://bugs.webkit.org/show_bug.cgi?id=93506
+#
+# Retrieved from jquery.pjax
+#   https://github.com/defunkt/jquery-pjax/blob/master/jquery.pjax.js#L351-L360
+locationReplace = (url) ->
+  window.history.replaceState(null, '', '#')
+  window.location.replace(url)
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
   event.initEvent name, true, true
   document.dispatchEvent event
-
 
 invalidContent = (xhr) ->
   !xhr.getResponseHeader('Content-Type').match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
@@ -167,12 +176,12 @@ CSRFToken =
   get: (doc = document) ->
     node:   tag = doc.querySelector 'meta[name="csrf-token"]'
     token:  tag?.getAttribute? 'content'
-    
+
   update: (latest) ->
     current = @get()
     if current.token? and latest? and current.token isnt latest
       current.node.setAttribute 'content', latest
-      
+
 browserCompatibleDocumentParser = ->
   createDocumentUsingParser = (html) ->
     (new DOMParser).parseFromString html, 'text/html'
