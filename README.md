@@ -62,8 +62,6 @@ Opting out of Turbolinks
 
 By default, all internal HTML links will be funneled through Turbolinks, but you can opt out by marking links or their parent container with `data-no-turbolink`. For example, if you mark a div with `data-no-turbolink`, then all links inside of that div will be treated as regular links. If you mark the body, every link on that entire page will be treated as regular links.
 
-The marked div would look like this:
-
 ```html
 <a href="/">Home (via Turbolinks)</a>
 <div id="some-div" data-no-turbolink>
