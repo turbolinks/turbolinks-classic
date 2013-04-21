@@ -65,7 +65,9 @@ By default, all internal HTML links will be funneled through Turbolinks, but you
 The marked div would look like this:
 
 ```html
+<a href="/">Home (via Turbolinks)</a>
 <div id="some-div" data-no-turbolink>
+  <a href="/">Home (without Turbolinks)</a>
 </div>
 ```
 
