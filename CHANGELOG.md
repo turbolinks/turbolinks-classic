@@ -1,3 +1,14 @@
+## Turbolinks (master) ##
+
+*   Workaround for WebKit history state [bug](https://bugs.webkit.org/show_bug.cgi?id=93506) 
+    with regards to the handling of 4xx responses.
+    
+    *Yasuharu Ozaki*
+    
+*   Extracted `fetchReplacement()` onload response-handling logic out into `validateResponse()`.
+
+    *Nick Reed*
+
 ## Turbolinks 1.1.1 (April 3, 2013) ##
 
 *   Improve performance of `constrainPageCacheTo`, `executeScriptTags`, and `removeNoscriptTags`
