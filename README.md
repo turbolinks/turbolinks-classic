@@ -62,6 +62,13 @@ Opting out of Turbolinks
 
 By default, all internal HTML links will be funneled through Turbolinks, but you can opt out by marking links or their parent container with `data-no-turbolink`. For example, if you mark a div with `data-no-turbolink`, then all links inside of that div will be treated as regular links. If you mark the body, every link on that entire page will be treated as regular links.
 
+```html
+<a href="/">Home (via Turbolinks)</a>
+<div id="some-div" data-no-turbolink>
+  <a href="/">Home (without Turbolinks)</a>
+</div>
+```
+
 Note that internal links to files not ending in .html, or having no extension, will automatically be opted out of Turbolinks. So links to /images/panda.gif will just work as expected.
 
 Also, Turbolinks is installed as the last click handler for links. So if you install another handler that calls event.preventDefault(), Turbolinks will not run. This ensures that you can safely use Turbolinks with stuff like `data-method`, `data-remote`, or `data-confirm` from Rails.
