@@ -1,5 +1,11 @@
 ## Turbolinks (master) ##
 
+*   Add the ability to not execute scripts on turbolinks page loads by
+    specifying `data-turbolinks-eval=false` on the `<script>` tag. For example:
+    `<script type="text/javascript" data-turbolinks-eval=false>`
+
+    *Mario Visic*
+
 *   Workaround for WebKit history state [bug](https://bugs.webkit.org/show_bug.cgi?id=93506) 
     with regards to the handling of 4xx responses.
     
