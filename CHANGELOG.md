@@ -15,6 +15,10 @@
 
     *Nick Reed*
 
+*   If present, preserve trailing slash in URL path.
+
+    *Nick Reed*
+
 ## Turbolinks 1.1.1 (April 3, 2013) ##
 
 *   Improve performance of `constrainPageCacheTo`, `executeScriptTags`, and `removeNoscriptTags`
