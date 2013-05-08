@@ -8,15 +8,16 @@ module Turbolinks
 
     private
       def _compute_redirect_to_location_with_xhr_referer(options)
-        if options == :back && request.headers["X-XHR-Referer"]
-          _compute_redirect_to_location_without_xhr_referer(request.headers["X-XHR-Referer"])
-        else
-          _compute_redirect_to_location_without_xhr_referer(options)
-        end
+        session[:_turbolinks_redirect_to] =
+          if options == :back && request.headers["X-XHR-Referer"]
+            _compute_redirect_to_location_without_xhr_referer(request.headers["X-XHR-Referer"])
+          else
+            _compute_redirect_to_location_without_xhr_referer(options)
+          end
       end
 
       def set_xhr_current_location
-        response.headers['X-XHR-Current-Location'] = request.fullpath
+        response.headers['X-XHR-Current-Location'] = session.delete(:_turbolinks_redirect_to) || ''
       end
   end
 
@@ -51,7 +52,7 @@ module Turbolinks
         before_filter :set_xhr_current_location, :set_request_method_cookie
         after_filter :abort_xdomain_redirect
       end
-      
+
       ActionDispatch::Request.class_eval do
         def referer
           self.headers['X-XHR-Referer'] || super
