@@ -16,8 +16,10 @@ module Turbolinks
           end
       end
 
-      def set_xhr_current_location
-        response.headers['X-XHR-Current-Location'] = session.delete(:_turbolinks_redirect_to) || ''
+      def set_xhr_redirected_to
+        if session[:_turbolinks_redirect_to]
+          response.headers['X-XHR-Redirected-To'] = session.delete :_turbolinks_redirect_to
+        end
       end
   end
 
@@ -49,7 +51,7 @@ module Turbolinks
     initializer :turbolinks_xhr_headers do |config|
       ActionController::Base.class_eval do
         include XHRHeaders, Cookies, XDomainBlocker
-        before_filter :set_xhr_current_location, :set_request_method_cookie
+        before_filter :set_xhr_redirected_to, :set_request_method_cookie
         after_filter :abort_xdomain_redirect
       end
 

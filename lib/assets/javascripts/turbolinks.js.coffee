@@ -106,7 +106,7 @@ reflectNewUrl = (url) ->
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 reflectRedirectedUrl = ->
-  if (location = xhr.getResponseHeader 'X-XHR-Current-Location')?.length
+  if location = xhr.getResponseHeader 'X-XHR-Redirected-To'
     preservedHash = if removeHash(location) is location then document.location.hash else ''
     window.history.replaceState currentState, '', location + preservedHash
 
