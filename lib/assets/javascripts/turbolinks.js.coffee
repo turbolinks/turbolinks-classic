@@ -106,9 +106,9 @@ reflectNewUrl = (url) ->
     window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
 
 reflectRedirectedUrl = ->
-  location = xhr.getResponseHeader 'X-XHR-Current-Location'
-  if location and location isnt normalizePath(document.location.pathname) + document.location.search
-    window.history.replaceState currentState, '', location + document.location.hash
+  if location = xhr.getResponseHeader 'X-XHR-Redirected-To'
+    preservedHash = if removeHash(location) is location then document.location.hash else ''
+    window.history.replaceState currentState, '', location + preservedHash
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: Date.now() }, '', document.location.href
@@ -135,15 +135,6 @@ removeHash = (url) ->
     link = document.createElement 'A'
     link.href = url
   link.href.replace link.hash, ''
-
-# Strips off trailing slash and ensures there is a leading slash
-normalizePath = (path) ->
-  path = "/#{path}"
-  path = path.replace /\/+/g, '/'
-  path = path.replace /\/+$/, ''
-  path = '/' if path is ''
-  path
-
 
 triggerEvent = (name) ->
   event = document.createEvent 'Events'
