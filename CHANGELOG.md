@@ -15,9 +15,12 @@
 
     *Nick Reed*
 
-*   If present, preserve trailing slash in URL path.
+*   Changed response header name from `X-XHR-Current-Location` to `X-XHR-Redirected-To`.  The
+    header will only be sent if there has been a redirect.  Fixes compatibility issue when 
+    using `redirect_to` with options such as anchors or a trailing slash by storing the redirect
+    location in a session variable and then using that value to set the response header.
 
-    *Nick Reed*
+    *Yasuharu Ozaki*
 
 ## Turbolinks 1.1.1 (April 3, 2013) ##
 
