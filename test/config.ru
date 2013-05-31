@@ -11,4 +11,10 @@ map "/js" do
   run Assets
 end
 
-run Rack::Directory.new(File.join(Root, "test"))
+map "/500" do
+  # throw Internal Server Error (500)
+end
+
+map "/" do
+  run Rack::Directory.new(File.join(Root, "test"))
+end
