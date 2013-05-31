@@ -22,6 +22,10 @@
 
     *Yasuharu Ozaki*
 
+*   Escape URLs when checking for cross-origin redirects.
+
+    *Nick Reed*
+
 ## Turbolinks 1.1.1 (April 3, 2013) ##
 
 *   Improve performance of `constrainPageCacheTo`, `executeScriptTags`, and `removeNoscriptTags`
