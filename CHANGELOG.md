@@ -1,5 +1,9 @@
 ## Turbolinks (master) ##
 
+*   Handle 5xx responses
+
+    *Marek Labos*
+
 *   Add the ability to not execute scripts on turbolinks page loads by
     specifying `data-turbolinks-eval=false` on the `<script>` tag. For example:
     `<script type="text/javascript" data-turbolinks-eval=false>`
