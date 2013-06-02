@@ -1,4 +1,4 @@
-## Turbolinks (master) ##
+## Turbolinks 1.2.0 (June 2, 2013) ##
 
 *   Handle 5xx responses
 
