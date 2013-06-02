@@ -143,8 +143,8 @@ triggerEvent = (name) ->
 
 
 validateResponse = ->
-  clientError = ->
-    xhr.status.toString().match /^4/
+  clientOrServerError = ->
+    400 <= xhr.status < 600
 
   invalidContent = ->
     !xhr.getResponseHeader('Content-Type').match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
@@ -161,7 +161,7 @@ validateResponse = ->
     [a, b] = [b, a] if a.length > b.length
     value for value in a when value in b
 
-  if clientError()
+  if clientOrServerError()
     # Workaround for WebKit bug (https://bugs.webkit.org/show_bug.cgi?id=93506)
     url = document.location.href
     window.history.replaceState null, '', '#'
