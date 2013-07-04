@@ -149,6 +149,10 @@ Installation
 1. Add `//= require turbolinks` to your Javascript manifest file (usually found at `app/assets/javascripts/application.js`).
 1. Restart your server and you're now using turbolinks!
 
+Language Ports
+--------------
+
+* [Flask Turbolinks](https://github.com/lepture/flask-turbolinks) (Python Flask)
 
 Credits
 -------
