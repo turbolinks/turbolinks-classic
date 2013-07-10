@@ -11,6 +11,11 @@
 *   Send correct referer after asset change detected.
 
     *Marek Labos*
+    
+*   Add the `page:before-change` event, triggered when a Turbolinks-enabled link is clicked.
+    Can be used to cancel the Turbolinks process.
+
+    *Nick Reed*
 
 ## Turbolinks 1.2.0 (June 2, 2013) ##
 

@@ -123,6 +123,9 @@ triggerEvent = (name) ->
   event.initEvent name, true, true
   document.dispatchEvent event
 
+pageChangePrevented = ->
+  !triggerEvent 'page:before-change'
+
 processResponse = ->
   clientOrServerError = ->
     400 <= xhr.status < 600
@@ -208,7 +211,7 @@ handleClick = (event) ->
   unless event.defaultPrevented
     link = extractLink event
     if link.nodeName is 'A' and !ignoreClick(event, link)
-      visit link.href
+      visit link.href unless pageChangePrevented()
       event.preventDefault()
 
 

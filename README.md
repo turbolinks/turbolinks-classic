@@ -27,21 +27,24 @@ Turbolinks is designed to be as light-weight as possible (so you won't think twi
 Events
 ------
 
-With Turbolinks pages will change without a full reload, so you can't rely on `DOMContentLoaded` or `jQuery.ready()` to trigger your code. Instead Turbolinks fires events on `document` to provide hooks into the lifecycle of the page:
+With Turbolinks pages will change without a full reload, so you can't rely on `DOMContentLoaded` or `jQuery.ready()` to trigger your code. Instead Turbolinks fires events on `document` to provide hooks into the lifecycle of the page.
 
-*Load* a fresh version of a page from the server:
+***Load* a fresh version of a page from the server:**
+* `page:before-change` a Turbolinks-enabled link has been clicked *(see below for more details)*
 * `page:fetch` starting to fetch a new target page
 * `page:receive` the page has been fetched from the server, but not yet parsed
 * `page:change` the page has been parsed and changed to the new version
 * `page:load` is fired at the end of the loading process.
 
+Handlers bound to the `page:before-change` event may return `false`, which will cancel the Turbolinks process. 
+
 Turbolinks caches 10 of these page loads. It listens to the [popstate](https://developer.mozilla.org/en-US/docs/DOM/Manipulating_the_browser_history#The_popstate_event) event and attempts restore page state from the cache when it's triggered. When `popstate` is fired the following process happens:
 
-*Restore* a cached page from the client-side cache:
+***Restore* a cached page from the client-side cache:**
 * `page:change` page has changed to the cached page.
 * `page:restore` is fired at the end of restore process.
 
-So if you wanted to have a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
+To implement a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
 
     document.addEventListener("page:fetch", startSpinner);
     document.addEventListener("page:receive", stopSpinner);
