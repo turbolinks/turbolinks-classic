@@ -1,3 +1,17 @@
+## Turbolinks (unreleased) ##
+
+*   Change URL *after* fetching page.
+
+    *Marek Labos*
+
+*   Fix compatibility with `link_to :back`.
+
+    *Marek Labos*
+
+*   Send correct referer after asset change detected.
+
+    *Marek Labos*
+
 ## Turbolinks 1.2.0 (June 2, 2013) ##
 
 *   Handle 5xx responses
