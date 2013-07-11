@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name    = 'turbolinks'
-  s.version = '1.2.0'
+  s.version = '1.3.0'
   s.author  = 'David Heinemeier Hansson'
   s.email   = 'david@loudthinking.com'
   s.summary = 'Turbolinks makes following links in your web application faster (use with Rails Asset Pipeline)'
