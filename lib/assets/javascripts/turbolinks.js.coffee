@@ -1,4 +1,4 @@
-CACHE_SIZE     = 10
+cacheSize      = 10
 currentState   = null
 referer        = null
 loadedAssets   = null
@@ -58,7 +58,10 @@ cacheCurrentPage = ->
     positionY: window.pageYOffset,
     positionX: window.pageXOffset
 
-  constrainPageCacheTo(CACHE_SIZE)
+  constrainPageCacheTo cacheSize
+
+pagesCached = (size = cacheSize) ->
+  cacheSize = parseInt(size) if /^[\d]+$/.test size
 
 constrainPageCacheTo = (limit) ->
   for own key, value of pageCache
@@ -281,5 +284,8 @@ else
   visit = (url) ->
     document.location.href = url
 
-# Call Turbolinks.visit(url) from client code
-@Turbolinks = { visit }
+# Public API
+#   Turbolinks.visit(url)
+#   Turbolinks.pagesCached() 
+#   Turbolinks.pagesCached(20)
+@Turbolinks = { visit, pagesCached }

@@ -17,6 +17,10 @@
 
     *Nick Reed*
 
+*   Add Turbolinks.pagesCached() to the public API for getting and setting the size of the page cache.
+
+    *Nick Reed*
+
 ## Turbolinks 1.2.0 (June 2, 2013) ##
 
 *   Handle 5xx responses

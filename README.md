@@ -38,11 +38,21 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 
 Handlers bound to the `page:before-change` event may return `false`, which will cancel the Turbolinks process. 
 
-Turbolinks caches 10 of these page loads. It listens to the [popstate](https://developer.mozilla.org/en-US/docs/DOM/Manipulating_the_browser_history#The_popstate_event) event and attempts restore page state from the cache when it's triggered. When `popstate` is fired the following process happens:
+By default, Turbolinks caches 10 of these page loads. It listens to the [popstate](https://developer.mozilla.org/en-US/docs/DOM/Manipulating_the_browser_history#The_popstate_event) event and attempts to restore page state from the cache when it's triggered. When `popstate` is fired the following process happens:
 
 ***Restore* a cached page from the client-side cache:**
 * `page:change` page has changed to the cached page.
 * `page:restore` is fired at the end of restore process.
+
+The number of pages Turbolinks caches can be configured to suit your application's needs:
+
+```javascript
+// View the current cache size
+Turbolinks.pagesCached();
+
+// Set the cache size
+Turbolinks.pagesCached(20);
+```
 
 To implement a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
 
