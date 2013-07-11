@@ -44,14 +44,14 @@ By default, Turbolinks caches 10 of these page loads. It listens to the [popstat
 * `page:change` page has changed to the cached page.
 * `page:restore` is fired at the end of restore process.
 
-The Turbolinks cache size can be configured to suit your application's needs:
+The number of pages Turbolinks caches can be configured to suit your application's needs:
 
 ```javascript
 // View the current cache size
-Turbolinks.cacheSize();
+Turbolinks.pagesCached();
 
 // Set the cache size
-Turbolinks.cacheSize(20);
+Turbolinks.pagesCached(20);
 ```
 
 To implement a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.

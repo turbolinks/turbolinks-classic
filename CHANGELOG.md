@@ -17,7 +17,7 @@
 
     *Nick Reed*
 
-*   Add Turbolinks.cacheSize() to the public API for getting and setting the size of the page cache.
+*   Add Turbolinks.pagesCached() to the public API for getting and setting the size of the page cache.
 
     *Nick Reed*
 
