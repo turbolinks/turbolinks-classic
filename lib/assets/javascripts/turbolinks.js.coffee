@@ -9,7 +9,7 @@ xhr            = null
 
 
 fetchReplacement = (url) ->
-  triggerEvent 'page:fetch'
+  triggerEvent 'page:fetch', url: url
 
   # Remove hash from url to ensure IE 10 compatibility
   safeUrl = removeHash url
@@ -121,8 +121,9 @@ removeHash = (url) ->
     link.href = url
   link.href.replace link.hash, ''
 
-triggerEvent = (name) ->
+triggerEvent = (name, data) ->
   event = document.createEvent 'Events'
+  event.data = data if data
   event.initEvent name, true, true
   document.dispatchEvent event
 
@@ -286,6 +287,6 @@ else
 
 # Public API
 #   Turbolinks.visit(url)
-#   Turbolinks.pagesCached() 
+#   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
 @Turbolinks = { visit, pagesCached }
