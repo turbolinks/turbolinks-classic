@@ -76,6 +76,7 @@ changePage = (title, body, csrfToken, runScripts) ->
   executeScriptTags() if runScripts
   currentState = window.history.state
   triggerEvent 'page:change'
+  triggerEvent 'page:update'
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
@@ -251,8 +252,15 @@ ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or targetLink(link) or nonStandardClick(event)
 
 
-documentReadyPageEventTriggers = ->
+installDocumentReadyPageEventTriggers = ->
   triggerEvent 'page:change'
+  triggerEvent 'page:update'
+
+installJqueryAjaxSuccessPageUpdateTrigger = ->
+  if typeof jQuery isnt 'undefined'
+    $(document).on 'ajaxSuccess', (event, xhr, settings) ->
+      return unless $.trim xhr.responseText
+      triggerEvent 'page:update'
 
 
 initializeTurbolinks = ->
@@ -261,7 +269,9 @@ initializeTurbolinks = ->
   createDocument = browserCompatibleDocumentParser()
 
   document.addEventListener 'click', installClickHandlerLast, true
-  document.addEventListener 'DOMContentLoaded', documentReadyPageEventTriggers, true
+  document.addEventListener 'DOMContentLoaded', installDocumentReadyPageEventTriggers, true
+
+  installJqueryAjaxSuccessPageUpdateTrigger()
 
   window.addEventListener 'popstate', (event) ->
     state = event.state
