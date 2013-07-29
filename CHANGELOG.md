@@ -1,3 +1,12 @@
+## Turbolinks 2.0.0 (unreleased) ##
+
+*   Trigger page:change on DOMContentLoaded so you can bind initializers that need to be run 
+    either on initial or subsequent page loads. This might be backwards incompatible, so we
+    are also bumping the major version.
+    
+    *DHH*
+
+
 ## Turbolinks 1.3.0 (July 11, 2013) ##
 
 *   Change URL *after* fetching page.

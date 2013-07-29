@@ -250,11 +250,19 @@ nonStandardClick = (event) ->
 ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or targetLink(link) or nonStandardClick(event)
 
+
+documentReadyPageEventTriggers = ->
+  triggerEvent 'page:change'
+
+
 initializeTurbolinks = ->
   rememberCurrentUrl()
   rememberCurrentState()
   createDocument = browserCompatibleDocumentParser()
+
   document.addEventListener 'click', installClickHandlerLast, true
+  document.addEventListener 'DOMContentLoaded', documentReadyPageEventTriggers, true
+
   window.addEventListener 'popstate', (event) ->
     state = event.state
 
