@@ -18,10 +18,10 @@ In any case, the benefit can be up to [twice as fast](https://github.com/stevekl
 The best way to find out just how fast it is? Try it on your own application. It hardly takes any effort at all.
 
 
-No jQuery or any other framework
+No jQuery or any other library
 --------------------------------
 
-Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other framework to work. But it works great _with_ jQuery or Prototype or whatever else have you.
+Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other library to work. But it works great _with_ the jQuery or Prototype framework, or whatever else have you.
 
 
 Events
@@ -37,7 +37,7 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 * `page:update` is triggered whenever page:change is PLUS on jQuery's ajaxSucess, if jQuery is available (otherwise you can manually trigger it when calling XMLHttpRequest in your own code)
 * `page:load` is fired at the end of the loading process.
 
-Handlers bound to the `page:before-change` event may return `false`, which will cancel the Turbolinks process. 
+Handlers bound to the `page:before-change` event may return `false`, which will cancel the Turbolinks process.
 
 By default, Turbolinks caches 10 of these page loads. It listens to the [popstate](https://developer.mozilla.org/en-US/docs/DOM/Manipulating_the_browser_history#The_popstate_event) event and attempts to restore page state from the cache when it's triggered. When `popstate` is fired the following process happens:
 
@@ -59,7 +59,7 @@ To implement a client-side spinner, you could listen for `page:fetch` to start i
 
     document.addEventListener("page:fetch", startSpinner);
     document.addEventListener("page:receive", stopSpinner);
-    
+
 DOM transformations that are idempotent are best. If you have transformations that are not, hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
 Initialization
