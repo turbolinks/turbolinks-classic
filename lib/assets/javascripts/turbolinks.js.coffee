@@ -292,12 +292,13 @@ browserIsntBuggy =
 requestMethodIsSafe =
   requestMethod in ['GET','']
 
-if browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
+browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
+
+if browserSupportsTurbolinks
   visit = (url) ->
     referer = document.location.href
     cacheCurrentPage()
     fetchReplacement url
-
   initializeTurbolinks()
 else
   visit = (url) ->
@@ -307,4 +308,5 @@ else
 #   Turbolinks.visit(url)
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
-@Turbolinks = { visit, pagesCached }
+#   Turbolinks.supported
+@Turbolinks = { visit, pagesCached, supported: browserSupportsTurbolinks }
