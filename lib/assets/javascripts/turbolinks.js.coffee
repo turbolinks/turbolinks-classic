@@ -27,10 +27,7 @@ fetchReplacement = (url) ->
       reflectNewUrl url
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl()
-      if document.location.hash
-        document.location.href = document.location.href
-      else
-        resetScrollPosition()
+      resetScrollPosition()
       triggerEvent 'page:load'
     else
       document.location.href = url
@@ -113,7 +110,10 @@ recallScrollPosition = (page) ->
   window.scrollTo page.positionX, page.positionY
 
 resetScrollPosition = ->
-  window.scrollTo 0, 0
+  if document.location.hash
+    document.location.href = document.location.href
+  else
+    window.scrollTo 0, 0
 
 removeHash = (url) ->
   link = url
