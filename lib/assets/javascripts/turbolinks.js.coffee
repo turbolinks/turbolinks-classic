@@ -35,12 +35,11 @@ fetchReplacement = (url) ->
 
   xhr.send()
 
-fetchHistory = (position) ->
+fetchHistory = (cachedPage) ->
   cacheCurrentPage()
-  page = pageCache[position]
   xhr?.abort()
-  changePage page.title, page.body
-  recallScrollPosition page
+  changePage cachedPage.title, cachedPage.body
+  recallScrollPosition cachedPage
   triggerEvent 'page:restore'
 
 
@@ -266,8 +265,8 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
 
 installHistoryChangeHandler = (event) ->
   if event.state?.turbolinks
-    if pageCache[event.state.position]
-      fetchHistory event.state.position
+    if cachedPage = pageCache[event.state.position]
+      fetchHistory cachedPage
     else
       visit event.target.location.href
 
