@@ -11,12 +11,9 @@ xhr            = null
 fetchReplacement = (url) ->
   triggerEvent 'page:fetch', url: url
 
-  # Remove hash from url to ensure IE 10 compatibility
-  safeUrl = removeHash url
-
   xhr?.abort()
   xhr = new XMLHttpRequest
-  xhr.open 'GET', safeUrl, true
+  xhr.open 'GET', removeHashForIE10compatiblity(url), true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
@@ -114,6 +111,11 @@ resetScrollPosition = ->
     document.location.href = document.location.href
   else
     window.scrollTo 0, 0
+
+
+# Intention revealing function alias
+removeHashForIE10compatiblity = (url) ->
+  removeHash url
 
 removeHash = (url) ->
   link = url
