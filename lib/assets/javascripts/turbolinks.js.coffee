@@ -1,10 +1,12 @@
+pageCache      = {}
 cacheSize      = 10
 currentState   = null
-referer        = document.location.href
 loadedAssets   = null
-pageCache      = {}
-createDocument = null
+
+referer        = document.location.href
 requestMethod  = document.cookie.match(/request_method=(\w+)/)?[1].toUpperCase() or ''
+
+createDocument = null
 xhr            = null
 
 
