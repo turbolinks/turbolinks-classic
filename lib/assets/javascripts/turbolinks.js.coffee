@@ -264,6 +264,12 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
       return unless $.trim xhr.responseText
       triggerEvent 'page:update'
 
+installHistoryChangeHandler = (event) ->
+  if event.state?.turbolinks
+    if pageCache[event.state.position]
+      fetchHistory event.state.position
+    else
+      visit event.target.location.href
 
 initializeTurbolinks = ->
   rememberCurrentUrl()
@@ -275,15 +281,7 @@ initializeTurbolinks = ->
 
   installJqueryAjaxSuccessPageUpdateTrigger()
 
-  window.addEventListener 'popstate', (event) ->
-    state = event.state
-
-    if state?.turbolinks
-      if pageCache[state.position]
-        fetchHistory state.position
-      else
-        visit event.target.location.href
-  , false
+  window.addEventListener 'popstate', installHistoryChangeHandler, false
 
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and window.history.state != undefined
