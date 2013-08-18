@@ -1,6 +1,6 @@
 cacheSize      = 10
 currentState   = null
-referer        = null
+referer        = document.location.href
 loadedAssets   = null
 pageCache      = {}
 createDocument = null
@@ -295,7 +295,6 @@ browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and re
 
 if browserSupportsTurbolinks
   visit = (url) ->
-    referer = document.location.href
     cacheCurrentPage()
     fetchReplacement url
   initializeTurbolinks()
