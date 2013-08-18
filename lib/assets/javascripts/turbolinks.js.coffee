@@ -299,6 +299,7 @@ if browserSupportsTurbolinks
   visit = (url) ->
     cacheCurrentPage()
     fetchReplacement url
+
   initializeTurbolinks()
 else
   visit = (url) ->
