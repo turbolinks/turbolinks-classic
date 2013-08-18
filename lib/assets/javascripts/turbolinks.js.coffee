@@ -3,14 +3,16 @@ cacheSize      = 10
 currentState   = null
 loadedAssets   = null
 
-referer        = document.location.href
+referer        = null
 requestMethod  = document.cookie.match(/request_method=(\w+)/)?[1].toUpperCase() or ''
 
 createDocument = null
 xhr            = null
 
 
-fetchReplacement = (url) ->
+fetchReplacement = (url) ->  
+  rememberReferer()
+  cacheCurrentPage()
   triggerEvent 'page:fetch', url: url
 
   xhr?.abort()
@@ -97,6 +99,9 @@ reflectRedirectedUrl = ->
   if location = xhr.getResponseHeader 'X-XHR-Redirected-To'
     preservedHash = if removeHash(location) is location then document.location.hash else ''
     window.history.replaceState currentState, '', location + preservedHash
+
+rememberReferer = ->
+  referer = document.location.href
 
 rememberCurrentUrl = ->
   window.history.replaceState { turbolinks: true, position: Date.now() }, '', document.location.href
@@ -296,14 +301,10 @@ requestMethodIsSafe =
 browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
 
 if browserSupportsTurbolinks
-  visit = (url) ->
-    cacheCurrentPage()
-    fetchReplacement url
-
+  visit = fetchReplacement
   initializeTurbolinks()
 else
-  visit = (url) ->
-    document.location.href = url
+  visit = (url) -> document.location.href = url
 
 # Public API
 #   Turbolinks.visit(url)
