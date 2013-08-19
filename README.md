@@ -140,6 +140,8 @@ Triggering a Turbolinks visit manually
 
 You can use `Turbolinks.visit(path)` to go to a URL through Turbolinks.
 
+You can also use `redirect_via_turbolinks_to` in Rails to perform a redirect via Turbolinks.
+
 
 Full speed for pushState browsers, graceful fallback for everything else
 ------------------------------------------------------------------------

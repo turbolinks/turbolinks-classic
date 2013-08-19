@@ -47,10 +47,22 @@ module Turbolinks
     end
   end
 
+  module Redirection
+    extend ActiveSupport::Concern
+    
+    def redirect_via_turbolinks_to(url = {}, response_status = {})
+      redirect_to(url, response_status)
+
+      self.status           = 200
+      self.response_body    = "Turbolinks.visit('#{location}');"
+      response.content_type = Mime::JS
+    end
+  end
+
   class Engine < ::Rails::Engine
     initializer :turbolinks_xhr_headers do |config|
       ActionController::Base.class_eval do
-        include XHRHeaders, Cookies, XDomainBlocker
+        include XHRHeaders, Cookies, XDomainBlocker, Redirection
         before_filter :set_xhr_redirected_to, :set_request_method_cookie
         after_filter :abort_xdomain_redirect
       end
