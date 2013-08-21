@@ -14,7 +14,10 @@
     
     *DHH*
 
+*   Expire `request_method` cookie after reading it.
 
+    *Nick Reed*
+    
 ## Turbolinks 1.3.0 (July 11, 2013) ##
 
 *   Change URL *after* fetching page.

@@ -4,7 +4,6 @@ currentState   = null
 loadedAssets   = null
 
 referer        = null
-requestMethod  = document.cookie.match(/request_method=(\w+)/)?[1].toUpperCase() or ''
 
 createDocument = null
 xhr            = null
@@ -129,6 +128,11 @@ removeHash = (url) ->
     link = document.createElement 'A'
     link.href = url
   link.href.replace link.hash, ''
+
+popCookie = (name) ->
+  value = document.cookie.match(new RegExp(name+"=(\\w+)"))?[1].toUpperCase() or ''
+  document.cookie = name + '=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/'
+  value
 
 triggerEvent = (name, data) ->
   event = document.createEvent 'Events'
@@ -296,7 +300,7 @@ browserIsntBuggy =
   !navigator.userAgent.match /CriOS\//
 
 requestMethodIsSafe =
-  requestMethod in ['GET','']
+  popCookie('request_method') in ['GET','']
 
 browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
 
