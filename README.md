@@ -168,7 +168,10 @@ Installation
 Language Ports
 --------------
 
+*These projects are not affiliated with or endorsed by the Rails Turbolinks team.*
+
 * [Flask Turbolinks](https://github.com/lepture/flask-turbolinks) (Python Flask)
+* [ASP.NET MVC Turbolinks](https://github.com/kazimanzurrashid/aspnetmvcturbolinks)
 
 Credits
 -------
