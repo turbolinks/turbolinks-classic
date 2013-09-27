@@ -17,6 +17,11 @@
 *   Expire `request_method` cookie after reading it.
 
     *Nick Reed*
+
+*   Trigger events on DOMContentLoaded and jQuery's ajaxSuccess regardless of whether Turbolinks
+    is initialized or not.
+
+    *Nick Reed*
     
 ## Turbolinks 1.3.0 (July 11, 2013) ##
 
