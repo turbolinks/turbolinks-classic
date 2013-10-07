@@ -10,11 +10,18 @@ createDocument = null
 xhr            = null
 
 
-fetchReplacement = (url) ->
+fetch = (url) ->
   rememberReferer()
   cacheCurrentPage()
   reflectNewUrl url
 
+  if cachedPage = pageCache[url]
+    fetchHistory cachedPage
+    fetchReplacement url
+  else
+    fetchReplacement url, resetScrollPosition
+
+fetchReplacement = (url, onLoadFunction = =>) ->  
   triggerEvent 'page:fetch', url: url
 
   xhr?.abort()
@@ -29,7 +36,7 @@ fetchReplacement = (url) ->
     if doc = processResponse()
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl()
-      resetScrollPosition()
+      onLoadFunction()
       triggerEvent 'page:load'
     else
       document.location.href = url
@@ -40,7 +47,6 @@ fetchReplacement = (url) ->
   xhr.send()
 
 fetchHistory = (cachedPage) ->
-  cacheCurrentPage()
   xhr?.abort()
   changePage cachedPage.title, cachedPage.body
   recallScrollPosition cachedPage
@@ -282,6 +288,7 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
 installHistoryChangeHandler = (event) ->
   if event.state?.turbolinks
     if cachedPage = pageCache[event.state.url]
+      cacheCurrentPage()
       fetchHistory cachedPage
     else
       visit event.target.location.href
@@ -317,7 +324,7 @@ if browserSupportsCustomEvents
   installJqueryAjaxSuccessPageUpdateTrigger()
 
 if browserSupportsTurbolinks
-  visit = fetchReplacement
+  visit = fetch
   initializeTurbolinks()
 else
   visit = (url) -> document.location.href = url
