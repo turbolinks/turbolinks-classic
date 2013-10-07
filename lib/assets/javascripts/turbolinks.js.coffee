@@ -48,13 +48,13 @@ fetchHistory = (cachedPage) ->
 
 
 cacheCurrentPage = ->
-  pageCache[currentState.position] =
+  pageCache[currentState.url] =
     body:      document.body,
     title:     document.title,
     positionY: window.pageYOffset,
     positionX: window.pageXOffset
 
-  constrainPageCacheTo cacheSize
+  #constrainPageCacheTo cacheSize
 
 pagesCached = (size = cacheSize) ->
   cacheSize = parseInt(size) if /^[\d]+$/.test size
@@ -91,7 +91,7 @@ removeNoscriptTags = (node) ->
 
 reflectNewUrl = (url) ->
   if url isnt referer
-    window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
+    window.history.pushState { turbolinks: true, url: url }, '', url
 
 reflectRedirectedUrl = ->
   if location = xhr.getResponseHeader 'X-XHR-Redirected-To'
@@ -102,7 +102,7 @@ rememberReferer = ->
   referer = document.location.href
 
 rememberCurrentUrl = ->
-  window.history.replaceState { turbolinks: true, position: Date.now() }, '', document.location.href
+  window.history.replaceState { turbolinks: true, url: document.location.href }, '', document.location.href
 
 rememberCurrentState = ->
   currentState = window.history.state
@@ -281,7 +281,7 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
 
 installHistoryChangeHandler = (event) ->
   if event.state?.turbolinks
-    if cachedPage = pageCache[event.state.position]
+    if cachedPage = pageCache[event.state.url]
       fetchHistory cachedPage
     else
       visit event.target.location.href
