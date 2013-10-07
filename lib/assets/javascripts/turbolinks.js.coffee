@@ -13,6 +13,8 @@ xhr            = null
 fetchReplacement = (url) ->
   rememberReferer()
   cacheCurrentPage()
+  reflectNewUrl url
+
   triggerEvent 'page:fetch', url: url
 
   xhr?.abort()
@@ -25,7 +27,6 @@ fetchReplacement = (url) ->
     triggerEvent 'page:receive'
 
     if doc = processResponse()
-      reflectNewUrl url
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl()
       resetScrollPosition()
@@ -34,7 +35,6 @@ fetchReplacement = (url) ->
       document.location.href = url
 
   xhr.onloadend = -> xhr = null
-  xhr.onabort   = -> rememberCurrentUrl()
   xhr.onerror   = -> document.location.href = url
 
   xhr.send()
