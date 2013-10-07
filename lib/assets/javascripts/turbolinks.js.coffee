@@ -49,7 +49,6 @@ fetchHistory = (cachedPage) ->
 
 cacheCurrentPage = ->
   pageCache[currentState.position] =
-    url:       document.location.href,
     body:      document.body,
     title:     document.title,
     positionY: window.pageYOffset,
