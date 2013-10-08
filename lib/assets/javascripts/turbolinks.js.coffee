@@ -55,21 +55,27 @@ fetchHistory = (cachedPage) ->
 
 cacheCurrentPage = ->
   pageCache[currentState.url] =
-    body:      document.body,
-    title:     document.title,
-    positionY: window.pageYOffset,
-    positionX: window.pageXOffset
+    body:             document.body,
+    title:            document.title,
+    positionY:        window.pageYOffset,
+    positionX:        window.pageXOffset,
+    cachedAt:         new Date().getTime()
 
-  #constrainPageCacheTo cacheSize
+  constrainPageCacheTo cacheSize
 
 pagesCached = (size = cacheSize) ->
   cacheSize = parseInt(size) if /^[\d]+$/.test size
 
 constrainPageCacheTo = (limit) ->
-  for own key, value of pageCache when key <= currentState.position - limit
+  pageCacheKeys = Object.keys pageCache
+
+  cacheTimesRecentFirst = pageCacheKeys.map (url) ->
+    pageCache[url].cachedAt
+  .sort (a, b) -> b - a
+
+  for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
     triggerEvent 'page:expire', pageCache[key]
-    pageCache[key] = null
-  return
+    delete pageCache[key]
 
 changePage = (title, body, csrfToken, runScripts) ->
   document.title = title
