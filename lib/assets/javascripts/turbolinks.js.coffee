@@ -272,8 +272,8 @@ installDocumentReadyPageEventTriggers = ->
 
 installJqueryAjaxSuccessPageUpdateTrigger = ->
   if typeof jQuery isnt 'undefined'
-    $(document).on 'ajaxSuccess', (event, xhr, settings) ->
-      return unless $.trim xhr.responseText
+    jQuery(document).on 'ajaxSuccess', (event, xhr, settings) ->
+      return unless jQuery.trim xhr.responseText
       triggerEvent 'page:update'
 
 installHistoryChangeHandler = (event) ->
