@@ -15,11 +15,15 @@ fetch = (url) ->
   cacheCurrentPage()
   reflectNewUrl url
 
-  if cachedPage = pageCache[url]
+  if cachedPage = transitionCacheFor url
     fetchHistory cachedPage
     fetchReplacement url
   else
     fetchReplacement url, resetScrollPosition
+
+transitionCacheFor = (url) ->
+  cachedPage = pageCache[url]
+  cachedPage if cachedPage and !cachedPage.transitionCacheDisabled
 
 fetchReplacement = (url, onLoadFunction = =>) ->  
   triggerEvent 'page:fetch', url: url
@@ -55,11 +59,12 @@ fetchHistory = (cachedPage) ->
 
 cacheCurrentPage = ->
   pageCache[currentState.url] =
-    body:             document.body,
-    title:            document.title,
-    positionY:        window.pageYOffset,
-    positionX:        window.pageXOffset,
-    cachedAt:         new Date().getTime()
+    body:                     document.body,
+    title:                    document.title,
+    positionY:                window.pageYOffset,
+    positionX:                window.pageXOffset,
+    cachedAt:                 new Date().getTime()
+    transitionCacheDisabled:  document.querySelector('[data-no-transition-cache]')?
 
   constrainPageCacheTo cacheSize
 
