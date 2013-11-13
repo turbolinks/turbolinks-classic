@@ -7,7 +7,6 @@
     
     *DHH*
     
-
 *   Trigger page:change on DOMContentLoaded so you can bind initializers that need to be run 
     either on initial or subsequent page loads. This might be backwards incompatible, so we
     are also bumping the major version.
@@ -22,6 +21,10 @@
     is initialized or not.
 
     *Nick Reed*
+
+*   Accommodate for bug in Chrome 31+ that causes `assetsChanged` to always return true. (#278)
+
+    *Andrew Volozhanin + Nick Reed*
     
 ## Turbolinks 1.3.0 (July 11, 2013) ##
 
