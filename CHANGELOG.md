@@ -22,6 +22,8 @@
 
     *Nick Reed*
 
+## Turbolinks 1.3.1 (November 14, 2013) ##
+
 *   Accommodate for bug in Chrome 31+ that causes `assetsChanged` to always return true. (#278)
 
     *Andrew Volozhanin + Nick Reed*
