@@ -1,3 +1,9 @@
+## Turbolinks 1.3.1 (Unreleased) ##
+
+*   Accommodate for bug in Chrome 31+ that causes `assetsChanged` to always return true. (#278)
+
+    *Andrew Volozhanin + Nick Reed*
+
 ## Turbolinks 1.3.0 (July 11, 2013) ##
 
 *   Change URL *after* fetching page.
