@@ -1,4 +1,4 @@
-## Turbolinks 2.0.0 (unreleased) ##
+## Turbolinks 2.0.0 (December 4, 2013) ##
 
 *   Trigger page:update on page:change as well as jQuery's ajaxSuccess, if jQuery is available.
     This allows you to bind listeners to both full page changes and partial ajax updates.
