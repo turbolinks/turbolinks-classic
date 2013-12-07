@@ -1,3 +1,9 @@
+## Turbolinks (master)
+
+*   Improve browser support for `noscript` tag removal.
+
+    *Nick Reed*
+    
 ## Turbolinks 2.0.0 (December 4, 2013) ##
 
 *   Trigger page:update on page:change as well as jQuery's ajaxSuccess, if jQuery is available.

@@ -68,7 +68,6 @@ changePage = (title, body, csrfToken, runScripts) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
   CSRFToken.update csrfToken if csrfToken?
-  removeNoscriptTags()
   executeScriptTags() if runScripts
   currentState = window.history.state
   triggerEvent 'page:change'
@@ -85,10 +84,9 @@ executeScriptTags = ->
     parentNode.insertBefore copy, nextSibling
   return
 
-removeNoscriptTags = ->
-  noscriptTags = Array::slice.call document.body.getElementsByTagName 'noscript'
-  noscript.parentNode.removeChild noscript for noscript in noscriptTags
-  return
+removeNoscriptTags = (node) ->
+  node.innerHTML = node.innerHTML.replace /<noscript[\S\s]*?<\/noscript>/ig, ''
+  node
 
 reflectNewUrl = (url) ->
   if url isnt referer
@@ -170,7 +168,7 @@ processResponse = ->
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
-  [ title?.textContent, doc.body, CSRFToken.get(doc).token, 'runScripts' ]
+  [ title?.textContent, removeNoscriptTags(doc.body), CSRFToken.get(doc).token, 'runScripts' ]
 
 CSRFToken =
   get: (doc = document) ->
