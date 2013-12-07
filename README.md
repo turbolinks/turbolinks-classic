@@ -55,6 +55,8 @@ Turbolinks.pagesCached();
 Turbolinks.pagesCached(20);
 ```
 
+When a page is removed from the cache due to the cache reaching its size limit, the `page:expire` event is triggered.  Listeners bound to this event can access the cached page object using `event.originalEvent.data`.  Keys of note for this page cache object include `url`, `body`, and `title`.  
+
 To implement a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
 
     document.addEventListener("page:fetch", startSpinner);

@@ -60,8 +60,9 @@ pagesCached = (size = cacheSize) ->
   cacheSize = parseInt(size) if /^[\d]+$/.test size
 
 constrainPageCacheTo = (limit) ->
-  for own key, value of pageCache
-    pageCache[key] = null if key <= currentState.position - limit
+  for own key, value of pageCache when key <= currentState.position - limit
+    triggerEvent 'page:expire', pageCache[key]
+    pageCache[key] = null
   return
 
 changePage = (title, body, csrfToken, runScripts) ->
