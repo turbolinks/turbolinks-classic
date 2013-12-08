@@ -10,6 +10,16 @@
 
     *Nick Reed*
 
+*   Allow configuration for additional link extensions to be processed by Turbolinks beyond `.html`.
+
+    ```coffeescript
+    Turbolinks.allowLinkExtensions()                # => ['html']
+    Turbolinks.allowLinkExtensions 'md'             # => ['html', 'md']
+    Turbolinks.allowLinkExtensions 'coffee', 'scss' # => ['html', 'md', 'coffee', 'scss']
+    ```
+
+    *Nick Reed*
+    
 ## Turbolinks 2.0.0 (December 4, 2013) ##
 
 *   Trigger page:update on page:change as well as jQuery's ajaxSuccess, if jQuery is available.
