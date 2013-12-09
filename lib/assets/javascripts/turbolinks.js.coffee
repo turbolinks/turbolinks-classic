@@ -2,6 +2,7 @@ pageCache      = {}
 cacheSize      = 10
 currentState   = null
 loadedAssets   = null
+htmlExtensions = ['html']
 
 referer        = null
 
@@ -246,7 +247,7 @@ anchoredLink = (link) ->
 
 nonHtmlLink = (link) ->
   url = removeHash link
-  url.match(/\.[a-z]+(\?.*)?$/g) and not url.match(/\.html?(\?.*)?$/g)
+  url.match(/\.[a-z]+(\?.*)?$/g) and not url.match(new RegExp("\\.(?:#{htmlExtensions.join('|')})?(\\?.*)?$", 'g'))
 
 noTurbolink = (link) ->
   until ignore or link is document
@@ -263,6 +264,9 @@ nonStandardClick = (event) ->
 ignoreClick = (event, link) ->
   crossOriginLink(link) or anchoredLink(link) or nonHtmlLink(link) or noTurbolink(link) or targetLink(link) or nonStandardClick(event)
 
+allowLinkExtensions = (extensions...) ->
+  htmlExtensions.push extension for extension in extensions
+  htmlExtensions
 
 installDocumentReadyPageEventTriggers = ->
   document.addEventListener 'DOMContentLoaded', ( ->
@@ -315,5 +319,6 @@ else
 #   Turbolinks.visit(url)
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
+#   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
-@Turbolinks = { visit, pagesCached, supported: browserSupportsTurbolinks }
+@Turbolinks = { visit, pagesCached, allowLinkExtensions, supported: browserSupportsTurbolinks }
