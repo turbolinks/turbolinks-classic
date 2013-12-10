@@ -10,7 +10,7 @@ createDocument = null
 xhr            = null
 
 
-fetchReplacement = (url) ->  
+fetchReplacement = (url) ->
   rememberReferer()
   cacheCurrentPage()
   triggerEvent 'page:fetch', url: url
@@ -269,13 +269,14 @@ allowLinkExtensions = (extensions...) ->
   htmlExtensions
 
 installDocumentReadyPageEventTriggers = ->
-  document.addEventListener 'DOMContentLoaded', ( ->
-    triggerEvent 'page:change'
-    triggerEvent 'page:update'
-  ), true
+  if browserSupportsCustomEvents
+    document.addEventListener 'DOMContentLoaded', ( ->
+      triggerEvent 'page:change'
+      triggerEvent 'page:update'
+    ), true
 
 installJqueryAjaxSuccessPageUpdateTrigger = ->
-  if typeof jQuery isnt 'undefined'
+  if browserSupportsCustomEvents and typeof jQuery isnt 'undefined'
     jQuery(document).on 'ajaxSuccess', (event, xhr, settings) ->
       return unless jQuery.trim xhr.responseText
       triggerEvent 'page:update'
@@ -305,6 +306,9 @@ requestMethodIsSafe =
   popCookie('request_method') in ['GET','']
 
 browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
+
+browserSupportsCustomEvents =
+  document.addEventListener and document.createEvent
 
 installDocumentReadyPageEventTriggers()
 installJqueryAjaxSuccessPageUpdateTrigger()
