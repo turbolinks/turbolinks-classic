@@ -269,14 +269,13 @@ allowLinkExtensions = (extensions...) ->
   htmlExtensions
 
 installDocumentReadyPageEventTriggers = ->
-  if browserSupportsCustomEvents
-    document.addEventListener 'DOMContentLoaded', ( ->
-      triggerEvent 'page:change'
-      triggerEvent 'page:update'
-    ), true
+  document.addEventListener 'DOMContentLoaded', ( ->
+    triggerEvent 'page:change'
+    triggerEvent 'page:update'
+  ), true
 
 installJqueryAjaxSuccessPageUpdateTrigger = ->
-  if browserSupportsCustomEvents and typeof jQuery isnt 'undefined'
+  if typeof jQuery isnt 'undefined'
     jQuery(document).on 'ajaxSuccess', (event, xhr, settings) ->
       return unless jQuery.trim xhr.responseText
       triggerEvent 'page:update'
@@ -310,8 +309,9 @@ browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and re
 browserSupportsCustomEvents =
   document.addEventListener and document.createEvent
 
-installDocumentReadyPageEventTriggers()
-installJqueryAjaxSuccessPageUpdateTrigger()
+if browserSupportsCustomEvents
+  installDocumentReadyPageEventTriggers()
+  installJqueryAjaxSuccessPageUpdateTrigger()
 
 if browserSupportsTurbolinks
   visit = fetchReplacement
