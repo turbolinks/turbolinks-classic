@@ -1,4 +1,4 @@
-## Turbolinks (master)
+## Turbolinks 2.1.0 (December 17, 2013)
 
 *   Improve browser support for `noscript` tag removal.
 
@@ -24,7 +24,7 @@
     value of history.state is undefined instead of null, which led to Turbolinks not being initialized.
 
     *Nick Reed*
-    
+
 ## Turbolinks 2.0.0 (December 4, 2013) ##
 
 *   Trigger page:update on page:change as well as jQuery's ajaxSuccess, if jQuery is available.
