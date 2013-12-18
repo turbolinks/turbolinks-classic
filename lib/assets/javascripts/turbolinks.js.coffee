@@ -10,7 +10,7 @@ createDocument = null
 xhr            = null
 
 
-fetchReplacement = (url) ->  
+fetchReplacement = (url) ->
   rememberReferer()
   cacheCurrentPage()
   triggerEvent 'page:fetch', url: url
@@ -306,8 +306,12 @@ requestMethodIsSafe =
 
 browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
 
-installDocumentReadyPageEventTriggers()
-installJqueryAjaxSuccessPageUpdateTrigger()
+browserSupportsCustomEvents =
+  document.addEventListener and document.createEvent
+
+if browserSupportsCustomEvents
+  installDocumentReadyPageEventTriggers()
+  installJqueryAjaxSuccessPageUpdateTrigger()
 
 if browserSupportsTurbolinks
   visit = fetchReplacement
