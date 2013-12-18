@@ -19,6 +19,11 @@
     ```
 
     *Nick Reed*
+
+*   Handle [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=949471) in Firefox 26 where the initial
+    value of history.state is undefined instead of null, which led to Turbolinks not being initialized.
+
+    *Nick Reed*
     
 ## Turbolinks 2.0.0 (December 4, 2013) ##
 
