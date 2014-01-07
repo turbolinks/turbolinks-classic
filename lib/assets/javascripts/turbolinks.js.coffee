@@ -1,18 +1,36 @@
-pageCache      = {}
-cacheSize      = 10
-currentState   = null
-loadedAssets   = null
-htmlExtensions = ['html']
+pageCache               = {}
+cacheSize               = 10
+transitionCacheEnabled  = false
 
-referer        = null
+currentState            = null
+loadedAssets            = null
+htmlExtensions          = ['html']
 
-createDocument = null
-xhr            = null
+referer                 = null
+
+createDocument          = null
+xhr                     = null
 
 
-fetchReplacement = (url) ->
+fetch = (url) ->
   rememberReferer()
   cacheCurrentPage()
+  reflectNewUrl url
+
+  if transitionCacheEnabled and cachedPage = transitionCacheFor(url)
+    fetchHistory cachedPage
+    fetchReplacement url
+  else
+    fetchReplacement url, resetScrollPosition
+
+transitionCacheFor = (url) ->
+  cachedPage = pageCache[url]
+  cachedPage if cachedPage and !cachedPage.transitionCacheDisabled
+
+enableTransitionCache = (enable = true) ->
+  transitionCacheEnabled = enable
+
+fetchReplacement = (url, onLoadFunction = =>) ->  
   triggerEvent 'page:fetch', url: url
 
   xhr?.abort()
@@ -25,22 +43,19 @@ fetchReplacement = (url) ->
     triggerEvent 'page:receive'
 
     if doc = processResponse()
-      reflectNewUrl url
       changePage extractTitleAndBody(doc)...
       reflectRedirectedUrl()
-      resetScrollPosition()
+      onLoadFunction()
       triggerEvent 'page:load'
     else
       document.location.href = url
 
   xhr.onloadend = -> xhr = null
-  xhr.onabort   = -> rememberCurrentUrl()
   xhr.onerror   = -> document.location.href = url
 
   xhr.send()
 
 fetchHistory = (cachedPage) ->
-  cacheCurrentPage()
   xhr?.abort()
   changePage cachedPage.title, cachedPage.body
   recallScrollPosition cachedPage
@@ -48,12 +63,14 @@ fetchHistory = (cachedPage) ->
 
 
 cacheCurrentPage = ->
-  pageCache[currentState.position] =
-    url:       document.location.href,
-    body:      document.body,
-    title:     document.title,
-    positionY: window.pageYOffset,
-    positionX: window.pageXOffset
+  pageCache[currentState.url] =
+    url:                      document.location.href,
+    body:                     document.body,
+    title:                    document.title,
+    positionY:                window.pageYOffset,
+    positionX:                window.pageXOffset,
+    cachedAt:                 new Date().getTime(),
+    transitionCacheDisabled:  document.querySelector('[data-no-transition-cache]')?
 
   constrainPageCacheTo cacheSize
 
@@ -61,10 +78,15 @@ pagesCached = (size = cacheSize) ->
   cacheSize = parseInt(size) if /^[\d]+$/.test size
 
 constrainPageCacheTo = (limit) ->
-  for own key, value of pageCache when key <= currentState.position - limit
+  pageCacheKeys = Object.keys pageCache
+
+  cacheTimesRecentFirst = pageCacheKeys.map (url) ->
+    pageCache[url].cachedAt
+  .sort (a, b) -> b - a
+
+  for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
     triggerEvent 'page:expire', pageCache[key]
-    pageCache[key] = null
-  return
+    delete pageCache[key]
 
 changePage = (title, body, csrfToken, runScripts) ->
   document.title = title
@@ -92,7 +114,7 @@ removeNoscriptTags = (node) ->
 
 reflectNewUrl = (url) ->
   if url isnt referer
-    window.history.pushState { turbolinks: true, position: currentState.position + 1 }, '', url
+    window.history.pushState { turbolinks: true, url: url }, '', url
 
 reflectRedirectedUrl = ->
   if location = xhr.getResponseHeader 'X-XHR-Redirected-To'
@@ -103,7 +125,7 @@ rememberReferer = ->
   referer = document.location.href
 
 rememberCurrentUrl = ->
-  window.history.replaceState { turbolinks: true, position: Date.now() }, '', document.location.href
+  window.history.replaceState { turbolinks: true, url: document.location.href }, '', document.location.href
 
 rememberCurrentState = ->
   currentState = window.history.state
@@ -282,7 +304,8 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
 
 installHistoryChangeHandler = (event) ->
   if event.state?.turbolinks
-    if cachedPage = pageCache[event.state.position]
+    if cachedPage = pageCache[event.state.url]
+      cacheCurrentPage()
       fetchHistory cachedPage
     else
       visit event.target.location.href
@@ -318,7 +341,7 @@ if browserSupportsCustomEvents
   installJqueryAjaxSuccessPageUpdateTrigger()
 
 if browserSupportsTurbolinks
-  visit = fetchReplacement
+  visit = fetch
   initializeTurbolinks()
 else
   visit = (url) -> document.location.href = url
@@ -327,6 +350,7 @@ else
 #   Turbolinks.visit(url)
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
+#   Turbolinks.enableTransitionCache()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
-@Turbolinks = { visit, pagesCached, allowLinkExtensions, supported: browserSupportsTurbolinks }
+@Turbolinks = { visit, pagesCached, enableTransitionCache, allowLinkExtensions, supported: browserSupportsTurbolinks }

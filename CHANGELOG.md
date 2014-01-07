@@ -1,3 +1,11 @@
+## Turbolinks (master)
+
+*   Add transition cache experimental feature. When enabled, cached copies of pages will be shown
+    before fetching and displaying a new copy from the server. A individual page can be opted-out
+    by adding `data-no-transition-cache` to any DOM element on the page.
+
+    *Matt De Leon*
+
 ## Turbolinks 2.1.0 (December 17, 2013)
 
 *   Improve browser support for `noscript` tag removal.
