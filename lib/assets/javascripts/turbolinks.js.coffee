@@ -1,13 +1,15 @@
-pageCache      = {}
-cacheSize      = 10
-currentState   = null
-loadedAssets   = null
-htmlExtensions = ['html']
+pageCache               = {}
+cacheSize               = 10
+transitionCacheEnabled  = false
 
-referer        = null
+currentState            = null
+loadedAssets            = null
+htmlExtensions          = ['html']
 
-createDocument = null
-xhr            = null
+referer                 = null
+
+createDocument          = null
+xhr                     = null
 
 
 fetch = (url) ->
@@ -15,7 +17,7 @@ fetch = (url) ->
   cacheCurrentPage()
   reflectNewUrl url
 
-  if cachedPage = transitionCacheFor url
+  if transitionCacheEnabled and cachedPage = transitionCacheFor(url)
     fetchHistory cachedPage
     fetchReplacement url
   else
@@ -24,6 +26,9 @@ fetch = (url) ->
 transitionCacheFor = (url) ->
   cachedPage = pageCache[url]
   cachedPage if cachedPage and !cachedPage.transitionCacheDisabled
+
+enableTransitionCache = (enable = true) ->
+  transitionCacheEnabled = enable
 
 fetchReplacement = (url, onLoadFunction = =>) ->  
   triggerEvent 'page:fetch', url: url
@@ -63,7 +68,7 @@ cacheCurrentPage = ->
     title:                    document.title,
     positionY:                window.pageYOffset,
     positionX:                window.pageXOffset,
-    cachedAt:                 new Date().getTime()
+    cachedAt:                 new Date().getTime(),
     transitionCacheDisabled:  document.querySelector('[data-no-transition-cache]')?
 
   constrainPageCacheTo cacheSize
@@ -344,6 +349,7 @@ else
 #   Turbolinks.visit(url)
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
+#   Turbolinks.enableTransitionCache()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
-@Turbolinks = { visit, pagesCached, allowLinkExtensions, supported: browserSupportsTurbolinks }
+@Turbolinks = { visit, pagesCached, enableTransitionCache, allowLinkExtensions, supported: browserSupportsTurbolinks }
