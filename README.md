@@ -64,6 +64,22 @@ To implement a client-side spinner, you could listen for `page:fetch` to start i
 
 DOM transformations that are idempotent are best. If you have transformations that are not, hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
+Transition Cache: A Speed Boost
+-------------------------------------
+
+Transition Cache is an experimental feature that makes loading cached pages instanteneous. Once a user has visited a page, returning later to the page results in an instant load.
+
+For example, if Page A is already cached by Turbolinks and you are on Page B, clicking a link to Page A will *immediately* display the cached copy of Page A. Turbolinks will then fetch Page A from the server and replace the cached page once the new copy is returned.
+
+To enable Transition Cache, include the following in your javascript:
+```javascript
+Turbolinks.enableTransitionCache();
+```
+
+The one drawback is that dramatic differences in appearence between a cached copy and new copy may lead to a jarring affect for the end-user. This will be especially true for pages that have many moving parts (expandable sections, sortable tables, infinite scrolling, etc.).
+
+If you find that a page is causing problems, you can have Turbolinks skip displaying the cached copy by adding `data-no-transition-cache` to any DOM element on the offending page.
+
 Initialization
 --------------
 
