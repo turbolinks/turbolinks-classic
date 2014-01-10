@@ -196,6 +196,7 @@ Language Ports
 
 * [Flask Turbolinks](https://github.com/lepture/flask-turbolinks) (Python Flask)
 * [ASP.NET MVC Turbolinks](https://github.com/kazimanzurrashid/aspnetmvcturbolinks)
+* [PHP Turbolinks Component](https://github.com/helthe/Turbolinks) (Symfony Component)
 
 Credits
 -------
