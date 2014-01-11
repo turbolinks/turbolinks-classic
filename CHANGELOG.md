@@ -1,6 +1,6 @@
-## Turbolinks (master)
+## Turbolinks 2.2.0 (January 10, 2014)
 
-*   Add transition cache experimental feature. When enabled, cached copies of pages will be shown
+*   Add transition cache feature. When enabled, cached copies of pages will be shown
     before fetching and displaying a new copy from the server. A individual page can be opted-out
     by adding `data-no-transition-cache` to any DOM element on the page.
 
