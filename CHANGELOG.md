@@ -1,3 +1,13 @@
+## Turbolinks (master)
+
+*   Do not store redirect_to location in session if the request did not come from Turbolinks.  Fixes
+    rare bug that manifests when directing items like image tag sources through ActionController and 
+    subsequently redirecting those requests to a different origin. This would cause the session variable 
+    to be set but never deleted (since the redirect request was external), resulting in the next request
+    being declared a redirect no matter what. 
+
+    *Nick Reed*
+
 ## Turbolinks 2.2.0 (January 10, 2014)
 
 *   Add transition cache feature. When enabled, cached copies of pages will be shown

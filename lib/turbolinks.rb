@@ -8,12 +8,18 @@ module Turbolinks
 
     private
       def _compute_redirect_to_location_with_xhr_referer(options)
-        session[:_turbolinks_redirect_to] =
+        store_for_turbolinks begin
           if options == :back && request.headers["X-XHR-Referer"]
             _compute_redirect_to_location_without_xhr_referer(request.headers["X-XHR-Referer"])
           else
             _compute_redirect_to_location_without_xhr_referer(options)
           end
+        end
+      end
+
+      def store_for_turbolinks(url)
+        session[:_turbolinks_redirect_to] = url if request.headers["X-XHR-Referer"]
+        url
       end
 
       def set_xhr_redirected_to
