@@ -318,9 +318,9 @@ initializeTurbolinks = ->
   document.addEventListener 'click', installClickHandlerLast, true
   window.addEventListener 'popstate', installHistoryChangeHandler, false
 
-# Handle bug in Firefox 26 where history.state is initially undefined
+# Handle bug in Firefox 26/27 where history.state is initially undefined
 historyStateIsDefined =
-  window.history.state != undefined or navigator.userAgent.match /Firefox\/26/
+  window.history.state != undefined or navigator.userAgent.match /Firefox\/2[6|7]/
 
 browserSupportsPushState =
   window.history and window.history.pushState and window.history.replaceState and historyStateIsDefined

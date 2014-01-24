@@ -8,6 +8,11 @@
 
     *Nick Reed*
 
+*   Extend handling of Firefox [history.state bug](https://bugzilla.mozilla.org/show_bug.cgi?id=949471) 
+    through Firefox 27.
+
+    *Nick Reed*
+    
 ## Turbolinks 2.2.0 (January 10, 2014)
 
 *   Add transition cache feature. When enabled, cached copies of pages will be shown
