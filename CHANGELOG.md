@@ -13,6 +13,10 @@
 
     *Nick Reed*
     
+*   Fix handling of `:back` option in ActionView helpers `url_for` and `link_to`.
+
+    *Nick Reed*
+
 ## Turbolinks 2.2.0 (January 10, 2014)
 
 *   Add transition cache feature. When enabled, cached copies of pages will be shown
