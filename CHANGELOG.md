@@ -1,4 +1,4 @@
-## Turbolinks (master)
+## Turbolinks 2.2.1 (January 30, 2014)
 
 *   Do not store redirect_to location in session if the request did not come from Turbolinks.  Fixes
     rare bug that manifests when directing items like image tag sources through ActionController and 
