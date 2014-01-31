@@ -17,6 +17,12 @@
 
     *Nick Reed*
 
+*   Delay binding of history change handler long enough to bypass the popstate event that some
+    browsers fire on the initial page load.  Prevents duplicate requests in certain scenarios when
+    traversing the browser history.
+
+    *Anton Pawlik + Nick Reed*
+
 ## Turbolinks 2.2.0 (January 10, 2014)
 
 *   Add transition cache feature. When enabled, cached copies of pages will be shown
