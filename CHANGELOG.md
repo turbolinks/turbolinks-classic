@@ -1,3 +1,10 @@
+## Turbolinks (master)
+
+*   Always use absolute URLs as cache keys and in state objects.  Eliminates possibility of multiple 
+    cache objects for the same page. 
+
+    *Nick Reed*
+
 ## Turbolinks 2.2.1 (January 30, 2014)
 
 *   Do not store redirect_to location in session if the request did not come from Turbolinks.  Fixes
