@@ -35,7 +35,7 @@ fetchReplacement = (url, onLoadFunction = =>) ->
 
   xhr?.abort()
   xhr = new XMLHttpRequest
-  xhr.open 'GET', removeHashForIE10compatiblity(url), true
+  xhr.open 'GET', removeHashForIE10compatibility(url), true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
@@ -141,7 +141,7 @@ resetScrollPosition = ->
 
 
 # Intention revealing function alias
-removeHashForIE10compatiblity = (url) ->
+removeHashForIE10compatibility = (url) ->
   removeHash url
 
 removeHash = (url) ->
