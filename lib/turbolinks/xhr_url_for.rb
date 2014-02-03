@@ -7,7 +7,7 @@ module Turbolinks
       base.alias_method_chain :url_for, :xhr_referer
     end
  
-    def url_for_with_xhr_referer(options)
+    def url_for_with_xhr_referer(options = {})
       options = (xhr_referer || options) if options == :back
       url_for_without_xhr_referer options
     end
