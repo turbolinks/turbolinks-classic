@@ -289,8 +289,7 @@ class Link extends ComponentUrl
       (@href is current.href + '#') 
 
   _nonHtml: ->
-    url = @withoutHash()
-    url.match(/\.[a-z]+(\?.*)?$/g) and not url.match(new RegExp("\\.(?:#{Link.HTML_EXTENSIONS.join('|')})?(\\?.*)?$", 'g'))
+    @pathname.match(/\.[a-z]+$/g) and not @pathname.match(new RegExp("\\.(?:#{Link.HTML_EXTENSIONS.join('|')})?$", 'g'))
 
   _optOut: ->
     link = @link

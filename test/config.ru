@@ -15,6 +15,10 @@ map "/500" do
   # throw Internal Server Error (500)
 end
 
+map "/withoutextension" do
+  run Rack::File.new(File.join(Root, "test", "withoutextension"), "Content-Type" => "text/html")
+end
+
 map "/" do
   run Rack::Directory.new(File.join(Root, "test"))
 end
