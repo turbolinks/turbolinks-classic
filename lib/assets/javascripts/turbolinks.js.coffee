@@ -255,7 +255,8 @@ class ComponentUrl
   _parse: ->
     (@link ?= document.createElement 'a').href = @original
     { @href, @protocol, @host, @hostname, @port, @pathname, @search, @hash } = @link
-    @origin = [@protocol, '//', @host].join ''
+    @origin = [@protocol, '//', @hostname].join ''
+    @origin += ":#{@port}" unless @port.length is 0
     @relative = [@pathname, @search, @hash].join ''
     @absolute = @href
 
