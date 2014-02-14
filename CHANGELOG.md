@@ -5,6 +5,11 @@
 
     *Nick Reed*
 
+*   Allow periods in a link's query string (ex. `/users?sort=account.email`) without it interfering with 
+    the extension check.
+
+    *Kuba Kuźma*
+
 ## Turbolinks 2.2.1 (January 30, 2014)
 
 *   Do not store redirect_to location in session if the request did not come from Turbolinks.  Fixes
