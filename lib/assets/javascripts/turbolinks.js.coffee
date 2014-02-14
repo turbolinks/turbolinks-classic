@@ -242,7 +242,7 @@ browserCompatibleDocumentParser = ->
 # is used to fill in the missing attributes (protocol, host, port).  
 class ComponentUrl
   constructor: (@original = document.location.href) ->
-    return @original if @original.constructor.name is 'ComponentUrl'
+    return @original if @original.constructor.name is @constructor.name
     @_parse()
 
   withoutHash: -> @href.replace @hash, ''
@@ -270,7 +270,7 @@ class Link extends ComponentUrl
     Link.HTML_EXTENSIONS
 
   constructor: (@link) ->
-    return @link if @link.constructor.name is 'Link'
+    return @link if @link.constructor.name is @constructor.name
     @original = @link.href
     super
 
