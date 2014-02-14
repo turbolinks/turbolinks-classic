@@ -235,14 +235,14 @@ browserCompatibleDocumentParser = ->
       return createDocumentUsingWrite
 
 
-# The ComponenetUrl class converts a basic URL string into an object
+# The ComponentUrl class converts a basic URL string into an object
 # that behaves similarly to document.location.  
 #
 # If an instance is created from a relative URL, the current document 
 # is used to fill in the missing attributes (protocol, host, port).  
 class ComponentUrl
   constructor: (@original = document.location.href) ->
-    return @original if @original.constructor.name is @constructor.name
+    return @original if @original.constructor is ComponentUrl
     @_parse()
 
   withoutHash: -> @href.replace @hash, ''
@@ -271,7 +271,7 @@ class Link extends ComponentUrl
     Link.HTML_EXTENSIONS
 
   constructor: (@link) ->
-    return @link if @link.constructor.name is @constructor.name
+    return @link if @link.constructor is Link
     @original = @link.href
     super
 
