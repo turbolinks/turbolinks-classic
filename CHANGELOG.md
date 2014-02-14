@@ -10,6 +10,10 @@
 
     *Kuba Kuźma*
 
+*   Don't process links with no `href` attribute.
+
+    *Nick Reed*
+
 ## Turbolinks 2.2.1 (January 30, 2014)
 
 *   Do not store redirect_to location in session if the request did not come from Turbolinks.  Fixes
