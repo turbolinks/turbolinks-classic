@@ -14,9 +14,7 @@ module Turbolinks
           before_filter :set_xhr_redirected_to, :set_request_method_cookie
           after_filter :abort_xdomain_redirect
         end
-      end
 
-      ActiveSupport.on_load(:action_dispatch) do
         ActionDispatch::Request.class_eval do
           def referer
             self.headers['X-XHR-Referer'] || super
