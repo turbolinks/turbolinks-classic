@@ -1,4 +1,4 @@
-## Turbolinks (master)
+## Turbolinks 2.2.2 (April 6, 2014)
 
 *   Always use absolute URLs as cache keys and in state objects.  Eliminates possibility of multiple 
     cache objects for the same page. 
