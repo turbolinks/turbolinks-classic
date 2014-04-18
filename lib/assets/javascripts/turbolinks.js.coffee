@@ -95,6 +95,7 @@ changePage = (title, body, csrfToken, runScripts) ->
   document.title = title
   document.documentElement.replaceChild body, document.body
   CSRFToken.update csrfToken if csrfToken?
+  setAutofocusElement()
   executeScriptTags() if runScripts
   currentState = window.history.state
   triggerEvent 'page:change'
@@ -115,6 +116,12 @@ removeNoscriptTags = (node) ->
   node.innerHTML = node.innerHTML.replace /<noscript[\S\s]*?<\/noscript>/ig, ''
   node
 
+# Firefox bug: Doesn't autofocus fields that are inserted via JavaScript
+setAutofocusElement = ->
+  autofocusElement = (list = document.querySelectorAll 'input[autofocus], textarea[autofocus]')[list.length - 1]
+  if autofocusElement and document.activeElement isnt autofocusElement
+    autofocusElement.focus()
+    
 reflectNewUrl = (url) ->
   if (url = new ComponentUrl url).absolute isnt referer
     window.history.pushState { turbolinks: true, url: url.absolute }, '', url.absolute
