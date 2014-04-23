@@ -59,8 +59,12 @@ When a page is removed from the cache due to the cache reaching its size limit, 
 
 To implement a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
 
-    document.addEventListener("page:fetch", startSpinner);
-    document.addEventListener("page:receive", stopSpinner);
+```javascript
+// using jQuery for simplicity
+    
+$(document).on("page:fetch", startSpinner);
+$(document).on("page:receive", stopSpinner);
+```
 
 DOM transformations that are idempotent are best. If you have transformations that are not, hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
 
