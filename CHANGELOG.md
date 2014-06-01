@@ -3,6 +3,11 @@
 *   Fix HTML5 autofocus for Firefox.
 
     *Nick Reed*
+
+*   Prevent `url_for` errors when using _unsupported_ Ruby 1.8.  Note that `link_to :back` and 
+    `redirect_to :back` will not function properly when using Turbolinks with Ruby 1.8.
+
+    *Nick Reed*
     
 ## Turbolinks 2.2.2 (April 6, 2014)
 

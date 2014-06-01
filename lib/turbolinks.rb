@@ -27,7 +27,7 @@ module Turbolinks
         (ActionView::RoutingUrlFor rescue ActionView::Helpers::UrlHelper).module_eval do
           include XHRUrlFor
         end
-      end
+      end unless RUBY_VERSION =~ /^1\.8/
     end
   end
 end
