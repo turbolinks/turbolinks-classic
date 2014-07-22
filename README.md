@@ -199,6 +199,7 @@ Language Ports
 *These projects are not affiliated with or endorsed by the Rails Turbolinks team.*
 
 * [Flask Turbolinks](https://github.com/lepture/flask-turbolinks) (Python Flask)
+* [Django Turbolinks](https://github.com/dgladkov/django-turbolinks) (Python Django)
 * [ASP.NET MVC Turbolinks](https://github.com/kazimanzurrashid/aspnetmvcturbolinks)
 * [PHP Turbolinks Component](https://github.com/helthe/Turbolinks) (Symfony Component)
 * [PHP Turbolinks Package](https://github.com/frenzyapp/turbolinks) (Laravel Package)
