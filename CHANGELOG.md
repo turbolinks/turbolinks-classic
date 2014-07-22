@@ -8,6 +8,10 @@
     `redirect_to :back` will not function properly when using Turbolinks with Ruby 1.8.
 
     *Nick Reed*
+
+*   Fix handling of anchors/hashes with respect to navigating the browser history.
+
+    *Nick Reed*
     
 ## Turbolinks 2.2.2 (April 6, 2014)
 
