@@ -1,4 +1,4 @@
-## Turbolinks (master)
+## Turbolinks 2.2.3 (August 19, 2014)
 
 *   Fix HTML5 autofocus for Firefox.
 
@@ -12,6 +12,10 @@
 *   Fix handling of anchors/hashes with respect to navigating the browser history.
 
     *Nick Reed*
+
+*   Add support for Rails 4.2.
+
+    *Aaron Patterson*
     
 ## Turbolinks 2.2.2 (April 6, 2014)
 
