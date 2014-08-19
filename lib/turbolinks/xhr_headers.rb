@@ -11,12 +11,14 @@ module Turbolinks
   module XHRHeaders
     extend ActiveSupport::Concern
 
-    def _compute_redirect_to_location(request, options)
+    def _compute_redirect_to_location(*args)
+      options, request = _normalize_redirect_params(args)
+
       store_for_turbolinks begin
         if options == :back && request.headers["X-XHR-Referer"]
-          super(request.headers["X-XHR-Referer"], options)
+          super(*[(request if args.length == 2), request.headers["X-XHR-Referer"]].compact)
         else
-          super(request, options)
+          super(*args)
         end
       end
     end
@@ -31,6 +33,14 @@ module Turbolinks
         if session[:_turbolinks_redirect_to]
           response.headers['X-XHR-Redirected-To'] = session.delete :_turbolinks_redirect_to
         end
+      end
+
+      # Ensure backwards compatibility
+      # Rails < 4.2:  _compute_redirect_to_location(options)
+      # Rails >= 4.2: _compute_redirect_to_location(request, options)
+      def _normalize_redirect_params(args)
+        options, req = args.reverse
+        [options, req || request]
       end
   end
 end
