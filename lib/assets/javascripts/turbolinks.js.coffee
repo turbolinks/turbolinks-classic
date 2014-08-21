@@ -16,7 +16,6 @@ fetch = (url) ->
 
   rememberReferer()
   cacheCurrentPage()
-  reflectNewUrl url
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
@@ -41,9 +40,10 @@ fetchReplacement = (url, onLoadFunction = =>) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
   xhr.onload = ->
-    triggerEvent 'page:receive'
+    triggerEvent 'page:receive', url: url.absolute
 
     if doc = processResponse()
+      reflectNewUrl url
       changePage extractTitleAndBody(doc)...
       manuallyTriggerHashChangeForFirefox()
       reflectRedirectedUrl()
