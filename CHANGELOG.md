@@ -1,4 +1,4 @@
-## Turbolinks (master)
+## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
     returns from the server and the response is determined to be valid.  This notably fixes the behavior of 
@@ -8,7 +8,7 @@
     to determine the URL of the new page.  Instead, use the data bound to the event object (`e.originalEvent.data.url`).
 
     *Nick Reed*
-    
+
 ## Turbolinks 2.2.3 (August 19, 2014)
 
 *   Fix HTML5 autofocus for Firefox.
