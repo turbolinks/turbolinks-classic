@@ -25,12 +25,12 @@ module Turbolinks
 
     private
       def store_for_turbolinks(url)
-        session[:_turbolinks_redirect_to] = url if request.headers["X-XHR-Referer"]
+        session[:_turbolinks_redirect_to] = url if session && request.headers["X-XHR-Referer"]
         url
       end
 
       def set_xhr_redirected_to
-        if session[:_turbolinks_redirect_to]
+        if session && session[:_turbolinks_redirect_to]
           response.headers['X-XHR-Redirected-To'] = session.delete :_turbolinks_redirect_to
         end
       end
