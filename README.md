@@ -33,7 +33,8 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 * `page:before-change` a Turbolinks-enabled link has been clicked *(see below for more details)*
 * `page:fetch` starting to fetch a new target page
 * `page:receive` the page has been fetched from the server, but not yet parsed
-* `page:change` the page has been parsed and changed to the new version and on DOMContentLoaded
+* `page:before-unload` the page has been parsed and is about to be changed
+* `page:change` the page has been changed to the new version (and on DOMContentLoaded)
 * `page:update` is triggered alongside both page:change and jQuery's ajaxSuccess (if jQuery is available - otherwise you can manually trigger it when calling XMLHttpRequest in your own code)
 * `page:load` is fired at the end of the loading process.
 
@@ -42,6 +43,7 @@ Handlers bound to the `page:before-change` event may return `false`, which will 
 By default, Turbolinks caches 10 of these page loads. It listens to the [popstate](https://developer.mozilla.org/en-US/docs/DOM/Manipulating_the_browser_history#The_popstate_event) event and attempts to restore page state from the cache when it's triggered. When `popstate` is fired the following process happens:
 
 ***Restore* a cached page from the client-side cache:**
+* `page:before-unload` page has been fetched from the cache and is about to be changed
 * `page:change` page has changed to the cached page.
 * `page:restore` is fired at the end of restore process.
 

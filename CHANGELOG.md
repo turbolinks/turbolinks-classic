@@ -1,3 +1,13 @@
+## Turbolinks (master)
+
+*   Add a `page:before-unload` event, triggered immediately before the page is changed.  The
+    event is triggered regardless of where the page came from (server vs cache).
+
+    Note that this event is not canceleable like the similarly named native event `beforeunload`,
+    and therefore should not be viewed as counterparts.
+
+    *Nick Reed*
+
 ## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
