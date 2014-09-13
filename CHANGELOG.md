@@ -8,6 +8,11 @@
 
     *Nick Reed*
 
+*   If the Prototype library is loaded, additionally trigger events with `Event.fire` so they can be
+    observed using Prototype methods like `.on()` and `.observe()`.
+
+    *Nick Reed*
+
 ## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
