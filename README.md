@@ -34,7 +34,7 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 * `page:fetch` starting to fetch a new target page
 * `page:receive` the page has been fetched from the server, but not yet parsed
 * `page:change` the page has been parsed and changed to the new version and on DOMContentLoaded
-* `page:update` is triggered whenever page:change is PLUS on jQuery's ajaxSucess, if jQuery is available (otherwise you can manually trigger it when calling XMLHttpRequest in your own code)
+* `page:update` is triggered alongside both page:change and jQuery's ajaxSuccess (if jQuery is available - otherwise you can manually trigger it when calling XMLHttpRequest in your own code)
 * `page:load` is fired at the end of the loading process.
 
 Handlers bound to the `page:before-change` event may return `false`, which will cancel the Turbolinks process.
