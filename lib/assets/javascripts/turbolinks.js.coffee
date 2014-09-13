@@ -293,6 +293,8 @@ class Link extends ComponentUrl
   constructor: (@link) ->
     return @link if @link.constructor is Link
     @original = @link.href
+    @originalElement = @link
+    @link = @link.cloneNode false
     super
 
   shouldIgnore: ->
@@ -313,7 +315,7 @@ class Link extends ComponentUrl
     @pathname.match(/\.[a-z]+$/g) and not @pathname.match(new RegExp("\\.(?:#{Link.HTML_EXTENSIONS.join('|')})?$", 'g'))
 
   _optOut: ->
-    link = @link
+    link = @originalElement
     until ignore or link is document
       ignore = link.getAttribute('data-no-turbolink')?
       link = link.parentNode
@@ -346,7 +348,7 @@ class Click
   _extractLink: ->
     link = @event.target
     link = link.parentNode until !link.parentNode or link.nodeName is 'A'
-    @link = new Link(link.cloneNode(false)) if link.nodeName is 'A' and link.href.length isnt 0
+    @link = new Link(link) if link.nodeName is 'A' and link.href.length isnt 0
 
   _validForTurbolinks: ->
     @link? and not (@link.shouldIgnore() or @_nonStandardClick())
