@@ -108,6 +108,7 @@ executeScriptTags = ->
   for script in scripts when script.type in ['', 'text/javascript']
     copy = document.createElement 'script'
     copy.setAttribute attr.name, attr.value for attr in script.attributes
+    copy.async = false unless script.hasAttribute 'async'
     copy.appendChild document.createTextNode script.innerHTML
     { parentNode, nextSibling } = script
     parentNode.removeChild script

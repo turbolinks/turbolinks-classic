@@ -13,6 +13,11 @@
 
     *Nick Reed*
 
+*   Maintain correct load order of scripts in the `body` by explicitly setting `async` to false if it is
+    not already set.
+
+    *Nick Reed*
+
 ## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
