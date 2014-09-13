@@ -346,7 +346,7 @@ class Click
   _extractLink: ->
     link = @event.target
     link = link.parentNode until !link.parentNode or link.nodeName is 'A'
-    @link = new Link(link) if link.nodeName is 'A' and link.href.length isnt 0
+    @link = new Link(link.cloneNode(false)) if link.nodeName is 'A' and link.href.length isnt 0
 
   _validForTurbolinks: ->
     @link? and not (@link.shouldIgnore() or @_nonStandardClick())
