@@ -180,8 +180,8 @@ triggerEvent = (name, data) ->
   event.initEvent name, true, true
   document.dispatchEvent event
 
-pageChangePrevented = ->
-  !triggerEvent 'page:before-change'
+pageChangePrevented = (url) ->
+  !triggerEvent 'page:before-change', url: url
 
 processResponse = ->
   clientOrServerError = ->
@@ -347,7 +347,7 @@ class Click
     return if @event.defaultPrevented
     @_extractLink()
     if @_validForTurbolinks()
-      visit @link.href unless pageChangePrevented()
+      visit @link.href unless pageChangePrevented(@link.absolute)
       @event.preventDefault() 
 
   _extractLink: ->

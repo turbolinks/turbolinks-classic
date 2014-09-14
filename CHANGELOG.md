@@ -18,6 +18,10 @@
 
     *Nick Reed*
 
+*   Include the target URL in the event data for the `page:before-change` event.
+
+    *Nick Reed*
+
 ## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
