@@ -10,6 +10,16 @@ referer                 = null
 createDocument          = null
 xhr                     = null
 
+EVENTS =
+  BEFORE_CHANGE:  'page:before-change'
+  FETCH:          'page:fetch'
+  RECEIVE:        'page:receive'
+  CHANGE:         'page:change'
+  UPDATE:         'page:update'
+  LOAD:           'page:load'
+  RESTORE:        'page:restore'
+  BEFORE_UNLOAD:  'page:before-unload'
+  EXPIRE:         'page:expire'
 
 fetch = (url) ->
   url = new ComponentUrl url
@@ -30,8 +40,8 @@ transitionCacheFor = (url) ->
 enableTransitionCache = (enable = true) ->
   transitionCacheEnabled = enable
 
-fetchReplacement = (url, onLoadFunction = =>) ->  
-  triggerEvent 'page:fetch', url: url.absolute
+fetchReplacement = (url, onLoadFunction = =>) ->
+  triggerEvent EVENTS.FETCH, url: url.absolute
 
   xhr?.abort()
   xhr = new XMLHttpRequest
@@ -40,7 +50,7 @@ fetchReplacement = (url, onLoadFunction = =>) ->
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
   xhr.onload = ->
-    triggerEvent 'page:receive', url: url.absolute
+    triggerEvent EVENTS.RECEIVE, url: url.absolute
 
     if doc = processResponse()
       reflectNewUrl url
@@ -48,7 +58,7 @@ fetchReplacement = (url, onLoadFunction = =>) ->
       manuallyTriggerHashChangeForFirefox()
       reflectRedirectedUrl()
       onLoadFunction()
-      triggerEvent 'page:load'
+      triggerEvent EVENTS.LOAD
     else
       document.location.href = url.absolute
 
@@ -61,7 +71,7 @@ fetchHistory = (cachedPage) ->
   xhr?.abort()
   changePage cachedPage.title, cachedPage.body
   recallScrollPosition cachedPage
-  triggerEvent 'page:restore'
+  triggerEvent EVENTS.RESTORE
 
 
 cacheCurrentPage = ->
@@ -89,19 +99,19 @@ constrainPageCacheTo = (limit) ->
   .sort (a, b) -> b - a
 
   for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
-    triggerEvent 'page:expire', pageCache[key]
+    triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
 changePage = (title, body, csrfToken, runScripts) ->
-  triggerEvent 'page:before-unload'
+  triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
   document.documentElement.replaceChild body, document.body
   CSRFToken.update csrfToken if csrfToken?
   setAutofocusElement()
   executeScriptTags() if runScripts
   currentState = window.history.state
-  triggerEvent 'page:change'
-  triggerEvent 'page:update'
+  triggerEvent EVENTS.CHANGE
+  triggerEvent EVENTS.UPDATE
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
@@ -181,7 +191,7 @@ triggerEvent = (name, data) ->
   document.dispatchEvent event
 
 pageChangePrevented = (url) ->
-  !triggerEvent 'page:before-change', url: url
+  !triggerEvent EVENTS.BEFORE_CHANGE, url: url
 
 processResponse = ->
   clientOrServerError = ->
@@ -373,15 +383,15 @@ bypassOnLoadPopstate = (fn) ->
 
 installDocumentReadyPageEventTriggers = ->
   document.addEventListener 'DOMContentLoaded', ( ->
-    triggerEvent 'page:change'
-    triggerEvent 'page:update'
+    triggerEvent EVENTS.CHANGE
+    triggerEvent EVENTS.UPDATE
   ), true
 
 installJqueryAjaxSuccessPageUpdateTrigger = ->
   if typeof jQuery isnt 'undefined'
     jQuery(document).on 'ajaxSuccess', (event, xhr, settings) ->
       return unless jQuery.trim xhr.responseText
-      triggerEvent 'page:update'
+      triggerEvent EVENTS.UPDATE
 
 installHistoryChangeHandler = (event) ->
   if event.state?.turbolinks
@@ -440,4 +450,5 @@ else
 #   Turbolinks.enableTransitionCache()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
-@Turbolinks = { visit, pagesCached, enableTransitionCache, allowLinkExtensions: Link.allowExtensions, supported: browserSupportsTurbolinks }
+#   Turbolinks.EVENTS
+@Turbolinks = { visit, pagesCached, enableTransitionCache, allowLinkExtensions: Link.allowExtensions, supported: browserSupportsTurbolinks, EVENTS }
