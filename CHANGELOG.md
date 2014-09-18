@@ -1,8 +1,8 @@
 ## Turbolinks (master)
 
-*   Move events to `Turbolinks.EVENTS` and fire them from there.
+*   Expose event list via `Turbolinks.events()`.
 
-    *Robert Mosolgo*
+    *Robert Mosolgo, William Meleyal*
 
 *   Add a `page:before-unload` event, triggered immediately before the page is changed.  The
     event is triggered regardless of where the page came from (server vs cache).
