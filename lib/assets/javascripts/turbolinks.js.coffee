@@ -314,7 +314,7 @@ class Link extends ComponentUrl
     
   _anchored: ->
     ((@hash and @withoutHash()) is (current = new ComponentUrl).withoutHash()) or 
-      (@href is current.href + '#') 
+      (@href in [current.href, current.href + '#'])
 
   _nonHtml: ->
     @pathname.match(/\.[a-z]+$/g) and not @pathname.match(new RegExp("\\.(?:#{Link.HTML_EXTENSIONS.join('|')})?$", 'g'))

@@ -22,6 +22,11 @@
 
     *Nick Reed*
 
+*   Fix issue where clicking a link with `href="#"` would not be ignored by Turbolinks when the current location 
+    already ends in an empty anchor.
+
+    *Nick Reed*
+
 ## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
