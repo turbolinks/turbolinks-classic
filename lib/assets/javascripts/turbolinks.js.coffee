@@ -188,7 +188,8 @@ processResponse = ->
     400 <= xhr.status < 600
 
   validContent = ->
-    xhr.getResponseHeader('Content-Type').match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
+    (contentType = xhr.getResponseHeader('Content-Type'))? and 
+      contentType.match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
 
   extractTrackAssets = (doc) ->
     for node in doc.head.childNodes when node.getAttribute?('data-turbolinks-track')?
