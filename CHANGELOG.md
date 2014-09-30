@@ -1,6 +1,6 @@
 ## Turbolinks (master)
 
-*   Expose event list via `Turbolinks.events()`.
+*   Expose event list via `Turbolinks.EVENTS`.
 
     *Robert Mosolgo, William Meleyal*
 

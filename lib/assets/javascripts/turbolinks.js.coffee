@@ -21,9 +21,6 @@ EVENTS =
   BEFORE_UNLOAD:  'page:before-unload'
   EXPIRE:         'page:expire'
 
-events = ->
-  value for key, value of EVENTS
-
 fetch = (url) ->
   url = new ComponentUrl url
 
@@ -178,6 +175,12 @@ resetScrollPosition = ->
   else
     window.scrollTo 0, 0
 
+
+clone = (original) ->
+  return original if not original? or typeof original isnt 'object'
+  copy = new original.constructor()
+  copy[key] = clone value for key, value of original
+  copy
 
 popCookie = (name) ->
   value = document.cookie.match(new RegExp(name+"=(\\w+)"))?[1].toUpperCase() or ''
@@ -479,5 +482,12 @@ else
 #   Turbolinks.enableTransitionCache()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
-#   Turbolinks.events()
-@Turbolinks = { visit, pagesCached, enableTransitionCache, allowLinkExtensions: Link.allowExtensions, supported: browserSupportsTurbolinks, events }
+#   Turbolinks.EVENTS
+@Turbolinks = {
+  visit,
+  pagesCached,
+  enableTransitionCache,
+  allowLinkExtensions: Link.allowExtensions,
+  supported: browserSupportsTurbolinks,
+  EVENTS: clone(EVENTS)
+}
