@@ -27,6 +27,11 @@
 
     *Nick Reed*
 
+*   Handle HTML parsing inconsistencies present in Safari 7.1+.
+
+    *Nick Reed*
+
+
 ## Turbolinks 2.3.0 (August 21, 2014)
 
 *   Revert pushState timing behavior to how it was prior to v2.2.0. The URL will not change until the request
