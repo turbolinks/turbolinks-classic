@@ -296,7 +296,7 @@ class ComponentUrl
     return @original if @original.constructor is ComponentUrl
     @_parse()
 
-  withoutHash: -> @href.replace @hash, ''
+  withoutHash: -> @href.replace(@hash, '').replace('#', '')
 
   # Intention revealing function alias
   withoutHashForIE10compatibility: -> @withoutHash()
@@ -339,8 +339,8 @@ class Link extends ComponentUrl
     @origin isnt (new ComponentUrl).origin
     
   _anchored: ->
-    ((@hash and @withoutHash()) is (current = new ComponentUrl).withoutHash()) or 
-      (@href in [current.href, current.href + '#'])
+    (@hash.length > 0 or @href.charAt(@href.length - 1) is '#') and
+      (@withoutHash() is (new ComponentUrl).withoutHash())
 
   _nonHtml: ->
     @pathname.match(/\.[a-z]+$/g) and not @pathname.match(new RegExp("\\.(?:#{Link.HTML_EXTENSIONS.join('|')})?$", 'g'))
