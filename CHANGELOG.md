@@ -1,4 +1,4 @@
-## Turbolinks (master)
+## Turbolinks 2.4.0 (October 2, 2014)
 
 *   Expose event list via `Turbolinks.EVENTS`.
 
@@ -35,6 +35,9 @@
 
     *Nick Reed*
 
+*   Only set the request_method cookie after non-GET requests.
+
+    *Matt Brickston*
 
 ## Turbolinks 2.3.0 (August 21, 2014)
 
