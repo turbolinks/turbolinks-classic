@@ -44,7 +44,7 @@
 
 *   Only set the request_method cookie after non-GET requests.
 
-    *Matt Brickston*
+    *Matt Brictson*
 
 ## Turbolinks 2.3.0 (August 21, 2014)
 
