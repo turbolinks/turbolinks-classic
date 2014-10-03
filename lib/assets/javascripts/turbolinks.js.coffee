@@ -60,7 +60,7 @@ fetchReplacement = (url, onLoadFunction = =>) ->
       onLoadFunction()
       triggerEvent EVENTS.LOAD
     else
-      document.location.href = url.absolute
+      document.location.href = crossOriginRedirect() or url.absolute
 
   xhr.onloadend = -> xhr = null
   xhr.onerror   = -> document.location.href = url.absolute
@@ -144,6 +144,9 @@ reflectRedirectedUrl = ->
     location = new ComponentUrl location
     preservedHash = if location.hasNoHash() then document.location.hash else ''
     window.history.replaceState currentState, '', location.href + preservedHash
+
+crossOriginRedirect = ->
+  redirect if (redirect = xhr.getResponseHeader('Location'))? and (new ComponentUrl(redirect)).crossOrigin()
 
 rememberReferer = ->
   referer = document.location.href
@@ -319,6 +322,9 @@ class ComponentUrl
 
   hasNoHash: -> @hash.length is 0
 
+  crossOrigin: ->
+    @origin isnt (new ComponentUrl).origin
+
   _parse: ->
     (@link ?= document.createElement 'a').href = @original
     { @href, @protocol, @host, @hostname, @port, @pathname, @search, @hash } = @link
@@ -345,15 +351,12 @@ class Link extends ComponentUrl
     super
 
   shouldIgnore: ->
-    @_crossOrigin() or 
+    @crossOrigin() or
       @_anchored() or 
       @_nonHtml() or 
       @_optOut() or 
       @_target()
 
-  _crossOrigin: ->
-    @origin isnt (new ComponentUrl).origin
-    
   _anchored: ->
     (@hash.length > 0 or @href.charAt(@href.length - 1) is '#') and
       (@withoutHash() is (new ComponentUrl).withoutHash())

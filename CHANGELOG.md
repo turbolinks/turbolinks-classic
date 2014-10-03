@@ -1,3 +1,10 @@
+## Turbolinks (master)
+
+*   Avoid double requests when the server returns a cross origin redirect by directly loading the
+    redirect location.
+
+    *Hsiaoming Yang*
+
 ## Turbolinks 2.4.0 (October 2, 2014)
 
 *   Expose event list via `Turbolinks.EVENTS`.
