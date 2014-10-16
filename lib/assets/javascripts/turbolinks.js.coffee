@@ -463,8 +463,9 @@ class ProgressBar
         @_startTrickle()
 
   done: ->
-    @advanceTo(100)
-    @_reset()
+    if @value > 0
+      @advanceTo(100)
+      @_reset()
 
   _reset: ->
     setTimeout =>
