@@ -1,6 +1,7 @@
 pageCache               = {}
 cacheSize               = 10
 transitionCacheEnabled  = false
+progressBar             = null
 
 currentState            = null
 loadedAssets            = null
@@ -26,10 +27,11 @@ fetch = (url) ->
 
   rememberReferer()
   cacheCurrentPage()
+  progressBar?.start()
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
-    fetchReplacement url
+    fetchReplacement url, null, false
   else
     fetchReplacement url, resetScrollPosition
 
@@ -40,7 +42,14 @@ transitionCacheFor = (url) ->
 enableTransitionCache = (enable = true) ->
   transitionCacheEnabled = enable
 
-fetchReplacement = (url, onLoadFunction = =>) ->
+enableProgressBar = (enable = true) ->
+  if enable
+    progressBar ?= new ProgressBar 'html'
+  else
+    progressBar?.uninstall()
+    progressBar = null
+
+fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
   triggerEvent EVENTS.FETCH, url: url.absolute
 
   xhr?.abort()
@@ -57,10 +66,18 @@ fetchReplacement = (url, onLoadFunction = =>) ->
       changePage extractTitleAndBody(doc)...
       manuallyTriggerHashChangeForFirefox()
       reflectRedirectedUrl()
-      onLoadFunction()
+      onLoadFunction?()
       triggerEvent EVENTS.LOAD
     else
       document.location.href = crossOriginRedirect() or url.absolute
+
+  if progressBar and showProgressBar
+    xhr.onprogress = (event) =>
+      percent = if event.lengthComputable
+        event.loaded / event.total * 100
+      else
+        progressBar.value + (100 - progressBar.value) / 10
+      progressBar.advanceTo(percent)
 
   xhr.onloadend = -> xhr = null
   xhr.onerror   = -> document.location.href = url.absolute
@@ -110,6 +127,7 @@ changePage = (title, body, csrfToken, runScripts) ->
   setAutofocusElement()
   executeScriptTags() if runScripts
   currentState = window.history.state
+  progressBar?.done()
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
@@ -411,6 +429,95 @@ class Click
       @event.altKey
 
 
+class ProgressBar
+  className = 'turbolinks-progress-bar'
+
+  constructor: (@elementSelector) ->
+    @value = 0
+    @opacity = 1
+    @speed = 300
+    @install()
+
+  install: ->
+    @element = document.querySelector(@elementSelector)
+    @element.classList.add(className)
+    @styleElement = document.createElement('style')
+    document.head.appendChild(@styleElement)
+    @_updateStyle()
+
+  uninstall: ->
+    @element.classList.remove(className)
+    document.head.removeChild(@styleElement)
+
+  start: ->
+    @advanceTo(5)
+
+  advanceTo: (value) ->
+    if value > @value <= 100
+      @value = value
+      @_updateStyle()
+
+      if @value is 100
+        @_stopTrickle()
+      else if @value > 0
+        @_startTrickle()
+
+  done: ->
+    @advanceTo(100)
+    @_reset()
+
+  _reset: ->
+    setTimeout =>
+      @opacity = 0
+      @_updateStyle()
+    , @speed / 2
+
+    setTimeout =>
+      @value = 0
+      @opacity = 1
+      @_withSpeed(0, @_updateStyle)
+    , @speed
+
+  _startTrickle: ->
+    return if @trickling
+    @trickling = true
+    setTimeout(@_trickle, @speed)
+
+  _stopTrickle: ->
+    delete @trickling
+
+  _trickle: =>
+    return unless @trickling
+    @advanceTo(@value + Math.random() / 2)
+    setTimeout(@_trickle, @speed)
+
+  _withSpeed: (speed, fn) ->
+    originalSpeed = @speed
+    @speed = speed
+    result = fn()
+    @speed = originalSpeed
+    result
+
+  _updateStyle: =>
+    @styleElement.textContent = @_createCSSRule()
+
+  _createCSSRule: ->
+    """
+    #{@elementSelector}.#{className}::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #0076ff;
+      height: 3px;
+      opacity: #{@opacity};
+      width: #{@value}%;
+      transition: width #{@speed}ms ease-out, opacity #{@speed / 2}ms ease-in;
+      transform: translate3d(0,0,0);
+    }
+    """
+
+
 # Delay execution of function long enough to miss the popstate event
 # some browsers fire on the initial page load.
 bypassOnLoadPopstate = (fn) ->
@@ -490,6 +597,7 @@ else
   visit,
   pagesCached,
   enableTransitionCache,
+  enableProgressBar,
   allowLinkExtensions: Link.allowExtensions,
   supported: browserSupportsTurbolinks,
   EVENTS: clone(EVENTS)
