@@ -86,6 +86,26 @@ The one drawback is that dramatic differences in appearence between a cached cop
 
 If you find that a page is causing problems, you can have Turbolinks skip displaying the cached copy by adding `data-no-transition-cache` to any DOM element on the offending page.
 
+Progress Bar
+------------
+
+Because Turbolinks skips the traditional full page reload, browsers won't display their native progress bar when changing pages. To fill this void, Turbolinks offers an optional JavaScript-and-CSS-based progress bar to display page loading progress.
+
+To enable the progress bar, include the following in your JavaScript:
+```javascript
+Turbolinks.enableProgressBar();
+```
+
+The progress bar is implemented on the html element's pseudo `:before` element and can be **customized** by including CSS with higher specificity than the included styles. For example:
+
+```css
+html.turbolinks-progress-bar::before {
+  background-color: red !important;
+  height: 5px !important;
+}
+```
+
+
 Initialization
 --------------
 
