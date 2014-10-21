@@ -435,6 +435,7 @@ class ProgressBar
   constructor: (@elementSelector) ->
     @value = 0
     @opacity = 1
+    @content = ''
     @speed = 300
     @install()
 
@@ -476,7 +477,7 @@ class ProgressBar
     setTimeout =>
       @value = 0
       @opacity = 1
-      @_withSpeed(0, @_updateStyle)
+      @_withSpeed(0, => @_updateStyle(true))
     , @speed
 
   _startTrickle: ->
@@ -499,13 +500,17 @@ class ProgressBar
     @speed = originalSpeed
     result
 
-  _updateStyle: =>
+  _updateStyle: (forceRepaint = false) ->
+    @_changeContentToForceRepaint() if forceRepaint
     @styleElement.textContent = @_createCSSRule()
+
+  _changeContentToForceRepaint: ->
+    @content = if @content is '' then ' ' else ''
 
   _createCSSRule: ->
     """
-    #{@elementSelector}.#{className}::before {
-      content: '';
+    #{@elementSelector}.#{className}:before {
+      content: '#{@content}';
       position: fixed;
       top: 0;
       left: 0;
