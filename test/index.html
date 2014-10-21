@@ -5,6 +5,8 @@
   <title>Home</title>
   <script type="text/javascript" src="/js/turbolinks.js"></script>
   <script type="text/javascript">
+    Turbolinks.enableProgressBar();
+
     document.addEventListener("page:change", function() {
       console.log("page changed");
     });
@@ -19,8 +21,9 @@
   </script>
 </head>
 <body class="page-index">
-  <ul style="margin-top:200px;">
+  <ul style="margin-top:20px;">
     <li><a href="/other.html">Other page</a></li>
+    <li><a href="/slow-response">Slow loading page for progress bar</a></li>
     <li><a href="/other.html"><span>Wrapped link</span></a></li>
     <li><a href="/withoutextension">Without extension</a></li>
     <li><a href="/withoutextension?sort=user.name">Without extension with query params</a></li>

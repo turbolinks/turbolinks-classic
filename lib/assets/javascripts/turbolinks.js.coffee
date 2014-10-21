@@ -1,6 +1,7 @@
 pageCache               = {}
 cacheSize               = 10
 transitionCacheEnabled  = false
+progressBar             = null
 
 currentState            = null
 loadedAssets            = null
@@ -26,10 +27,11 @@ fetch = (url) ->
 
   rememberReferer()
   cacheCurrentPage()
+  progressBar?.start()
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
-    fetchReplacement url
+    fetchReplacement url, null, false
   else
     fetchReplacement url, resetScrollPosition
 
@@ -40,7 +42,14 @@ transitionCacheFor = (url) ->
 enableTransitionCache = (enable = true) ->
   transitionCacheEnabled = enable
 
-fetchReplacement = (url, onLoadFunction = =>) ->
+enableProgressBar = (enable = true) ->
+  if enable
+    progressBar ?= new ProgressBar 'html'
+  else
+    progressBar?.uninstall()
+    progressBar = null
+
+fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
   triggerEvent EVENTS.FETCH, url: url.absolute
 
   xhr?.abort()
@@ -57,10 +66,18 @@ fetchReplacement = (url, onLoadFunction = =>) ->
       changePage extractTitleAndBody(doc)...
       manuallyTriggerHashChangeForFirefox()
       reflectRedirectedUrl()
-      onLoadFunction()
+      onLoadFunction?()
       triggerEvent EVENTS.LOAD
     else
       document.location.href = crossOriginRedirect() or url.absolute
+
+  if progressBar and showProgressBar
+    xhr.onprogress = (event) =>
+      percent = if event.lengthComputable
+        event.loaded / event.total * 100
+      else
+        progressBar.value + (100 - progressBar.value) / 10
+      progressBar.advanceTo(percent)
 
   xhr.onloadend = -> xhr = null
   xhr.onerror   = -> document.location.href = url.absolute
@@ -110,6 +127,7 @@ changePage = (title, body, csrfToken, runScripts) ->
   setAutofocusElement()
   executeScriptTags() if runScripts
   currentState = window.history.state
+  progressBar?.done()
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
@@ -134,7 +152,7 @@ setAutofocusElement = ->
   autofocusElement = (list = document.querySelectorAll 'input[autofocus], textarea[autofocus]')[list.length - 1]
   if autofocusElement and document.activeElement isnt autofocusElement
     autofocusElement.focus()
-    
+
 reflectNewUrl = (url) ->
   if (url = new ComponentUrl url).absolute isnt referer
     window.history.pushState { turbolinks: true, url: url.absolute }, '', url.absolute
@@ -207,7 +225,7 @@ processResponse = ->
     400 <= xhr.status < 600
 
   validContent = ->
-    (contentType = xhr.getResponseHeader('Content-Type'))? and 
+    (contentType = xhr.getResponseHeader('Content-Type'))? and
       contentType.match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
 
   extractTrackAssets = (doc) ->
@@ -306,10 +324,10 @@ browserCompatibleDocumentParser = ->
 
 
 # The ComponentUrl class converts a basic URL string into an object
-# that behaves similarly to document.location.  
+# that behaves similarly to document.location.
 #
-# If an instance is created from a relative URL, the current document 
-# is used to fill in the missing attributes (protocol, host, port).  
+# If an instance is created from a relative URL, the current document
+# is used to fill in the missing attributes (protocol, host, port).
 class ComponentUrl
   constructor: (@original = document.location.href) ->
     return @original if @original.constructor is ComponentUrl
@@ -352,9 +370,9 @@ class Link extends ComponentUrl
 
   shouldIgnore: ->
     @crossOrigin() or
-      @_anchored() or 
-      @_nonHtml() or 
-      @_optOut() or 
+      @_anchored() or
+      @_nonHtml() or
+      @_optOut() or
       @_target()
 
   _anchored: ->
@@ -376,9 +394,9 @@ class Link extends ComponentUrl
 
 
 # The Click class handles clicked links, verifying if Turbolinks should
-# take control by inspecting both the event and the link. If it should, 
-# the page change process is initiated. If not, control is passed back 
-# to the browser for default functionality. 
+# take control by inspecting both the event and the link. If it should,
+# the page change process is initiated. If not, control is passed back
+# to the browser for default functionality.
 class Click
   @installHandlerLast: (event) ->
     unless event.defaultPrevented
@@ -393,7 +411,7 @@ class Click
     @_extractLink()
     if @_validForTurbolinks()
       visit @link.href unless pageChangePrevented(@link.absolute)
-      @event.preventDefault() 
+      @event.preventDefault()
 
   _extractLink: ->
     link = @event.target
@@ -404,11 +422,106 @@ class Click
     @link? and not (@link.shouldIgnore() or @_nonStandardClick())
 
   _nonStandardClick: ->
-    @event.which > 1 or 
-      @event.metaKey or 
-      @event.ctrlKey or 
-      @event.shiftKey or 
+    @event.which > 1 or
+      @event.metaKey or
+      @event.ctrlKey or
+      @event.shiftKey or
       @event.altKey
+
+
+class ProgressBar
+  className = 'turbolinks-progress-bar'
+
+  constructor: (@elementSelector) ->
+    @value = 0
+    @opacity = 1
+    @content = ''
+    @speed = 300
+    @install()
+
+  install: ->
+    @element = document.querySelector(@elementSelector)
+    @element.classList.add(className)
+    @styleElement = document.createElement('style')
+    document.head.appendChild(@styleElement)
+    @_updateStyle()
+
+  uninstall: ->
+    @element.classList.remove(className)
+    document.head.removeChild(@styleElement)
+
+  start: ->
+    @advanceTo(5)
+
+  advanceTo: (value) ->
+    if value > @value <= 100
+      @value = value
+      @_updateStyle()
+
+      if @value is 100
+        @_stopTrickle()
+      else if @value > 0
+        @_startTrickle()
+
+  done: ->
+    if @value > 0
+      @advanceTo(100)
+      @_reset()
+
+  _reset: ->
+    setTimeout =>
+      @opacity = 0
+      @_updateStyle()
+    , @speed / 2
+
+    setTimeout =>
+      @value = 0
+      @opacity = 1
+      @_withSpeed(0, => @_updateStyle(true))
+    , @speed
+
+  _startTrickle: ->
+    return if @trickling
+    @trickling = true
+    setTimeout(@_trickle, @speed)
+
+  _stopTrickle: ->
+    delete @trickling
+
+  _trickle: =>
+    return unless @trickling
+    @advanceTo(@value + Math.random() / 2)
+    setTimeout(@_trickle, @speed)
+
+  _withSpeed: (speed, fn) ->
+    originalSpeed = @speed
+    @speed = speed
+    result = fn()
+    @speed = originalSpeed
+    result
+
+  _updateStyle: (forceRepaint = false) ->
+    @_changeContentToForceRepaint() if forceRepaint
+    @styleElement.textContent = @_createCSSRule()
+
+  _changeContentToForceRepaint: ->
+    @content = if @content is '' then ' ' else ''
+
+  _createCSSRule: ->
+    """
+    #{@elementSelector}.#{className}::before {
+      content: '#{@content}';
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #0076ff;
+      height: 3px;
+      opacity: #{@opacity};
+      width: #{@value}%;
+      transition: width #{@speed}ms ease-out, opacity #{@speed / 2}ms ease-in;
+      transform: translate3d(0,0,0);
+    }
+    """
 
 
 # Delay execution of function long enough to miss the popstate event
@@ -490,6 +603,7 @@ else
   visit,
   pagesCached,
   enableTransitionCache,
+  enableProgressBar,
   allowLinkExtensions: Link.allowExtensions,
   supported: browserSupportsTurbolinks,
   EVENTS: clone(EVENTS)
