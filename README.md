@@ -96,7 +96,7 @@ To enable the progress bar, include the following in your JavaScript:
 Turbolinks.enableProgressBar();
 ```
 
-The progress bar is implemented on the html element's pseudo `:before` element and can be **customized** by including CSS with higher specificity than the included styles. For example:
+The progress bar is implemented on the `<html>` element's pseudo `:before` element and can be **customized** by including CSS with higher specificity than the included styles. For example:
 
 ```css
 html.turbolinks-progress-bar::before {
