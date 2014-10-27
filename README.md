@@ -105,6 +105,8 @@ html.turbolinks-progress-bar::before {
 }
 ```
 
+In Turbolinks 3.0, the progress bar will be turned on by default.
+
 
 Initialization
 --------------
