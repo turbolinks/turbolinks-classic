@@ -63,9 +63,9 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
 
     if doc = processResponse()
       reflectNewUrl url
+      reflectRedirectedUrl()
       changePage extractTitleAndBody(doc)...
       manuallyTriggerHashChangeForFirefox()
-      reflectRedirectedUrl()
       onLoadFunction?()
       triggerEvent EVENTS.LOAD
     else
