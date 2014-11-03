@@ -8,7 +8,6 @@ loadedAssets            = null
 
 referer                 = null
 
-createDocument          = null
 xhr                     = null
 
 EVENTS =
@@ -260,68 +259,12 @@ CSRFToken =
     if current.token? and latest? and current.token isnt latest
       current.node.setAttribute 'content', latest
 
-browserCompatibleDocumentParser = ->
-  createDocumentUsingParser = (html) ->
-    (new DOMParser).parseFromString html, 'text/html'
-
-  createDocumentUsingDOM = (html) ->
-    doc = document.implementation.createHTMLDocument ''
-    doc.documentElement.innerHTML = html
-    doc
-
-  createDocumentUsingWrite = (html) ->
-    doc = document.implementation.createHTMLDocument ''
-    doc.open 'replace'
-    doc.write html
-    doc.close()
-    doc
-
-  createDocumentUsingFragment = (html) ->
-    head = html.match(/<head[^>]*>([\s\S.]*)<\/head>/i)?[0] or '<head></head>'
-    body = html.match(/<body[^>]*>([\s\S.]*)<\/body>/i)?[0] or '<body></body>'
-    htmlWrapper = document.createElement 'html'
-    htmlWrapper.innerHTML = head + body
-    doc = document.createDocumentFragment()
-    doc.appendChild htmlWrapper
-    doc
-
-  # Use createDocumentUsingParser if DOMParser is defined and natively
-  # supports 'text/html' parsing (Firefox 12+, IE 10)
-  #
-  # Use createDocumentUsingDOM if createDocumentUsingParser throws an exception
-  # due to unsupported type 'text/html' (Firefox < 12, Opera)
-  #
-  # Use createDocumentUsingWrite if:
-  #  - DOMParser isn't defined
-  #  - createDocumentUsingParser returns null due to unsupported type 'text/html' (Chrome, Safari)
-  #  - createDocumentUsingDOM doesn't create a valid HTML document (safeguarding against potential edge cases)
-  #
-  # Use createDocumentUsingFragment if the previously selected parser does not
-  # correctly parse <form> tags. (Safari 7.1+ - see github.com/rails/turbolinks/issues/408)
-  buildTestsUsing = (createMethod) ->
-    buildTest = (fallback, passes) ->
-      passes: passes()
-      fallback: fallback
-
-    structureTest = buildTest createDocumentUsingWrite, =>
-      (createMethod '<html><body><p>test')?.body?.childNodes.length is 1
-
-    formNestingTest = buildTest createDocumentUsingFragment, =>
-      (createMethod '<html><body><form></form><div></div></body></html>')?.body?.childNodes.length is 2
-
-    [structureTest, formNestingTest]
-
-  try
-    if window.DOMParser
-      docTests = buildTestsUsing createDocumentUsingParser
-      createDocumentUsingParser
-  catch e
-    docTests = buildTestsUsing createDocumentUsingDOM
-    createDocumentUsingDOM
-  finally
-    for docTest in docTests
-      return docTest.fallback unless docTest.passes
-
+createDocument = (html) ->
+  doc = document.documentElement.cloneNode()
+  doc.innerHTML = html
+  doc.head = doc.querySelector 'head'
+  doc.body = doc.querySelector 'body'
+  doc
 
 # The ComponentUrl class converts a basic URL string into an object
 # that behaves similarly to document.location.
@@ -552,7 +495,6 @@ installHistoryChangeHandler = (event) ->
 initializeTurbolinks = ->
   rememberCurrentUrl()
   rememberCurrentState()
-  createDocument = browserCompatibleDocumentParser()
 
   document.addEventListener 'click', Click.installHandlerLast, true
 
