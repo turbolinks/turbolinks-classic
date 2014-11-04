@@ -514,6 +514,7 @@ class ProgressBar
       position: fixed;
       top: 0;
       left: 0;
+      z-index: 2000;
       background-color: #0076ff;
       height: 3px;
       opacity: #{@opacity};
