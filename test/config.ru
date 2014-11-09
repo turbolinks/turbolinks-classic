@@ -46,6 +46,10 @@ map "/slow-response" do
   run SlowResponse.new
 end
 
+map "/bounce" do
+  run Proc.new{ [200, { "X-XHR-Redirected-To" => "redirect1.html", "Content-Type" => "text/html" }, File.open( File.join( Root, "test", "redirect1.html" ) ) ] }
+end
+
 map "/" do
   run Rack::Directory.new(File.join(Root, "test"))
 end

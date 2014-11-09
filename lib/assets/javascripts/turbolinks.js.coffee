@@ -161,7 +161,7 @@ reflectRedirectedUrl = ->
   if location = xhr.getResponseHeader 'X-XHR-Redirected-To'
     location = new ComponentUrl location
     preservedHash = if location.hasNoHash() then document.location.hash else ''
-    window.history.replaceState currentState, '', location.href + preservedHash
+    window.history.replaceState window.history.state, '', location.href + preservedHash
 
 crossOriginRedirect = ->
   redirect if (redirect = xhr.getResponseHeader('Location'))? and (new ComponentUrl(redirect)).crossOrigin()
