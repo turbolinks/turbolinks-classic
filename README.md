@@ -149,7 +149,7 @@ Also, Turbolinks is installed as the last click handler for links. So if you ins
 jquery.turbolinks
 -----------------
 
-If you have a lot of existing JavaScript that binds elements on jQuery.ready(), you can pull the [jquery.turbolinks](https://github.com/kossnocorp/jquery.turbolinks) library into your project that will trigger ready() when Turbolinks triggers the the `page:load` event. It may restore functionality of some libraries.
+If you have a lot of existing JavaScript that binds elements on jQuery.ready(), you can pull the [jquery.turbolinks](https://github.com/kossnocorp/jquery.turbolinks) library into your project that will trigger ready() when Turbolinks triggers the `page:load` event. It may restore functionality of some libraries.
 
 Add the gem to your project, then add the following line to your JavaScript manifest file, after `jquery.js` but before `turbolinks.js`:
 
