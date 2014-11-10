@@ -42,6 +42,7 @@ enableTransitionCache = (enable = true) ->
   transitionCacheEnabled = enable
 
 enableProgressBar = (enable = true) ->
+  return unless browserSupportsTurbolinks
   if enable
     progressBar ?= new ProgressBar 'html'
   else
