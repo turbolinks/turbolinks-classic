@@ -1,5 +1,22 @@
 ## Turbolinks (master)
 
+## Turbolinks 2.5.2 (November 10, 2014)
+
+*   Use document.documentElement.cloneNode() when parsing new documents to properly handle device pixel ratio calculations.
+
+    *Tom Ward*
+
+*   Reflect the redirected url before actually changing the page, so page-change listeners
+    get to see the final URL, rather than the before-redirect URL.
+
+    *DHH*
+
+*   Add an optional progress bar indicator while loading. See README for example and details.
+    This will be on by default from Turbolinks 3.0.
+
+	*Javan Makhmali*
+
+
 *   Avoid double requests when the server returns a cross origin redirect by directly loading the
     redirect location.
 
