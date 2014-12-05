@@ -82,7 +82,7 @@ To enable Transition Cache, include the following in your javascript:
 Turbolinks.enableTransitionCache();
 ```
 
-The one drawback is that dramatic differences in appearence between a cached copy and new copy may lead to a jarring affect for the end-user. This will be especially true for pages that have many moving parts (expandable sections, sortable tables, infinite scrolling, etc.).
+The one drawback is that dramatic differences in appearance between a cached copy and new copy may lead to a jarring affect for the end-user. This will be especially true for pages that have many moving parts (expandable sections, sortable tables, infinite scrolling, etc.).
 
 If you find that a page is causing problems, you can have Turbolinks skip displaying the cached copy by adding `data-no-transition-cache` to any DOM element on the offending page.
 
