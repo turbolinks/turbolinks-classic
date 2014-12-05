@@ -68,7 +68,13 @@ $(document).on("page:fetch", startSpinner);
 $(document).on("page:receive", stopSpinner);
 ```
 
-DOM transformations that are idempotent are best. If you have transformations that are not, hook them to happen only on `page:load` instead of `page:change` (as that would run them again on the cached pages).
+DOM transformations that are idempotent are best. If you have transformations that are not, bind them to `page:load` (in addition to the initial page load) instead of `page:change` (as that would run them again on the cached pages):
+
+```javascript
+// using jQuery for simplicity
+
+$(document).on("ready page:load", nonIdempotentFunction);
+```
 
 Transition Cache: A Speed Boost
 -------------------------------
