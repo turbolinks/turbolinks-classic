@@ -378,9 +378,11 @@ class ProgressBar
 
   constructor: (@elementSelector) ->
     @value = 0
-    @opacity = 1
     @content = ''
     @speed = 300
+    # Setting the opacity to a value < 1 fixes a display issue in Safari 6 and
+    # iOS 6 where the progress bar would fill the entire page.
+    @opacity = 0.99
     @install()
 
   install: ->
@@ -413,6 +415,8 @@ class ProgressBar
       @_reset()
 
   _reset: ->
+    originalOpacity = @opacity
+
     setTimeout =>
       @opacity = 0
       @_updateStyle()
@@ -420,7 +424,7 @@ class ProgressBar
 
     setTimeout =>
       @value = 0
-      @opacity = 1
+      @opacity = originalOpacity
       @_withSpeed(0, => @_updateStyle(true))
     , @speed
 
