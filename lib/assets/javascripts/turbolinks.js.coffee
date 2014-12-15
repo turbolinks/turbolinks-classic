@@ -69,6 +69,7 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
       onLoadFunction?()
       triggerEvent EVENTS.LOAD
     else
+      progressBar?.done()
       document.location.href = crossOriginRedirect() or url.absolute
 
   if progressBar and showProgressBar
@@ -228,6 +229,10 @@ processResponse = ->
     (contentType = xhr.getResponseHeader('Content-Type'))? and
       contentType.match /^(?:text\/html|application\/xhtml\+xml|application\/xml)(?:;|$)/
 
+  downloadingFile = ->
+    (disposition = xhr.getResponseHeader('Content-Disposition'))? and
+      disposition.match /^attachment/
+
   extractTrackAssets = (doc) ->
     for node in doc.querySelector('head').childNodes when node.getAttribute?('data-turbolinks-track')?
       node.getAttribute('src') or node.getAttribute('href')
@@ -241,7 +246,7 @@ processResponse = ->
     [a, b] = [b, a] if a.length > b.length
     value for value in a when value in b
 
-  if not clientOrServerError() and validContent()
+  if not clientOrServerError() and validContent() and not downloadingFile()
     doc = createDocument xhr.responseText
     if doc and !assetsChanged doc
       return doc
