@@ -21,7 +21,7 @@ The best way to find out just how fast it is? Try it on your own application. It
 No jQuery or any other library
 --------------------------------
 
-Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other library to work. But it works great _with_ the jQuery or Prototype framework, or whatever else have you.
+Turbolinks is designed to be as light-weight as possible (so you won't think twice about using it even for mobile stuff). It does not require jQuery or any other library to work. But it works great _with_ the jQuery or Prototype framework, or whatever else you have.
 
 
 Events
