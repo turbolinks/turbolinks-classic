@@ -65,6 +65,8 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
       reflectNewUrl url
       reflectRedirectedUrl()
       changePage extractTitleAndBody(doc)...
+      if showProgressBar
+        progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
       onLoadFunction?()
       triggerEvent EVENTS.LOAD
@@ -88,6 +90,7 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
 fetchHistory = (cachedPage) ->
   xhr?.abort()
   changePage cachedPage.title, cachedPage.body
+  progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
 
@@ -128,7 +131,6 @@ changePage = (title, body, csrfToken, runScripts) ->
   setAutofocusElement()
   executeScriptTags() if runScripts
   currentState = window.history.state
-  progressBar?.done()
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
