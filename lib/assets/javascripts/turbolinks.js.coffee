@@ -382,14 +382,15 @@ class Click
 
 class ProgressBar
   className = 'turbolinks-progress-bar'
+  # Setting the opacity to a value < 1 fixes a display issue in Safari 6 and
+  # iOS 6 where the progress bar would fill the entire page.
+  originalOpacity = 0.99
 
   constructor: (@elementSelector) ->
     @value = 0
     @content = ''
     @speed = 300
-    # Setting the opacity to a value < 1 fixes a display issue in Safari 6 and
-    # iOS 6 where the progress bar would fill the entire page.
-    @opacity = 0.99
+    @opacity = originalOpacity
     @install()
 
   install: ->
@@ -422,8 +423,6 @@ class ProgressBar
       @_reset()
 
   _reset: ->
-    originalOpacity = @opacity
-
     setTimeout =>
       @opacity = 0
       @_updateStyle()
