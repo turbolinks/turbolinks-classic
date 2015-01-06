@@ -405,6 +405,10 @@ class ProgressBar
     document.head.removeChild(@styleElement)
 
   start: ->
+    if @value > 0
+      @_reset()
+      @_reflow()
+
     @advanceTo(5)
 
   advanceTo: (value) ->
@@ -420,32 +424,41 @@ class ProgressBar
   done: ->
     if @value > 0
       @advanceTo(100)
-      @_reset()
+      @_finish()
 
-  _reset: ->
-    setTimeout =>
+  _finish: ->
+    @fadeTimer = setTimeout =>
       @opacity = 0
       @_updateStyle()
     , @speed / 2
 
-    setTimeout =>
-      @value = 0
-      @opacity = originalOpacity
-      @_withSpeed(0, => @_updateStyle(true))
-    , @speed
+    @resetTimer = setTimeout(@_reset, @speed)
+
+  _reflow: ->
+    @element.offsetHeight
+
+  _reset: =>
+    @_stopTimers()
+    @value = 0
+    @opacity = originalOpacity
+    @_withSpeed(0, => @_updateStyle(true))
+
+  _stopTimers: ->
+    @_stopTrickle()
+    clearTimeout(@fadeTimer)
+    clearTimeout(@resetTimer)
 
   _startTrickle: ->
-    return if @trickling
-    @trickling = true
-    setTimeout(@_trickle, @speed)
+    return if @trickleTimer
+    @trickleTimer = setTimeout(@_trickle, @speed)
 
   _stopTrickle: ->
-    delete @trickling
+    clearTimeout(@trickleTimer)
+    delete @trickleTimer
 
   _trickle: =>
-    return unless @trickling
     @advanceTo(@value + Math.random() / 2)
-    setTimeout(@_trickle, @speed)
+    @trickleTimer = setTimeout(@_trickle, @speed)
 
   _withSpeed: (speed, fn) ->
     originalSpeed = @speed
