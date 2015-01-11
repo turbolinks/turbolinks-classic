@@ -11,8 +11,14 @@ module Turbolinks
       ActiveSupport.on_load(:action_controller) do
         ActionController::Base.class_eval do
           include XHRHeaders, Cookies, XDomainBlocker, Redirection
-          before_filter :set_xhr_redirected_to, :set_request_method_cookie
-          after_filter :abort_xdomain_redirect
+
+          if respond_to?(:before_action)
+            before_action :set_xhr_redirected_to, :set_request_method_cookie
+            after_action :abort_xdomain_redirect
+          else
+            before_filter :set_xhr_redirected_to, :set_request_method_cookie
+            after_filter :abort_xdomain_redirect
+          end
         end
 
         ActionDispatch::Request.class_eval do
