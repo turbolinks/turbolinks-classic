@@ -65,6 +65,8 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
       reflectNewUrl url
       reflectRedirectedUrl()
       changePage extractTitleAndBody(doc)...
+      if showProgressBar
+        progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
       onLoadFunction?()
       triggerEvent EVENTS.LOAD
@@ -88,6 +90,7 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
 fetchHistory = (cachedPage) ->
   xhr?.abort()
   changePage cachedPage.title, cachedPage.body
+  progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
 
@@ -128,7 +131,6 @@ changePage = (title, body, csrfToken, runScripts) ->
   setAutofocusElement()
   executeScriptTags() if runScripts
   currentState = window.history.state
-  progressBar?.done()
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
@@ -380,14 +382,15 @@ class Click
 
 class ProgressBar
   className = 'turbolinks-progress-bar'
+  # Setting the opacity to a value < 1 fixes a display issue in Safari 6 and
+  # iOS 6 where the progress bar would fill the entire page.
+  originalOpacity = 0.99
 
   constructor: (@elementSelector) ->
     @value = 0
     @content = ''
     @speed = 300
-    # Setting the opacity to a value < 1 fixes a display issue in Safari 6 and
-    # iOS 6 where the progress bar would fill the entire page.
-    @opacity = 0.99
+    @opacity = originalOpacity
     @install()
 
   install: ->
@@ -402,6 +405,10 @@ class ProgressBar
     document.head.removeChild(@styleElement)
 
   start: ->
+    if @value > 0
+      @_reset()
+      @_reflow()
+
     @advanceTo(5)
 
   advanceTo: (value) ->
@@ -417,34 +424,41 @@ class ProgressBar
   done: ->
     if @value > 0
       @advanceTo(100)
-      @_reset()
+      @_finish()
 
-  _reset: ->
-    originalOpacity = @opacity
-
-    setTimeout =>
+  _finish: ->
+    @fadeTimer = setTimeout =>
       @opacity = 0
       @_updateStyle()
     , @speed / 2
 
-    setTimeout =>
-      @value = 0
-      @opacity = originalOpacity
-      @_withSpeed(0, => @_updateStyle(true))
-    , @speed
+    @resetTimer = setTimeout(@_reset, @speed)
+
+  _reflow: ->
+    @element.offsetHeight
+
+  _reset: =>
+    @_stopTimers()
+    @value = 0
+    @opacity = originalOpacity
+    @_withSpeed(0, => @_updateStyle(true))
+
+  _stopTimers: ->
+    @_stopTrickle()
+    clearTimeout(@fadeTimer)
+    clearTimeout(@resetTimer)
 
   _startTrickle: ->
-    return if @trickling
-    @trickling = true
-    setTimeout(@_trickle, @speed)
+    return if @trickleTimer
+    @trickleTimer = setTimeout(@_trickle, @speed)
 
   _stopTrickle: ->
-    delete @trickling
+    clearTimeout(@trickleTimer)
+    delete @trickleTimer
 
   _trickle: =>
-    return unless @trickling
     @advanceTo(@value + Math.random() / 2)
-    setTimeout(@_trickle, @speed)
+    @trickleTimer = setTimeout(@_trickle, @speed)
 
   _withSpeed: (speed, fn) ->
     originalSpeed = @speed
