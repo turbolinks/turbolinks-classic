@@ -563,12 +563,14 @@ else
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
 #   Turbolinks.enableTransitionCache()
+#   Turbolinks.cacheCurrentPage()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
 #   Turbolinks.EVENTS
 @Turbolinks = {
   visit,
   pagesCached,
+  cacheCurrentPage,
   enableTransitionCache,
   enableProgressBar,
   allowLinkExtensions: Link.allowExtensions,
