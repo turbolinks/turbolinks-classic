@@ -12,7 +12,6 @@ xhr                     = null
 
 EVENTS =
   BEFORE_CHANGE:          'page:before-change'
-  BEFORE_PARTIAL_CHANGE:  'page:before-change'
   FETCH:                  'page:fetch'
   RECEIVE:                'page:receive'
   CHANGE:                 'page:change'
@@ -68,7 +67,7 @@ fetchReplacement = (url, options = {}) ->
     if doc = processResponse()
       reflectNewUrl url unless options.change
       reflectRedirectedUrl()
-      changePage extractTitleAndBody(doc)..., options
+      replace(doc, options)
       if showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
@@ -126,6 +125,9 @@ constrainPageCacheTo = (limit) ->
     triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
+replace = (doc, options = {}) ->
+  changePage extractTitleAndBody(doc)..., options
+
 changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
@@ -140,8 +142,9 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
     setAutofocusElement()
     executeScriptTags() if runScripts
     currentState = window.history.state
-    triggerEvent EVENTS.CHANGE
-    triggerEvent EVENTS.UPDATE
+
+  triggerEvent EVENTS.CHANGE
+  triggerEvent EVENTS.UPDATE
 
 getTemporaryNodes = ->
   node for node in document.querySelectorAll('[data-turbolinks-temporary]')
@@ -155,7 +158,7 @@ getNodesMatchingChangeKeys = (keys) ->
   return matchingNodes
 
 changeNodes = (allNodesToBeChanged, body) ->
-  triggerEvent EVENTS.BEFORE_PARTIAL_CHANGE, allNodesToBeChanged
+  triggerEvent EVENTS.BEFORE_CHANGE, allNodesToBeChanged
 
   parentIsRefreshing = (node) ->
     for potentialParent in allNodesToBeChanged when node != potentialParent
@@ -627,6 +630,7 @@ else
 #   Turbolinks.EVENTS
 @Turbolinks = {
   visit,
+  replace,
   pagesCached,
   cacheCurrentPage,
   enableTransitionCache,

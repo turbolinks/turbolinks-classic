@@ -2,8 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Home</title>
+  <title>Partial updates</title>
   <script type="text/javascript" src="/js/turbolinks.js"></script>
+  <script type="text/javascript">
+    document.addEventListener("page:change", function() {
+      console.log("page changed");
+    });
+
+    document.addEventListener("page:update", function() {
+      console.log("page updated");
+    });
+
+    window.originalDocument = document.implementation.createDocument ('http://www.w3.org/1999/xhtml', 'html', null);
+    window.originalDocument.title = "Back to basics"
+  </script>
 </head>
 <body class="page-other">
   <nav id="navbar" data-turbolinks-permanent>
@@ -11,8 +23,14 @@
   </nav>
   <h1 id="flash" data-turbolinks-temporary>You have 1 comment!</h1>
   <ul id="comments:list">
-    <li>Author: Turbo. Comment: Partial replace the next comment</li>
+    <li>Author: Turbo. Comment: This is comment 1</li>
     <li><a href="#" onclick="Turbolinks.visit('/partial2.html', {change: ['comments']});">Fetch another comment</a></li>
   </ul>
+  <div id="revert" data-turbolinks-permanent>
+    <a href="#" onclick="Turbolinks.replace(window.originalDocument)">Go back to the original doc</a>
+  </div>
 </body>
+<script>
+  window.originalDocument.documentElement.appendChild(document.body.cloneNode(true));
+</script>
 </html>

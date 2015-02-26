@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Partial update 2</title>
+  <title>Partial update 3</title>
   <script type="text/javascript" src="/js/turbolinks.js"></script>
   <script type="text/javascript">
     document.addEventListener("page:change", function() {
@@ -15,14 +15,14 @@
   </script>
 </head>
 <body class="page-other">
-  <nav id="navbar">
+  <nav id="navbar" data-turbolinks-permanent>
     <a href="/index.html">Index</a>
   </nav>
-  <h1 id="flash" data-turbolinks-temporary>You have 2 comments!</h1>
+  <h1 id="flash" data-turbolinks-temporary>You have 3 comments!</h1>
   <ul id="comments:list">
     <li>Author: Turbo. Comment: This is comment 1</li>
     <li>Author: Turbo2. Comment: This is comment 2</li>
-    <li><a href="#" onclick="Turbolinks.visit('/partial3.html', {change: ['comments']});">Fetch another comment</a></li>
+    <li>Author: Turbo3. Comment: This is comment 3</li>
   </ul>
 </body>
 </html>
