@@ -13,6 +13,14 @@ class RedirectController < ActionController::Base
     redirect_via_turbolinks_to '/path', status: 303
   end
 
+  def redirect_via_turbolinks_to_path_with_single_change_option
+    redirect_via_turbolinks_to '/path', change: 'foo'
+  end
+
+  def redirect_via_turbolinks_to_path_with_multiple_change_option
+    redirect_via_turbolinks_to '/path', change: ['foo', :bar]
+  end
+
   def simple_redirect
     redirect_to action: 'action'
   end
@@ -64,11 +72,22 @@ class RedirectionTest < ActionController::TestCase
     assert_turbolinks_visit 'http://test.host/path'
   end
 
+  def test_redirect_via_turbolinks_to_path_with_single_change_option
+    get :redirect_via_turbolinks_to_path_with_single_change_option
+    assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo'] }"
+  end
+
+  def test_redirect_via_turbolinks_to_path_with_multiple_change_option
+    get :redirect_via_turbolinks_to_path_with_multiple_change_option
+    assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo', 'bar'] }"
+  end
+
   private
 
-  def assert_turbolinks_visit(url)
+  def assert_turbolinks_visit(url, change = nil)
+    change = ", #{change}" if change
     assert_response 200
-    assert_equal "Turbolinks.visit('#{url}');", @response.body
+    assert_equal "Turbolinks.visit('#{url}'#{change});", @response.body
     assert_equal 'text/javascript', @response.content_type
   end
 end

@@ -13,15 +13,17 @@ module Turbolinks
     end
 
     def redirect_via_turbolinks_to(url = {}, response_status = {})
+      change = response_status.delete(:change)
       redirect_to(url, response_status)
-      perform_turbolinks_visit
+      perform_turbolinks_visit(change)
     end
 
     private
 
-    def perform_turbolinks_visit
+    def perform_turbolinks_visit(change = nil)
+      change = ", { change: ['#{Array(change).join("', '")}'] }" if change
       self.status           = 200
-      self.response_body    = "Turbolinks.visit('#{location}');"
+      self.response_body    = "Turbolinks.visit('#{location}'#{change});"
       response.content_type = Mime::JS
     end
   end
