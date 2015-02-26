@@ -5,10 +5,11 @@ module Turbolinks
     extend ActiveSupport::Concern
 
     def redirect_to(url = {}, response_status = {})
+      change = response_status.delete(:change)
       super(url, response_status)
 
       if request.xhr? && !request.get?
-        perform_turbolinks_visit
+        perform_turbolinks_visit(change)
       end
     end
 

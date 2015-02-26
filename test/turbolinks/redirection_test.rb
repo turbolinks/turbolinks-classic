@@ -24,6 +24,14 @@ class RedirectController < ActionController::Base
   def simple_redirect
     redirect_to action: 'action'
   end
+
+  def simple_redirect_with_single_change_option
+    redirect_to({action: 'action'}, change: 'foo')
+  end
+
+  def simple_redirect_with_multiple_change_option
+    redirect_to({action: 'action'}, change: ['foo', :bar])
+  end
 end
 
 class RedirectionTest < ActionController::TestCase
@@ -54,6 +62,29 @@ class RedirectionTest < ActionController::TestCase
 
   def test_redirect_to_via_patch_and_not_xhr_does_normal_redirect
     patch :simple_redirect
+    assert_redirected_to 'http://test.host/redirect/action'
+  end
+
+  def test_redirect_to_via_xhr_and_post_with_single_change_option
+    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
+    post :simple_redirect_with_single_change_option
+    assert_turbolinks_visit 'http://test.host/redirect/action', "{ change: ['foo'] }"
+  end
+
+  def test_redirect_to_via_xhr_and_post_with_multiple_change_option
+    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
+    post :simple_redirect_with_multiple_change_option
+    assert_turbolinks_visit 'http://test.host/redirect/action', "{ change: ['foo', 'bar'] }"
+  end
+
+  def test_redirect_to_via_post_and_not_xhr_with_single_change_option
+    post :simple_redirect_with_single_change_option
+    assert_redirected_to 'http://test.host/redirect/action'
+  end
+
+  def test_redirect_to_via_xhr_and_get_with_multiple_change_option
+    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
+    get :simple_redirect_with_multiple_change_option
     assert_redirected_to 'http://test.host/redirect/action'
   end
 
