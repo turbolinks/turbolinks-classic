@@ -11,17 +11,18 @@ referer                 = null
 xhr                     = null
 
 EVENTS =
-  BEFORE_CHANGE:  'page:before-change'
-  FETCH:          'page:fetch'
-  RECEIVE:        'page:receive'
-  CHANGE:         'page:change'
-  UPDATE:         'page:update'
-  LOAD:           'page:load'
-  RESTORE:        'page:restore'
-  BEFORE_UNLOAD:  'page:before-unload'
-  EXPIRE:         'page:expire'
+  BEFORE_CHANGE:          'page:before-change'
+  BEFORE_PARTIAL_CHANGE:  'page:before-change'
+  FETCH:                  'page:fetch'
+  RECEIVE:                'page:receive'
+  CHANGE:                 'page:change'
+  UPDATE:                 'page:update'
+  LOAD:                   'page:load'
+  RESTORE:                'page:restore'
+  BEFORE_UNLOAD:          'page:before-unload'
+  EXPIRE:                 'page:expire'
 
-fetch = (url) ->
+fetch = (url, options = {}) ->
   url = new ComponentUrl url
 
   rememberReferer()
@@ -30,9 +31,9 @@ fetch = (url) ->
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
-    fetchReplacement url, null, false
+    fetchReplacement url, showProgressBar: false, change: options.change
   else
-    fetchReplacement url, resetScrollPosition
+    fetchReplacement url, onLoadFunction: resetScrollPosition, change: options.change
 
 transitionCacheFor = (url) ->
   cachedPage = pageCache[url]
@@ -49,7 +50,10 @@ enableProgressBar = (enable = true) ->
     progressBar?.uninstall()
     progressBar = null
 
-fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
+fetchReplacement = (url, options = {}) ->
+  onLoadFunction = options.onLoadFunction
+  showProgressBar = options.showProgressBar ? true
+
   triggerEvent EVENTS.FETCH, url: url.absolute
 
   xhr?.abort()
@@ -64,7 +68,7 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
     if doc = processResponse()
       reflectNewUrl url
       reflectRedirectedUrl()
-      changePage extractTitleAndBody(doc)...
+      changePage extractTitleAndBody(doc)..., options
       if showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
@@ -94,7 +98,6 @@ fetchHistory = (cachedPage) ->
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
 
-
 cacheCurrentPage = ->
   currentStateUrl = new ComponentUrl currentState.url
 
@@ -123,16 +126,62 @@ constrainPageCacheTo = (limit) ->
     triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
-changePage = (title, body, csrfToken, runScripts) ->
+changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
-  document.documentElement.replaceChild body, document.body
-  CSRFToken.update csrfToken if csrfToken?
-  setAutofocusElement()
-  executeScriptTags() if runScripts
-  currentState = window.history.state
-  triggerEvent EVENTS.CHANGE
-  triggerEvent EVENTS.UPDATE
+  if options.change
+    nodesToBeChanged = getNodesMatchingChangeKeys(options.change)
+    changedNodes = changeNodes(nodesToBeChanged, body)
+    setAutofocusElement() if anyAutofocusElement(changedNodes)
+    changedNodes
+  else
+    document.documentElement.replaceChild body, document.body
+    CSRFToken.update csrfToken if csrfToken?
+    setAutofocusElement()
+    executeScriptTags() if runScripts
+    currentState = window.history.state
+    triggerEvent EVENTS.CHANGE
+    triggerEvent EVENTS.UPDATE
+
+getNodesMatchingChangeKeys = (keys) ->
+  matchingNodes = []
+  for key in keys
+    for node in document.querySelectorAll("[data-turbolinks-section=#{key}]")
+      matchingNodes.push(node)
+
+  return matchingNodes
+
+changeNodes = (allNodesToBeChanged, body) ->
+  triggerEvent EVENTS.BEFORE_PARTIAL_CHANGE, allNodesToBeChanged
+
+  parentIsRefreshing = (node) ->
+    for potentialParent in allNodesToBeChanged when node != potentialParent
+      return true if potentialParent.contains(node)
+    false
+
+  refreshedNodes = []
+  for existingNode in allNodesToBeChanged
+    continue if parentIsRefreshing(existingNode)
+
+    unless nodeId = existingNode.getAttribute('id')
+      throw new Error "Turbolinks partial replacement: change key elements must have an id."
+
+    if newNode = body.querySelector("##{ nodeId }")
+      newNode = newNode.cloneNode(true)
+      existingNode.parentNode.replaceChild(newNode, existingNode)
+
+      if newNode.nodeName == 'SCRIPT' && newNode.getAttribute("data-turbolinks-eval") != "false"
+        executeScriptTag(newNode)
+      else
+        refreshedNodes.push(newNode)
+
+  refreshedNodes
+
+deleteRefreshNeverNodes = (body) ->
+  for node in body.querySelectorAll('[refresh-never]')
+    node.parentNode.removeChild(node)
+
+  return
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
@@ -149,6 +198,12 @@ executeScriptTags = ->
 removeNoscriptTags = (node) ->
   node.innerHTML = node.innerHTML.replace /<noscript[\S\s]*?<\/noscript>/ig, ''
   node
+
+anyAutofocusElement = (nodes) ->
+  for node in nodes
+    if node.querySelectorAll('input[autofocus], textarea[autofocus]').length > 0
+      return true
+  false
 
 # Firefox bug: Doesn't autofocus fields that are inserted via JavaScript
 setAutofocusElement = ->
