@@ -66,7 +66,7 @@ fetchReplacement = (url, options = {}) ->
     triggerEvent EVENTS.RECEIVE, url: url.absolute
 
     if doc = processResponse()
-      reflectNewUrl url
+      reflectNewUrl url unless options.change
       reflectRedirectedUrl()
       changePage extractTitleAndBody(doc)..., options
       if showProgressBar
