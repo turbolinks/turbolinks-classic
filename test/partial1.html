@@ -6,13 +6,13 @@
   <script type="text/javascript" src="/js/turbolinks.js"></script>
 </head>
 <body class="page-other">
-  <h1 id="comments:header">You have 1 comment! I will be replaced</h1>
+  <nav id="navbar" data-turbolinks-permanent>
+    <a href="/index.html">Index</a>
+  </nav>
+  <h1 id="flash" data-turbolinks-temporary>You have 1 comment!</h1>
   <ul id="comments:list">
     <li>Author: Turbo. Comment: Partial replace the next comment</li>
     <li><a href="#" onclick="Turbolinks.visit('/partial2.html', {change: ['comments']});">Fetch another comment</a></li>
-  </ul>
-  <ul>
-    <li><a href="/index.html">You always have a link Home</a></li>
   </ul>
 </body>
 </html>

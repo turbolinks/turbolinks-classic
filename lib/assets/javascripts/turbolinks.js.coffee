@@ -130,7 +130,7 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
   if options.change
-    nodesToBeChanged = getNodesMatchingChangeKeys(options.change)
+    nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change),getTemporaryNodes())
     changedNodes = changeNodes(nodesToBeChanged, body)
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
@@ -142,6 +142,9 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
     currentState = window.history.state
     triggerEvent EVENTS.CHANGE
     triggerEvent EVENTS.UPDATE
+
+getTemporaryNodes = ->
+  node for node in document.querySelectorAll('[data-turbolinks-temporary]')
 
 getNodesMatchingChangeKeys = (keys) ->
   matchingNodes = []
