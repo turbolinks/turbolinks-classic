@@ -146,10 +146,11 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
   else
-    changeNodes(getTemporaryNodes(), body)
-    persistPermanentNodes(body)
-    if options.keep
-      refreshAllExceptWithKeys(options.keep, body)
+    unless options.flush
+      changeNodes(getTemporaryNodes(), body)
+      persistPermanentNodes(body)
+      if options.keep
+        refreshAllExceptWithKeys(options.keep, body)
 
     document.documentElement.replaceChild body, document.body
     CSRFToken.update csrfToken if csrfToken?

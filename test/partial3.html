@@ -7,7 +7,7 @@
 </head>
 <body class="page-other">
   <nav id="navbar" data-turbolinks-permanent>
-    <a href="/index.html">Index</a>
+    FLUSHED
   </nav>
   <h2 id="flash" data-turbolinks-temporary>
     <a href="#" onclick="this.innerHTML = 'changed'">Change me</a>
@@ -19,7 +19,8 @@
     <li>Author: Turbo3. Comment: This is comment 3</li>
   </ul>
   <div id="revert" data-turbolinks-permanent>
-    <h1>I shouldn't change</h1>
+    FLUSHED
   </div>
+  <a href="#" onclick="Turbolinks.visit('/partial3.html', {flush: true})">FLUSH EVERYTHING</a>
 </body>
 </html>
