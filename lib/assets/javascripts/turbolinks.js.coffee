@@ -146,7 +146,7 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
 getNodesMatchingChangeKeys = (keys) ->
   matchingNodes = []
   for key in keys
-    for node in document.querySelectorAll("[data-turbolinks-section=#{key}]")
+    for node in document.querySelectorAll('[id^="'+key+':"]')
       matchingNodes.push(node)
 
   return matchingNodes
@@ -166,7 +166,7 @@ changeNodes = (allNodesToBeChanged, body) ->
     unless nodeId = existingNode.getAttribute('id')
       throw new Error "Turbolinks partial replacement: change key elements must have an id."
 
-    if newNode = body.querySelector("##{ nodeId }")
+    if newNode = body.querySelector('[id="'+nodeId+'"]')
       newNode = newNode.cloneNode(true)
       existingNode.parentNode.replaceChild(newNode, existingNode)
 
