@@ -50,10 +50,6 @@ map "/bounce" do
   run Proc.new{ [200, { "X-XHR-Redirected-To" => "redirect1.html", "Content-Type" => "text/html" }, File.open( File.join( Root, "test", "redirect1.html" ) ) ] }
 end
 
-map "/" do
-  run Rack::Directory.new(File.join(Root, "test"))
-end
-
 map "/attachment.txt" do
   run Rack::File.new(File.join(Root, "test", "attachment.html"), "Content-Type" => "text/plain")
 end
@@ -61,3 +57,5 @@ end
 map "/attachment.html" do
   run Rack::File.new(File.join(Root, "test", "attachment.html"), "Content-Type" => "text/html", "Content-Disposition" => "attachment; filename=attachment.html")
 end
+
+run Rack::Directory.new(File.join(Root, "test"))
