@@ -30,9 +30,11 @@ fetch = (url, options = {}) ->
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
-    fetchReplacement url, showProgressBar: false, change: options.change
+    options.showProgressBar = false
+    fetchReplacement url, options
   else
-    fetchReplacement url, onLoadFunction: resetScrollPosition, change: options.change
+    options.onLoadFunction = resetScrollPosition
+    fetchReplacement url, options
 
 transitionCacheFor = (url) ->
   cachedPage = pageCache[url]
@@ -65,9 +67,9 @@ fetchReplacement = (url, options = {}) ->
     triggerEvent EVENTS.RECEIVE, url: url.absolute
 
     if doc = processResponse()
-      reflectNewUrl url unless options.change
+      reflectNewUrl url unless options.change? || options.keep? || options.flush?
       reflectRedirectedUrl()
-      replace(doc, options)
+      changePage extractTitleAndBody(doc)..., options
       if showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
@@ -126,17 +128,29 @@ constrainPageCacheTo = (limit) ->
     delete pageCache[key]
 
 replace = (doc, options = {}) ->
+  options.body = doc.body
   changePage extractTitleAndBody(doc)..., options
 
 changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
+
+  # TODO: this is a hack that can go away when i refactor changePage params. it's using
+  # the supplied document body which i don't want.
+  sourceDocument = options.sourceDocument || document
+  body = options.body || body
+
   if options.change
-    nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change),getTemporaryNodes())
+    nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change, sourceDocument),getTemporaryNodes())
     changedNodes = changeNodes(nodesToBeChanged, body)
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
   else
+    changeNodes(getTemporaryNodes(), body)
+    persistPermanentNodes(body)
+    if options.keep
+      refreshAllExceptWithKeys(options.keep, body)
+
     document.documentElement.replaceChild body, document.body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
@@ -146,20 +160,47 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
+refreshAllExceptWithKeys = (keys, body) ->
+  allNodesToKeep = []
+
+  for key in keys
+    for node in document.querySelectorAll('[id^="'+key+'"]')
+      allNodesToKeep.push(node)
+
+  keepNodes(body, allNodesToKeep)
+  return
+
+keepNodes = (body, allNodesToKeep) ->
+  for existingNode in allNodesToKeep
+    unless nodeId = existingNode.getAttribute('id')
+      throw new Error("Turbolinks partial replace: Kept nodes must have an id.")
+
+    if remoteNode = body.querySelector('[id="'+nodeId+'"]')
+      remoteNode.parentNode.replaceChild(existingNode, remoteNode)
+
+persistPermanentNodes = (body) ->
+  allNodesToKeep = []
+
+  nodes = document.querySelectorAll("[data-turbolinks-permanent]")
+  allNodesToKeep.push(node) for node in nodes
+
+  keepNodes(body, allNodesToKeep)
+  return
+
 getTemporaryNodes = ->
   node for node in document.querySelectorAll('[data-turbolinks-temporary]')
 
-getNodesMatchingChangeKeys = (keys) ->
+getPermanentNodes = ->
+  node for node in document.querySelectorAll('[data-turbolinks-permanent]')
+
+getNodesMatchingChangeKeys = (keys, body) ->
   matchingNodes = []
   for key in keys
-    for node in document.querySelectorAll('[id^="'+key+':"]')
+    for node in body.querySelectorAll('[id^="'+key+'"]')
       matchingNodes.push(node)
-
   return matchingNodes
 
 changeNodes = (allNodesToBeChanged, body) ->
-  triggerEvent EVENTS.BEFORE_CHANGE, allNodesToBeChanged
-
   parentIsRefreshing = (node) ->
     for potentialParent in allNodesToBeChanged when node != potentialParent
       return true if potentialParent.contains(node)
@@ -183,10 +224,13 @@ changeNodes = (allNodesToBeChanged, body) ->
 
   refreshedNodes
 
-deleteRefreshNeverNodes = (body) ->
-  for node in body.querySelectorAll('[refresh-never]')
-    node.parentNode.removeChild(node)
+addPermanentNodesInBody = (body) ->
+  for newNode in body.querySelectorAll('[data-turbolinks-permanent]')
+    unless nodeId = newNode.getAttribute('id')
+      throw new Error "Turbolinks partial replacement: change key elements must have an id."
 
+    if existingNode = document.querySelector('[id="'+nodeId+'"]')
+      newNode.parentNode.replaceChild(existingNode, newNode)
   return
 
 executeScriptTags = ->

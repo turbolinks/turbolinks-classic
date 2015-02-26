@@ -4,25 +4,22 @@
   <meta charset="utf-8">
   <title>Partial update 3</title>
   <script type="text/javascript" src="/js/turbolinks.js"></script>
-  <script type="text/javascript">
-    document.addEventListener("page:change", function() {
-      console.log("page changed");
-    });
-
-    document.addEventListener("page:update", function() {
-      console.log("page updated");
-    });
-  </script>
 </head>
 <body class="page-other">
   <nav id="navbar" data-turbolinks-permanent>
     <a href="/index.html">Index</a>
   </nav>
-  <h1 id="flash" data-turbolinks-temporary>You have 3 comments!</h1>
+  <h2 id="flash" data-turbolinks-temporary>
+    <a href="#" onclick="this.innerHTML = 'changed'">Change me</a>
+  </h2>
+  <h3 id="comments:header">You have 3 comments!</h3>
   <ul id="comments:list">
     <li>Author: Turbo. Comment: This is comment 1</li>
     <li>Author: Turbo2. Comment: This is comment 2</li>
     <li>Author: Turbo3. Comment: This is comment 3</li>
   </ul>
+  <div id="revert" data-turbolinks-permanent>
+    <h1>I shouldn't change</h1>
+  </div>
 </body>
 </html>

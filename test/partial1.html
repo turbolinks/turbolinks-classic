@@ -1,36 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Partial updates</title>
-  <script type="text/javascript" src="/js/turbolinks.js"></script>
-  <script type="text/javascript">
-    document.addEventListener("page:change", function() {
-      console.log("page changed");
-    });
+  <head>
+    <meta charset="utf-8">
+    <title>Partial updates</title>
+    <script type="text/javascript" src="/js/turbolinks.js"></script>
+  </head>
+  <body class="page-other">
+    <nav id="navbar" data-turbolinks-permanent>
+      <a href="/index.html">Index</a>
+    </nav>
+    <h2 id="flash" data-turbolinks-temporary>
+      <a href="#" onclick="this.innerHTML = 'changed'">Change me</a>
+    </h2>
+    <h3 id="comments:header">You have 1 comment!</h3>
+    <ul id="comments:list">
+      <li>Author: Turbo. Comment: This is comment 1</li>
+      <li><a href="#" onclick="Turbolinks.visit('/partial2.html', {change: ['comments']});">Fetch another comment</a></li>
+    </ul>
 
-    document.addEventListener("page:update", function() {
-      console.log("page updated");
-    });
+    <ul id="revert" data-turbolinks-permanent>
+      <li><a href="#" onclick="Turbolinks.replace(window.originalDocument)">Replace with original doc</a></li>
+      <li><a href="#" onclick="Turbolinks.replace(window.originalDocument, {change: ['comments:header']})">Replace the count</a></li>
+    </ul>
+  </body>
 
+  <script id="original_document" data-turbolinks-permanent>
     window.originalDocument = document.implementation.createDocument ('http://www.w3.org/1999/xhtml', 'html', null);
-    window.originalDocument.title = "Back to basics"
+    window.originalDocument.title = document.title
+    window.originalDocument.documentElement.appendChild(document.body.cloneNode(true));
   </script>
-</head>
-<body class="page-other">
-  <nav id="navbar" data-turbolinks-permanent>
-    <a href="/index.html">Index</a>
-  </nav>
-  <h1 id="flash" data-turbolinks-temporary>You have 1 comment!</h1>
-  <ul id="comments:list">
-    <li>Author: Turbo. Comment: This is comment 1</li>
-    <li><a href="#" onclick="Turbolinks.visit('/partial2.html', {change: ['comments']});">Fetch another comment</a></li>
-  </ul>
-  <div id="revert" data-turbolinks-permanent>
-    <a href="#" onclick="Turbolinks.replace(window.originalDocument)">Go back to the original doc</a>
-  </div>
-</body>
-<script>
-  window.originalDocument.documentElement.appendChild(document.body.cloneNode(true));
-</script>
 </html>
