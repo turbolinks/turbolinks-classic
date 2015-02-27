@@ -1,6 +1,6 @@
 ## Turbolinks (master)
 
-## Turbolinks 2.5.3 (December 8, 2013)
+## Turbolinks 2.5.3 (December 8, 2014)
 
 *   Prevent the progress bar from filling the entire screen in older versions of Safari.
 
