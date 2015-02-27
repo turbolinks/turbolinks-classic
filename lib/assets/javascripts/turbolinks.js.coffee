@@ -94,8 +94,7 @@ fetchReplacement = (url, options = {}) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  doc = createDocument(cachedPage.body.innerHTML)
-  changePage doc, title: cachedPage.title
+  changePage createDocument(cachedPage.body.innerHTML), title: cachedPage.title
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -121,7 +120,7 @@ constrainPageCacheTo = (limit) ->
   pageCacheKeys = Object.keys pageCache
 
   cacheTimesRecentFirst = pageCacheKeys.map (url) ->
-    pageCache[url].cachedAtn
+    pageCache[url].cachedAt
   .sort (a, b) -> b - a
 
   for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
@@ -171,21 +170,13 @@ findNodesMatchingKeys = (body, keys) ->
 keepNodes = (targetBody, existingNodes) ->
   for existingNode in existingNodes
     unless nodeId = existingNode.getAttribute('id')
-      throw new Error("Turbolinks partial replace: Kept nodes must have an id.")
+      throw new Error("Turbolinks partial replace: keep key elements must have an id.")
 
     if newNode = targetBody.querySelector('[id="'+nodeId+'"]')
       newNode.parentNode.replaceChild(existingNode, newNode)
 
 changeNodes = (targetBody, existingNodes) ->
-  parentIsRefreshing = (node) ->
-    for potentialParent in existingNodes when node != potentialParent
-      return true if potentialParent.contains(node)
-    false
-
-  refreshedNodes = []
   for existingNode in existingNodes
-    continue if parentIsRefreshing(existingNode)
-
     unless nodeId = existingNode.getAttribute('id')
       throw new Error "Turbolinks partial replacement: change key elements must have an id."
 
@@ -195,10 +186,6 @@ changeNodes = (targetBody, existingNodes) ->
 
       if newNode.nodeName == 'SCRIPT' && newNode.getAttribute("data-turbolinks-eval") != "false"
         executeScriptTag(newNode)
-      else
-        refreshedNodes.push(newNode)
-
-  refreshedNodes
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
