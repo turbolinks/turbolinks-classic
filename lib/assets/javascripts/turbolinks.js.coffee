@@ -140,26 +140,20 @@ changePage = (doc, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 
-  sourceBody = options.body || body
+  targetBody = options.body || body
+
+  changeNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'))
 
   if options.change
-    nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
-    nodesToBeChanged.push(findNodesMatchingKeys(document.body, options.change)...)
-
-    changedNodes = changeNodes(nodesToBeChanged, sourceBody)
-    setAutofocusElement() if anyAutofocusElement(changedNodes)
-    changedNodes
+    changeNodes(targetBody, findNodesMatchingKeys(document.body, options.change))
   else
     unless options.flush
-      nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
-      changeNodes(nodesToBeChanged, sourceBody)
-
       nodesToBeKept = findNodes(document.body, '[data-turbolinks-permanent]')
       nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
 
-      keepNodes(sourceBody, nodesToBeKept)
+      keepNodes(targetBody, nodesToBeKept)
 
-    document.documentElement.replaceChild sourceBody, document.body
+    document.documentElement.replaceChild targetBody, document.body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
     executeScriptTags() if runScripts
@@ -186,7 +180,7 @@ keepNodes = (body, allNodesToKeep) ->
     if remoteNode = body.querySelector('[id="'+nodeId+'"]')
       remoteNode.parentNode.replaceChild(existingNode, remoteNode)
 
-changeNodes = (allNodesToBeChanged, body) ->
+changeNodes = (body, allNodesToBeChanged) ->
   parentIsRefreshing = (node) ->
     for potentialParent in allNodesToBeChanged when node != potentialParent
       return true if potentialParent.contains(node)
