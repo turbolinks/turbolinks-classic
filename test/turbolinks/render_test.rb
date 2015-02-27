@@ -174,6 +174,18 @@ class RenderTest < ActionController::TestCase
     end
   end
 
+  def test_render_without_turbolinks_returns_response_body
+    @controller.response = @response
+    result = @controller.render(text: 'test', turbolinks: false)
+    assert_equal ['test'], result
+  end
+
+  def test_render_with_turbolinks_returns_response_body
+    @controller.response = @response
+    result = @controller.render(text: 'test', turbolinks: true)
+    assert_equal ["Turbolinks.replace('test');"], result
+  end
+
   private
 
   def assert_normal_render(content)

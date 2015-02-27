@@ -29,6 +29,8 @@ module Turbolinks
         self.response_body    = "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
         response.content_type = Mime::JS
       end
+
+      self.response_body
     end
 
     private
