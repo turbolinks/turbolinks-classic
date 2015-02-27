@@ -137,16 +137,14 @@ changePage = (doc, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 
-  changeNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'))
-
+  swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
   if options.change
-    changeNodes(targetBody, findNodesMatchingKeys(document.body, options.change))
+    swapNodes(targetBody, findNodesMatchingKeys(document.body, options.change), keep: false)
   else
     unless options.flush
       nodesToBeKept = findNodes(document.body, '[data-turbolinks-permanent]')
       nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
-
-      keepNodes(targetBody, nodesToBeKept)
+      swapNodes(targetBody, nodesToBeKept, keep: true)
 
     document.documentElement.replaceChild targetBody, document.body
     CSRFToken.update csrfToken if csrfToken?
@@ -167,25 +165,19 @@ findNodesMatchingKeys = (body, keys) ->
 
   return matchingNodes
 
-keepNodes = (targetBody, existingNodes) ->
+swapNodes = (targetBody, existingNodes, options) ->
   for existingNode in existingNodes
     unless nodeId = existingNode.getAttribute('id')
-      throw new Error("Turbolinks partial replace: keep key elements must have an id.")
+      throw new Error("Turbolinks partial replace: turbolinks elements must have an id.")
 
-    if newNode = targetBody.querySelector('[id="'+nodeId+'"]')
-      newNode.parentNode.replaceChild(existingNode, newNode)
-
-changeNodes = (targetBody, existingNodes) ->
-  for existingNode in existingNodes
-    unless nodeId = existingNode.getAttribute('id')
-      throw new Error "Turbolinks partial replacement: change key elements must have an id."
-
-    if newNode = targetBody.querySelector('[id="'+nodeId+'"]')
-      newNode = newNode.cloneNode(true)
-      existingNode.parentNode.replaceChild(newNode, existingNode)
-
-      if newNode.nodeName == 'SCRIPT' && newNode.getAttribute("data-turbolinks-eval") != "false"
-        executeScriptTag(newNode)
+    if targetNode = targetBody.querySelector('[id="'+nodeId+'"]')
+      if options.keep
+        targetNode.parentNode.replaceChild(existingNode, targetNode)
+      else
+        targetNode = targetNode.cloneNode(true)
+        existingNode.parentNode.replaceChild(targetNode, existingNode)
+        if targetNode.nodeName == 'SCRIPT' && targetNode.getAttribute("data-turbolinks-eval") != "false"
+          executeScriptTag(targetNode)
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
@@ -202,12 +194,6 @@ executeScriptTags = ->
 removeNoscriptTags = (node) ->
   node.innerHTML = node.innerHTML.replace /<noscript[\S\s]*?<\/noscript>/ig, ''
   node
-
-anyAutofocusElement = (nodes) ->
-  for node in nodes
-    if node.querySelectorAll('input[autofocus], textarea[autofocus]').length > 0
-      return true
-  false
 
 # Firefox bug: Doesn't autofocus fields that are inserted via JavaScript
 setAutofocusElement = ->
