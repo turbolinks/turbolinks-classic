@@ -51,9 +51,8 @@ enableProgressBar = (enable = true) ->
     progressBar?.uninstall()
     progressBar = null
 
-fetchReplacement = (url, options = {}) ->
-  onLoadFunction = options.onLoadFunction
-  showProgressBar = options.showProgressBar ? true
+fetchReplacement = (url, options) ->
+  options.showProgressBar ?= true
 
   triggerEvent EVENTS.FETCH, url: url.absolute
 
@@ -70,16 +69,16 @@ fetchReplacement = (url, options = {}) ->
       reflectNewUrl url unless options.change? || options.keep? || options.flush?
       reflectRedirectedUrl()
       changePage doc, options
-      if showProgressBar
+      if options.showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
-      onLoadFunction?()
+      options.onLoadFunction?()
       triggerEvent EVENTS.LOAD
     else
       progressBar?.done()
       document.location.href = crossOriginRedirect() or url.absolute
 
-  if progressBar and showProgressBar
+  if progressBar and options.showProgressBar
     xhr.onprogress = (event) =>
       percent = if event.lengthComputable
         event.loaded / event.total * 100
@@ -130,7 +129,7 @@ constrainPageCacheTo = (limit) ->
 replace = (html, options = {}) ->
   changePage createDocument(html), options
 
-changePage = (doc, options = {}) ->
+changePage = (doc, options) ->
   [title, targetBody, csrfToken, runScripts] = extractTitleAndBody(doc)
   title ?= options.title
 
@@ -156,7 +155,7 @@ changePage = (doc, options = {}) ->
   triggerEvent EVENTS.UPDATE
 
 findNodes = (body, selector) ->
-  node for node in body.querySelectorAll(selector)
+  Array::slice.apply(body.querySelectorAll(selector))
 
 findNodesMatchingKeys = (body, keys) ->
   matchingNodes = []
@@ -178,6 +177,7 @@ swapNodes = (targetBody, existingNodes, options) ->
         existingNode.parentNode.replaceChild(targetNode, existingNode)
         if targetNode.nodeName == 'SCRIPT' && targetNode.getAttribute("data-turbolinks-eval") != "false"
           executeScriptTag(targetNode)
+  return
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
