@@ -69,7 +69,7 @@ fetchReplacement = (url, options = {}) ->
     if doc = processResponse()
       reflectNewUrl url unless options.change? || options.keep? || options.flush?
       reflectRedirectedUrl()
-      changePage extractTitleAndBody(doc)..., options
+      changePage doc, options
       if showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
@@ -94,7 +94,9 @@ fetchReplacement = (url, options = {}) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  changePage cachedPage.title, cachedPage.body
+  doc = createDocument(cachedPage.body.innerHTML)
+  doc.title = cachedPage.title
+  changePage doc
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -130,27 +132,30 @@ constrainPageCacheTo = (limit) ->
 replace = (html, options = {}) ->
   doc = createDocument(html)
   options.body = doc.body
-  changePage extractTitleAndBody(doc)..., options
+  changePage doc, options
 
-changePage = (title, body, csrfToken, runScripts, options = {}) ->
+changePage = (doc, options = {}) ->
+  [title, body, csrfToken, runScripts] = extractTitleAndBody(doc)
+
+#changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 
-  body = options.body || body
+  sourceBody = options.body || body
 
   if options.change
     nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change, document.body),getTemporaryNodes(document.body))
-    changedNodes = changeNodes(nodesToBeChanged, body)
+    changedNodes = changeNodes(nodesToBeChanged, sourceBody)
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
   else
     unless options.flush
-      changeNodes(getTemporaryNodes(document.body), body)
-      persistPermanentNodes(body, document.body)
+      changeNodes(getTemporaryNodes(document.body), sourceBody)
+      persistPermanentNodes(sourceBody, document.body)
       if options.keep
-        refreshAllExceptWithKeys(options.keep, body, document.body)
+        refreshAllExceptWithKeys(options.keep, sourceBody, document.body)
 
-    document.documentElement.replaceChild body, document.body
+    document.documentElement.replaceChild sourceBody, document.body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
     executeScriptTags() if runScripts
