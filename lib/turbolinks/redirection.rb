@@ -19,12 +19,14 @@ module Turbolinks
     def render(*args, &block)
       render_options = args.extract_options!
       turbolinks = render_options.delete(:turbolinks)
+      options = render_options.extract!(:keep, :change)
+      raise ArgumentError, "cannot combine :keep and :change options" if options.size > 1
 
       super(*args, render_options, &block)
 
-      if turbolinks
+      if turbolinks || (turbolinks != false && options.size > 0 && request.xhr? && !request.get?)
         self.status           = 200
-        self.response_body    = "Turbolinks.replace('#{view_context.j(response.body)}');"
+        self.response_body    = "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
         response.content_type = Mime::JS
       end
     end

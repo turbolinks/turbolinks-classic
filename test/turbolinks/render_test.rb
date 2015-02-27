@@ -27,6 +27,22 @@ class RenderController < ActionController::Base
   def render_unsafe_string_with_turbolinks_false
     render text: "'\">\n\\<\"'", turbolinks: false
   end
+
+  def render_with_single_change_option
+    render text: 'content', change: 'foo'
+  end
+
+  def render_with_multiple_change_option
+    render :action, change: ['foo', :bar]
+  end
+
+  def render_with_single_keep_option
+    render action: :action, keep: 'foo'
+  end
+
+  def render_with_multiple_keep_option
+    render :action, keep: ['foo', :bar]
+  end
 end
 
 class RenderTest < ActionController::TestCase
@@ -72,6 +88,47 @@ class RenderTest < ActionController::TestCase
   def test_render_unsafe_string_with_turbolinks_false
     get :render_unsafe_string_with_turbolinks_false
     assert_normal_render "'\">\n\\<\"'"
+  end
+
+  def test_render_via_xhr_and_post_with_single_change_option_renders_via_turbolinks
+    xhr :post, :render_with_single_change_option
+    assert_turbolinks_replace 'content', "{ change: ['foo'] }"
+  end
+
+  def test_render_via_xhr_and_patch_with_multiple_change_option_renders_via_turbolinks
+    xhr :patch, :render_with_multiple_change_option
+    assert_turbolinks_replace 'content', "{ change: ['foo', 'bar'] }"
+  end
+
+  def test_render_via_xhr_and_put_with_single_keep_option_renders_via_turbolinks
+    xhr :put, :render_with_single_keep_option
+    assert_turbolinks_replace 'content', "{ keep: ['foo'] }"
+  end
+
+  def test_render_via_xhr_and_delete_with_multiple_keep_option_renders_via_turbolinks
+    xhr :delete, :render_with_multiple_keep_option
+    assert_turbolinks_replace 'content', "{ keep: ['foo', 'bar'] }"
+  end
+
+  def test_render_via_xhr_and_get_with_change_option_does_normal_render
+    @request.env['HTTP_ACCEPT'] = Mime::HTML
+    xhr :get, :render_with_single_change_option
+    assert_normal_render 'content'
+  end
+
+  def test_render_via_post_and_not_xhr_with_keep_option_does_normal_render
+    post :render_with_multiple_keep_option
+    assert_normal_render 'content'
+  end
+
+  def test_render_with_change_and_keep_raises_argument_error
+    assert_raises ArgumentError do
+      @controller.render :action, change: :foo, keep: :bar
+    end
+
+    assert_raises ArgumentError do
+      @controller.render action: :action, change: :foo, keep: :bar
+    end
   end
 
   private
