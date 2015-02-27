@@ -32,6 +32,14 @@ class RedirectController < ActionController::Base
   def redirect_to_path_with_change_option_and_custom_status
     redirect_to '/path', change: ['foo', :bar], status: 303
   end
+
+  def redirect_to_path_with_turbolinks_and_single_keep_option
+    redirect_to '/path', turbolinks: true, keep: 'foo'
+  end
+
+  def redirect_to_path_with_turbolinks_and_multiple_keep_option
+    redirect_to '/path', turbolinks: true, keep: ['foo', :bar]
+  end
 end
 
 class RedirectionTest < ActionController::TestCase
@@ -110,6 +118,22 @@ class RedirectionTest < ActionController::TestCase
     post :redirect_to_path_with_change_option_and_custom_status
     assert_response 303
     assert_redirected_to 'http://test.host/path'
+  end
+
+  def test_redirect_to_with_turbolinks_and_single_keep_option
+    get :redirect_to_path_with_turbolinks_and_single_keep_option
+    assert_turbolinks_visit 'http://test.host/path', "{ keep: ['foo'] }"
+  end
+
+  def test_redirect_to_with_turbolinks_and_multiple_keep_option
+    get :redirect_to_path_with_turbolinks_and_multiple_keep_option
+    assert_turbolinks_visit 'http://test.host/path', "{ keep: ['foo', 'bar'] }"
+  end
+
+  def test_redirect_to_with_change_and_keep_raises_argument_error
+    assert_raises ArgumentError do
+      @controller.redirect_to '/path', change: :foo, keep: :bar
+    end
   end
 
   private

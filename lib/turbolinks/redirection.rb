@@ -5,14 +5,26 @@ module Turbolinks
     extend ActiveSupport::Concern
 
     def redirect_to(url = {}, response_status = {})
-      options = response_status.extract!(:change, :turbolinks)
+      turbolinks = response_status.delete(:turbolinks)
+      options = response_status.extract!(:keep, :change)
+      raise ArgumentError, "cannot combine :keep and :change options" if options.size > 1
+
       super(url, response_status)
 
-      if options[:turbolinks] || (request.xhr? && !request.get?)
-        change = ", { change: ['#{Array(options[:change]).join("', '")}'] }" if options[:change]
+      if turbolinks || (request.xhr? && !request.get?)
         self.status           = 200
-        self.response_body    = "Turbolinks.visit('#{location}'#{change});"
+        self.response_body    = "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
         response.content_type = Mime::JS
+      end
+    end
+
+    private
+
+    def _turbolinks_js_options(options)
+      if options[:change]
+        ", { change: ['#{Array(options[:change]).join("', '")}'] }"
+      elsif options[:keep]
+        ", { keep: ['#{Array(options[:keep]).join("', '")}'] }"
       end
     end
   end
