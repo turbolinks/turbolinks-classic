@@ -3,31 +3,23 @@ module Turbolinks
   # The server will respond with a JavaScript call to Turbolinks.visit/replace().
   module Redirection
     def redirect_to(url = {}, response_status = {})
-      turbolinks = response_status.delete(:turbolinks)
-      options = response_status.extract!(:keep, :change, :flush)
-      raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
+      turbolinks, options = _extract_turbolinks_options!(response_status)
 
       super(url, response_status)
 
       if turbolinks || (turbolinks != false && request.xhr? && !request.get?)
-        self.status           = 200
-        self.response_body    = "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
-        response.content_type = Mime::JS
+        _perform_turbolinks_response "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
       end
     end
 
     def render(*args, &block)
       render_options = args.extract_options!
-      turbolinks = render_options.delete(:turbolinks)
-      options = render_options.extract!(:keep, :change, :flush)
-      raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
+      turbolinks, options = _extract_turbolinks_options!(render_options)
 
       super(*args, render_options, &block)
 
       if turbolinks || (turbolinks != false && options.size > 0 && request.xhr? && !request.get?)
-        self.status           = 200
-        self.response_body    = "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
-        response.content_type = Mime::JS
+        _perform_turbolinks_response "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
       end
 
       self.response_body
@@ -39,6 +31,19 @@ module Turbolinks
     end
 
     private
+
+    def _extract_turbolinks_options!(options)
+      turbolinks = options.delete(:turbolinks)
+      options = options.extract!(:keep, :change, :flush)
+      raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
+      [turbolinks, options]
+    end
+
+    def _perform_turbolinks_response(body)
+      self.status           = 200
+      self.response_body    = body
+      response.content_type = Mime::JS
+    end
 
     def _turbolinks_js_options(options)
       if options[:change]
