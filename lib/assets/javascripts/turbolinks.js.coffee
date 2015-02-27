@@ -136,22 +136,19 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 
-  # TODO: this is a hack that can go away when i refactor changePage params. it's using
-  # the supplied document body which i don't want.
-  sourceDocument = options.sourceDocument || document
   body = options.body || body
 
   if options.change
-    nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change, sourceDocument),getTemporaryNodes())
+    nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change, document.body),getTemporaryNodes(document.body))
     changedNodes = changeNodes(nodesToBeChanged, body)
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
   else
     unless options.flush
-      changeNodes(getTemporaryNodes(), body)
-      persistPermanentNodes(body)
+      changeNodes(getTemporaryNodes(document.body), body)
+      persistPermanentNodes(body, document.body)
       if options.keep
-        refreshAllExceptWithKeys(options.keep, body)
+        refreshAllExceptWithKeys(options.keep, body, document.body)
 
     document.documentElement.replaceChild body, document.body
     CSRFToken.update csrfToken if csrfToken?
@@ -162,11 +159,11 @@ changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
-refreshAllExceptWithKeys = (keys, body) ->
+refreshAllExceptWithKeys = (keys, body, sourceBody) ->
   allNodesToKeep = []
 
   for key in keys
-    for node in document.querySelectorAll('[id^="'+key+'"]')
+    for node in sourceBody.querySelectorAll('[id^="'+key+'"]')
       allNodesToKeep.push(node)
 
   keepNodes(body, allNodesToKeep)
@@ -180,20 +177,20 @@ keepNodes = (body, allNodesToKeep) ->
     if remoteNode = body.querySelector('[id="'+nodeId+'"]')
       remoteNode.parentNode.replaceChild(existingNode, remoteNode)
 
-persistPermanentNodes = (body) ->
+persistPermanentNodes = (body, sourceBody) ->
   allNodesToKeep = []
 
-  nodes = document.querySelectorAll("[data-turbolinks-permanent]")
+  nodes = sourceBody.querySelectorAll("[data-turbolinks-permanent]")
   allNodesToKeep.push(node) for node in nodes
 
   keepNodes(body, allNodesToKeep)
   return
 
-getTemporaryNodes = ->
-  node for node in document.querySelectorAll('[data-turbolinks-temporary]')
+getTemporaryNodes = (body)->
+  node for node in body.querySelectorAll('[data-turbolinks-temporary]')
 
 getPermanentNodes = ->
-  node for node in document.querySelectorAll('[data-turbolinks-permanent]')
+  node for node in body.querySelectorAll('[data-turbolinks-permanent]')
 
 getNodesMatchingChangeKeys = (keys, body) ->
   matchingNodes = []
@@ -225,15 +222,6 @@ changeNodes = (allNodesToBeChanged, body) ->
         refreshedNodes.push(newNode)
 
   refreshedNodes
-
-addPermanentNodesInBody = (body) ->
-  for newNode in body.querySelectorAll('[data-turbolinks-permanent]')
-    unless nodeId = newNode.getAttribute('id')
-      throw new Error "Turbolinks partial replacement: change key elements must have an id."
-
-    if existingNode = document.querySelector('[id="'+nodeId+'"]')
-      newNode.parentNode.replaceChild(existingNode, newNode)
-  return
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
@@ -305,7 +293,6 @@ resetScrollPosition = ->
     document.location.href = document.location.href
   else
     window.scrollTo 0, 0
-
 
 clone = (original) ->
   return original if not original? or typeof original isnt 'object'
