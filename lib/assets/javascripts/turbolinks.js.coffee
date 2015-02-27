@@ -152,12 +152,12 @@ changePage = (doc, options = {}) ->
   else
     unless options.flush
       nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
-
       changeNodes(nodesToBeChanged, sourceBody)
-      persistPermanentNodes(sourceBody, document.body)
-      if options.keep
-        nodesToKeep = findNodesMatchingKeys(document.body, options.keep)
-        keepNodes(sourceBody, nodesToKeep)
+
+      nodesToBeKept = findNodes(document.body, '[data-turbolinks-permanent]')
+      nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
+
+      keepNodes(sourceBody, nodesToBeKept)
 
     document.documentElement.replaceChild sourceBody, document.body
     CSRFToken.update csrfToken if csrfToken?
@@ -167,12 +167,6 @@ changePage = (doc, options = {}) ->
 
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
-
-persistPermanentNodes = (body, sourceBody) ->
-  nodesToPersist = findNodes(sourceBody, "[data-turbolinks-permanent]")
-
-  keepNodes(body, nodesToPersist)
-  return
 
 findNodes = (body, selector) ->
   node for node in body.querySelectorAll(selector)
