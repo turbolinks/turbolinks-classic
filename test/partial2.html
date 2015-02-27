@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Partial update 2</title>
+  <script type="text/javascript" src="/js/turbolinks.js"></script>
+  <style>a {text-decoration: underline; cursor: pointer; color: blue;}</style>
+</head>
+<body class="page-other">
+  <nav id="navbar" data-turbolinks-permanent>
+    <h1>I shouldn't change</h1>
+  </nav>
+  <h2 id="flash" data-turbolinks-temporary>
+    <a onclick="this.innerHTML = 'changed'">Change me</a>
+  </h2>
+  <h3 id="comments:header">You have 2 comments!</h3>
+  <ul id="comments:list">
+    <li>Author: Turbo. Comment: This is comment 1</li>
+    <li>Author: Turbo2. Comment: This is comment 2</li>
+    <li><a onclick="Turbolinks.visit('/partial3.html');">Fetch another comment</a></li>
+  </ul>
+  <ul id="revert" data-turbolinks-permanent>
+    <h1>I shouldn't change</h1>
+  </div>
+</body>
+</html>

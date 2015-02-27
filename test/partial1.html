@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Partial updates</title>
+    <script type="text/javascript" src="/js/turbolinks.js"></script>
+    <script>
+      setTimeout(function(){
+        window.originalDocument = document.implementation.createDocument ('http://www.w3.org/1999/xhtml', 'html', null);
+        window.originalDocument.documentElement.appendChild(document.body.cloneNode(true));
+      }, 0)
+    </script>
+    <style>a {text-decoration: underline; cursor: pointer; color: blue;}</style>
+  </head>
+  <body class="page-other">
+    <nav id="navbar" data-turbolinks-permanent>
+      <a href="/index.html">Index</a>
+    </nav>
+    <h2 id="flash" data-turbolinks-temporary>
+      <a onclick="this.innerHTML = 'changed'">Change me</a>
+    </h2>
+    <h3 id="comments:header">You have 1 comment!</h3>
+    <ul id="comments:list">
+      <li>Author: Turbo. Comment: This is comment 1</li>
+      <li><a onclick="Turbolinks.visit('/partial2.html', {change: ['comments']});">Fetch another comment</a></li>
+    </ul>
+
+    <ul id="revert" data-turbolinks-permanent>
+      <li><a onclick="Turbolinks.replace(window.originalDocument.documentElement.innerHTML, {title: 'Back to the original'})">Replace with original doc</a></li>
+      <li><a onclick="Turbolinks.replace(window.originalDocument.documentElement.innerHTML, {change: ['comments:header'], title: 'Changed the count'})">Replace the original count</a></li>
+      <li><a onclick="Turbolinks.replace(window.originalDocument.documentElement.innerHTML, {keep: ['comments:header'], title: 'Replaced all but the count'})">Replace everything but the current count</a></li>
+    </ul>
+  </body>
+</html>

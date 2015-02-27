@@ -21,7 +21,7 @@ EVENTS =
   BEFORE_UNLOAD:  'page:before-unload'
   EXPIRE:         'page:expire'
 
-fetch = (url) ->
+fetch = (url, options = {}) ->
   url = new ComponentUrl url
 
   rememberReferer()
@@ -30,9 +30,11 @@ fetch = (url) ->
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
-    fetchReplacement url, null, false
+    options.showProgressBar = false
+    fetchReplacement url, options
   else
-    fetchReplacement url, resetScrollPosition
+    options.onLoadFunction = resetScrollPosition
+    fetchReplacement url, options
 
 transitionCacheFor = (url) ->
   cachedPage = pageCache[url]
@@ -49,7 +51,9 @@ enableProgressBar = (enable = true) ->
     progressBar?.uninstall()
     progressBar = null
 
-fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
+fetchReplacement = (url, options) ->
+  options.showProgressBar ?= true
+
   triggerEvent EVENTS.FETCH, url: url.absolute
 
   xhr?.abort()
@@ -62,19 +66,19 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
     triggerEvent EVENTS.RECEIVE, url: url.absolute
 
     if doc = processResponse()
-      reflectNewUrl url
+      reflectNewUrl url unless options.change? || options.keep? || options.flush?
       reflectRedirectedUrl()
-      changePage extractTitleAndBody(doc)...
-      if showProgressBar
+      changePage doc, options
+      if options.showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
-      onLoadFunction?()
+      options.onLoadFunction?()
       triggerEvent EVENTS.LOAD
     else
       progressBar?.done()
       document.location.href = crossOriginRedirect() or url.absolute
 
-  if progressBar and showProgressBar
+  if progressBar and options.showProgressBar
     xhr.onprogress = (event) =>
       percent = if event.lengthComputable
         event.loaded / event.total * 100
@@ -89,11 +93,10 @@ fetchReplacement = (url, onLoadFunction, showProgressBar = true) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  changePage cachedPage.title, cachedPage.body
+  changePage createDocument(cachedPage.body.innerHTML), title: cachedPage.title
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
-
 
 cacheCurrentPage = ->
   currentStateUrl = new ComponentUrl currentState.url
@@ -123,16 +126,58 @@ constrainPageCacheTo = (limit) ->
     triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
-changePage = (title, body, csrfToken, runScripts) ->
+replace = (html, options = {}) ->
+  changePage createDocument(html), options
+
+changePage = (doc, options) ->
+  [title, targetBody, csrfToken, runScripts] = extractTitleAndBody(doc)
+  title ?= options.title
+
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
-  document.documentElement.replaceChild body, document.body
-  CSRFToken.update csrfToken if csrfToken?
-  setAutofocusElement()
-  executeScriptTags() if runScripts
-  currentState = window.history.state
+
+  swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
+  if options.change
+    swapNodes(targetBody, findNodesMatchingKeys(document.body, options.change), keep: false)
+  else
+    unless options.flush
+      nodesToBeKept = findNodes(document.body, '[data-turbolinks-permanent]')
+      nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
+      swapNodes(targetBody, nodesToBeKept, keep: true)
+
+    document.documentElement.replaceChild targetBody, document.body
+    CSRFToken.update csrfToken if csrfToken?
+    setAutofocusElement()
+    executeScriptTags() if runScripts
+    currentState = window.history.state
+
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
+
+findNodes = (body, selector) ->
+  Array::slice.apply(body.querySelectorAll(selector))
+
+findNodesMatchingKeys = (body, keys) ->
+  matchingNodes = []
+  for key in keys
+    matchingNodes.push(findNodes(body, '[id^="'+key+':"], [id="'+key+'"]')...)
+
+  return matchingNodes
+
+swapNodes = (targetBody, existingNodes, options) ->
+  for existingNode in existingNodes
+    unless nodeId = existingNode.getAttribute('id')
+      throw new Error("Turbolinks partial replace: turbolinks elements must have an id.")
+
+    if targetNode = targetBody.querySelector('[id="'+nodeId+'"]')
+      if options.keep
+        targetNode.parentNode.replaceChild(existingNode, targetNode)
+      else
+        targetNode = targetNode.cloneNode(true)
+        existingNode.parentNode.replaceChild(targetNode, existingNode)
+        if targetNode.nodeName == 'SCRIPT' && targetNode.getAttribute("data-turbolinks-eval") != "false"
+          executeScriptTag(targetNode)
+  return
 
 executeScriptTags = ->
   scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
@@ -198,7 +243,6 @@ resetScrollPosition = ->
     document.location.href = document.location.href
   else
     window.scrollTo 0, 0
-
 
 clone = (original) ->
   return original if not original? or typeof original isnt 'object'
@@ -569,6 +613,7 @@ else
 #   Turbolinks.EVENTS
 @Turbolinks = {
   visit,
+  replace,
   pagesCached,
   cacheCurrentPage,
   enableTransitionCache,
