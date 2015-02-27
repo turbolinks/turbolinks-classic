@@ -145,16 +145,19 @@ changePage = (doc, options = {}) ->
   if options.change
     nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
     nodesToBeChanged.push(findNodesMatchingKeys(document.body, options.change)...)
+
     changedNodes = changeNodes(nodesToBeChanged, sourceBody)
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
   else
     unless options.flush
       nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
+
       changeNodes(nodesToBeChanged, sourceBody)
       persistPermanentNodes(sourceBody, document.body)
       if options.keep
-        refreshAllExceptWithKeys(options.keep, sourceBody, document.body)
+        nodesToKeep = findNodesMatchingKeys(document.body, options.keep)
+        keepNodes(sourceBody, nodesToKeep)
 
     document.documentElement.replaceChild sourceBody, document.body
     CSRFToken.update csrfToken if csrfToken?
@@ -165,31 +168,10 @@ changePage = (doc, options = {}) ->
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
 
-refreshAllExceptWithKeys = (keys, body, sourceBody) ->
-  allNodesToKeep = []
-
-  for key in keys
-    for node in sourceBody.querySelectorAll('[id^="'+key+'"]')
-      allNodesToKeep.push(node)
-
-  keepNodes(body, allNodesToKeep)
-  return
-
-keepNodes = (body, allNodesToKeep) ->
-  for existingNode in allNodesToKeep
-    unless nodeId = existingNode.getAttribute('id')
-      throw new Error("Turbolinks partial replace: Kept nodes must have an id.")
-
-    if remoteNode = body.querySelector('[id="'+nodeId+'"]')
-      remoteNode.parentNode.replaceChild(existingNode, remoteNode)
-
 persistPermanentNodes = (body, sourceBody) ->
-  allNodesToKeep = []
+  nodesToPersist = findNodes(sourceBody, "[data-turbolinks-permanent]")
 
-  nodes = sourceBody.querySelectorAll("[data-turbolinks-permanent]")
-  allNodesToKeep.push(node) for node in nodes
-
-  keepNodes(body, allNodesToKeep)
+  keepNodes(body, nodesToPersist)
   return
 
 findNodes = (body, selector) ->
@@ -201,6 +183,14 @@ findNodesMatchingKeys = (body, keys) ->
     matchingNodes.push(findNodes(body, '[id^="'+key+'"]')...)
 
   return matchingNodes
+
+keepNodes = (body, allNodesToKeep) ->
+  for existingNode in allNodesToKeep
+    unless nodeId = existingNode.getAttribute('id')
+      throw new Error("Turbolinks partial replace: Kept nodes must have an id.")
+
+    if remoteNode = body.querySelector('[id="'+nodeId+'"]')
+      remoteNode.parentNode.replaceChild(existingNode, remoteNode)
 
 changeNodes = (allNodesToBeChanged, body) ->
   parentIsRefreshing = (node) ->
