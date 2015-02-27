@@ -56,26 +56,22 @@ class RedirectionTest < ActionController::TestCase
   end
 
   def test_redirect_to_url_string_via_xhr_and_post_redirects_via_turbolinks
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    post :redirect_to_url_string
+    xhr :post, :redirect_to_url_string
     assert_turbolinks_visit 'http://example.com'
   end
 
   def test_redirect_to_url_hash_via_xhr_and_patch_redirects_via_turbolinks
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    patch :redirect_to_url_hash
+    xhr :patch, :redirect_to_url_hash
     assert_turbolinks_visit 'http://test.host/redirect/action'
   end
 
   def test_redirect_to_path_and_custom_status_via_xhr_and_delete_redirects_via_turbolinks
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    delete :redirect_to_path_and_custom_status
+    xhr :delete, :redirect_to_path_and_custom_status
     assert_turbolinks_visit 'http://test.host/path'
   end
 
   def test_redirect_to_via_xhr_and_get_does_normal_redirect
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    get :redirect_to_path_and_custom_status
+    xhr :get, :redirect_to_path_and_custom_status
     assert_response 303
     assert_redirected_to 'http://test.host/path'
   end
@@ -91,26 +87,22 @@ class RedirectionTest < ActionController::TestCase
   end
 
   def test_redirect_to_via_xhr_and_post_with_single_change_option
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    post :redirect_to_path_with_single_change_option
+    xhr :post, :redirect_to_path_with_single_change_option
     assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo'] }"
   end
 
   def test_redirect_to_via_xhr_and_post_with_multiple_change_option
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    post :redirect_to_path_with_multiple_change_option
+    xhr :post, :redirect_to_path_with_multiple_change_option
     assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo', 'bar'] }"
   end
 
   def test_redirect_to_via_xhr_and_post_with_change_option_and_custom_status
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    post :redirect_to_path_with_change_option_and_custom_status
+    xhr :post, :redirect_to_path_with_change_option_and_custom_status
     assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo', 'bar'] }"
   end
 
   def test_redirect_to_via_xhr_and_get_with_change_option
-    @request.headers['X-Requested-With'] = 'XMLHttpRequest'
-    get :redirect_to_path_with_multiple_change_option
+    xhr :get, :redirect_to_path_with_multiple_change_option
     assert_redirected_to 'http://test.host/path'
   end
 
