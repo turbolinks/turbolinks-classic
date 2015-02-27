@@ -33,6 +33,11 @@ module Turbolinks
       self.response_body
     end
 
+    def redirect_via_turbolinks_to(url = {}, response_status = {})
+      ActiveSupport::Deprecation.warn("`redirect_via_turbolinks_to` is deprecated and will be removed in Turbolinks 3.1. Use redirect_to(url, turbolinks: true) instead.")
+      redirect_to(url, response_status.merge!(turbolinks: true))
+    end
+
     private
 
     def _turbolinks_js_options(options)

@@ -52,6 +52,24 @@ class RedirectController < ActionController::Base
   def redirect_to_path_with_turbolinks_and_flush_false
     redirect_to '/path', turbolinks: true, flush: false
   end
+
+  def redirect_via_turbolinks_to_url_string
+    ActiveSupport::Deprecation.silence do
+      redirect_via_turbolinks_to 'http://example.com'
+    end
+  end
+
+  def redirect_via_turbolinks_to_url_hash
+    ActiveSupport::Deprecation.silence do
+      redirect_via_turbolinks_to action: 'action'
+    end
+  end
+
+  def redirect_via_turbolinks_to_path_and_custom_status
+    ActiveSupport::Deprecation.silence do
+      redirect_via_turbolinks_to '/path', status: 303
+    end
+  end
 end
 
 class RedirectionTest < ActionController::TestCase
@@ -165,6 +183,21 @@ class RedirectionTest < ActionController::TestCase
     assert_raises ArgumentError do
       @controller.redirect_to '/path', keep: :foo, flush: true
     end
+  end
+
+  def test_redirect_via_turbolinks_to_url_string
+    get :redirect_via_turbolinks_to_url_string
+    assert_turbolinks_visit 'http://example.com'
+  end
+
+  def test_redirect_via_turbolinks_to_url_hash
+    get :redirect_via_turbolinks_to_url_hash
+    assert_turbolinks_visit 'http://test.host/redirect/action'
+  end
+
+  def test_redirect_via_turbolinks_to_path_and_custom_status
+    get :redirect_via_turbolinks_to_path_and_custom_status
+    assert_turbolinks_visit 'http://test.host/path'
   end
 
   private
