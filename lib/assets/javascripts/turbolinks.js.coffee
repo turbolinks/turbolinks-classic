@@ -121,7 +121,7 @@ constrainPageCacheTo = (limit) ->
   pageCacheKeys = Object.keys pageCache
 
   cacheTimesRecentFirst = pageCacheKeys.map (url) ->
-    pageCache[url].cachedAt
+    pageCache[url].cachedAtn
   .sort (a, b) -> b - a
 
   for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
@@ -143,13 +143,15 @@ changePage = (doc, options = {}) ->
   sourceBody = options.body || body
 
   if options.change
-    nodesToBeChanged = [].concat(getNodesMatchingChangeKeys(options.change, document.body),getTemporaryNodes(document.body))
+    nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
+    nodesToBeChanged.push(findNodesMatchingKeys(document.body, options.change)...)
     changedNodes = changeNodes(nodesToBeChanged, sourceBody)
     setAutofocusElement() if anyAutofocusElement(changedNodes)
     changedNodes
   else
     unless options.flush
-      changeNodes(getTemporaryNodes(document.body), sourceBody)
+      nodesToBeChanged = findNodes(document.body, '[data-turbolinks-temporary]')
+      changeNodes(nodesToBeChanged, sourceBody)
       persistPermanentNodes(sourceBody, document.body)
       if options.keep
         refreshAllExceptWithKeys(options.keep, sourceBody, document.body)
@@ -190,17 +192,14 @@ persistPermanentNodes = (body, sourceBody) ->
   keepNodes(body, allNodesToKeep)
   return
 
-getTemporaryNodes = (body)->
-  node for node in body.querySelectorAll('[data-turbolinks-temporary]')
+findNodes = (body, selector) ->
+  node for node in body.querySelectorAll(selector)
 
-getPermanentNodes = ->
-  node for node in body.querySelectorAll('[data-turbolinks-permanent]')
-
-getNodesMatchingChangeKeys = (keys, body) ->
+findNodesMatchingKeys = (body, keys) ->
   matchingNodes = []
   for key in keys
-    for node in body.querySelectorAll('[id^="'+key+'"]')
-      matchingNodes.push(node)
+    matchingNodes.push(findNodes(body, '[id^="'+key+'"]')...)
+
   return matchingNodes
 
 changeNodes = (allNodesToBeChanged, body) ->
