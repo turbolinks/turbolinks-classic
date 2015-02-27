@@ -17,6 +17,10 @@ class RedirectController < ActionController::Base
     redirect_to({action: 'action'}, turbolinks: true)
   end
 
+  def redirect_to_path_with_turbolinks_false
+    redirect_to '/path', turbolinks: false
+  end
+
   def redirect_to_path_and_custom_status
     redirect_to '/path', status: 303
   end
@@ -76,6 +80,11 @@ class RedirectionTest < ActionController::TestCase
   def test_redirect_to_path_and_custom_status_via_xhr_and_delete_redirects_via_turbolinks
     xhr :delete, :redirect_to_path_and_custom_status
     assert_turbolinks_visit 'http://test.host/path'
+  end
+
+  def test_redirect_to_via_xhr_and_post_with_turbolinks_false_does_normal_redirect
+    xhr :post, :redirect_to_path_with_turbolinks_false
+    assert_redirected_to 'http://test.host/path'
   end
 
   def test_redirect_to_via_xhr_and_get_does_normal_redirect

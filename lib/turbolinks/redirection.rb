@@ -11,7 +11,7 @@ module Turbolinks
 
       super(url, response_status)
 
-      if turbolinks || (request.xhr? && !request.get?)
+      if turbolinks || (turbolinks != false && request.xhr? && !request.get?)
         self.status           = 200
         self.response_body    = "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
         response.content_type = Mime::JS
