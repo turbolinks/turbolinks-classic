@@ -171,7 +171,7 @@ swapNodes = (targetBody, existingNodes, options) ->
 
     if targetNode = targetBody.querySelector('[id="'+nodeId+'"]')
       if options.keep
-        existingNode = existingNode.cloneNode(true);
+        existingNode = existingNode.cloneNode(true)
         targetNode.parentNode.replaceChild(existingNode, targetNode)
       else
         targetNode = targetNode.cloneNode(true)
