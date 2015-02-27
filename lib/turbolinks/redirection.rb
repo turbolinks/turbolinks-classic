@@ -19,8 +19,8 @@ module Turbolinks
     def render(*args, &block)
       render_options = args.extract_options!
       turbolinks = render_options.delete(:turbolinks)
-      options = render_options.extract!(:keep, :change)
-      raise ArgumentError, "cannot combine :keep and :change options" if options.size > 1
+      options = render_options.extract!(:keep, :change, :flush)
+      raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
 
       super(*args, render_options, &block)
 

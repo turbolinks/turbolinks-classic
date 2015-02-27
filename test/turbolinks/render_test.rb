@@ -43,6 +43,14 @@ class RenderController < ActionController::Base
   def render_with_multiple_keep_option
     render :action, keep: ['foo', :bar]
   end
+
+  def render_with_flush_true
+    render :action, flush: true
+  end
+
+  def render_with_flush_false
+    render action: :action, flush: false
+  end
 end
 
 class RenderTest < ActionController::TestCase
@@ -128,6 +136,41 @@ class RenderTest < ActionController::TestCase
 
     assert_raises ArgumentError do
       @controller.render action: :action, change: :foo, keep: :bar
+    end
+  end
+
+  def test_render_via_xhr_and_post_with_flush_true_renders_via_turbolinks
+    xhr :post, :render_with_flush_true
+    assert_turbolinks_replace 'content', "{ flush: true }"
+  end
+
+  def test_render_via_get_and_not_xhr_with_flush_true_does_normal_render
+    get :render_with_flush_true
+    assert_normal_render 'content'
+  end
+
+  def test_render_via_xhr_and_post_with_flush_false_renders_via_turbolinks
+    xhr :post, :render_with_flush_false
+    assert_turbolinks_replace 'content'
+  end
+
+  def test_render_with_change_and_flush_raises_argument_error
+    assert_raises ArgumentError do
+      @controller.render :action, change: :foo, flush: true
+    end
+
+    assert_raises ArgumentError do
+      @controller.render action: :action, change: :foo, flush: true
+    end
+  end
+
+  def test_render_with_keep_and_flush_raises_argument_error
+    assert_raises ArgumentError do
+      @controller.render :action, keep: :foo, flush: true
+    end
+
+    assert_raises ArgumentError do
+      @controller.render action: :action, keep: :foo, flush: true
     end
   end
 
