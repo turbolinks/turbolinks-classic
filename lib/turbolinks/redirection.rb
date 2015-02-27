@@ -1,6 +1,6 @@
 module Turbolinks
-  # Provides a means of using Turbolinks to perform redirects.  The server
-  # will respond with a JavaScript call to Turbolinks.visit(url).
+  # Provides a means of using Turbolinks to perform renders and redirects.
+  # The server will respond with a JavaScript call to Turbolinks.visit/replace().
   module Redirection
     def redirect_to(url = {}, response_status = {})
       turbolinks = response_status.delete(:turbolinks)
@@ -12,6 +12,19 @@ module Turbolinks
       if turbolinks || (turbolinks != false && request.xhr? && !request.get?)
         self.status           = 200
         self.response_body    = "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
+        response.content_type = Mime::JS
+      end
+    end
+
+    def render(*args, &block)
+      render_options = args.extract_options!
+      turbolinks = render_options.delete(:turbolinks)
+
+      super(*args, render_options, &block)
+
+      if turbolinks
+        self.status           = 200
+        self.response_body    = "Turbolinks.replace('#{view_context.j(response.body)}');"
         response.content_type = Mime::JS
       end
     end
