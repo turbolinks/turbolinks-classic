@@ -127,7 +127,8 @@ constrainPageCacheTo = (limit) ->
     triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
-replace = (doc, options = {}) ->
+replace = (html, options = {}) ->
+  doc = createDocument(html)
   options.body = doc.body
   changePage extractTitleAndBody(doc)..., options
 

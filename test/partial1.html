@@ -19,8 +19,8 @@
     </ul>
 
     <ul id="revert" data-turbolinks-permanent>
-      <li><a href="#" onclick="Turbolinks.replace(window.originalDocument)">Replace with original doc</a></li>
-      <li><a href="#" onclick="Turbolinks.replace(window.originalDocument, {change: ['comments:header']})">Replace the count</a></li>
+      <li><a href="#" onclick="Turbolinks.replace(window.originalDocument.documentElement.innerHTML)">Replace with original doc</a></li>
+      <li><a href="#" onclick="Turbolinks.replace(window.originalDocument.documentElement.innerHTML, {change: ['comments:header']})">Replace the original count</a></li>
     </ul>
   </body>
 
