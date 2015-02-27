@@ -95,8 +95,7 @@ fetchReplacement = (url, options = {}) ->
 fetchHistory = (cachedPage) ->
   xhr?.abort()
   doc = createDocument(cachedPage.body.innerHTML)
-  doc.title = cachedPage.title
-  changePage doc
+  changePage doc, title: cachedPage.title
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -136,8 +135,8 @@ replace = (html, options = {}) ->
 
 changePage = (doc, options = {}) ->
   [title, body, csrfToken, runScripts] = extractTitleAndBody(doc)
+  title ?= options.title
 
-#changePage = (title, body, csrfToken, runScripts, options = {}) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 

@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <title>Partial update 3</title>
   <script type="text/javascript" src="/js/turbolinks.js"></script>
+  <style>a {text-decoration: underline; cursor: pointer; color: blue;}</style>
 </head>
 <body class="page-other">
   <nav id="navbar" data-turbolinks-permanent>
     FLUSHED
   </nav>
   <h2 id="flash" data-turbolinks-temporary>
-    <a href="#" onclick="this.innerHTML = 'changed'">Change me</a>
+    <a onclick="this.innerHTML = 'changed'">Change me</a>
   </h2>
   <h3 id="comments:header">You have 3 comments!</h3>
   <ul id="comments:list">
@@ -21,6 +22,6 @@
   <div id="revert" data-turbolinks-permanent>
     FLUSHED
   </div>
-  <a href="#" onclick="Turbolinks.visit('/partial3.html', {flush: true})">FLUSH EVERYTHING</a>
+  <a onclick="Turbolinks.visit('/partial3.html', {flush: true})">FLUSH EVERYTHING</a>
 </body>
 </html>
