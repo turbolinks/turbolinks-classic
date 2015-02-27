@@ -160,7 +160,7 @@ findNodes = (body, selector) ->
 findNodesMatchingKeys = (body, keys) ->
   matchingNodes = []
   for key in keys
-    matchingNodes.push(findNodes(body, '[id^="'+key+'"]')...)
+    matchingNodes.push(findNodes(body, '[id^="'+key+':"], [id="'+key+'"]')...)
 
   return matchingNodes
 
