@@ -6,8 +6,8 @@ module Turbolinks
 
     def redirect_to(url = {}, response_status = {})
       turbolinks = response_status.delete(:turbolinks)
-      options = response_status.extract!(:keep, :change)
-      raise ArgumentError, "cannot combine :keep and :change options" if options.size > 1
+      options = response_status.extract!(:keep, :change, :flush)
+      raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
 
       super(url, response_status)
 
@@ -25,6 +25,8 @@ module Turbolinks
         ", { change: ['#{Array(options[:change]).join("', '")}'] }"
       elsif options[:keep]
         ", { keep: ['#{Array(options[:keep]).join("', '")}'] }"
+      elsif options[:flush]
+        ", { flush: true }"
       end
     end
   end

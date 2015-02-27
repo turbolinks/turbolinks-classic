@@ -40,6 +40,14 @@ class RedirectController < ActionController::Base
   def redirect_to_path_with_turbolinks_and_multiple_keep_option
     redirect_to '/path', turbolinks: true, keep: ['foo', :bar]
   end
+
+  def redirect_to_path_with_turbolinks_and_flush_true
+    redirect_to '/path', turbolinks: true, flush: true
+  end
+
+  def redirect_to_path_with_turbolinks_and_flush_false
+    redirect_to '/path', turbolinks: true, flush: false
+  end
 end
 
 class RedirectionTest < ActionController::TestCase
@@ -125,6 +133,28 @@ class RedirectionTest < ActionController::TestCase
   def test_redirect_to_with_change_and_keep_raises_argument_error
     assert_raises ArgumentError do
       @controller.redirect_to '/path', change: :foo, keep: :bar
+    end
+  end
+
+  def test_redirect_to_with_turbolinks_and_flush_true
+    get :redirect_to_path_with_turbolinks_and_flush_true
+    assert_turbolinks_visit 'http://test.host/path', "{ flush: true }"
+  end
+
+  def test_redirect_to_with_turbolinks_and_flush_false
+    get :redirect_to_path_with_turbolinks_and_flush_false
+    assert_turbolinks_visit 'http://test.host/path'
+  end
+
+  def test_redirect_to_with_change_and_flush_raises_argument_error
+    assert_raises ArgumentError do
+      @controller.redirect_to '/path', change: :foo, flush: true
+    end
+  end
+
+  def test_redirect_to_with_keep_and_flush_raises_argument_error
+    assert_raises ArgumentError do
+      @controller.redirect_to '/path', keep: :foo, flush: true
     end
   end
 
