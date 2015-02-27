@@ -11,15 +11,15 @@ referer                 = null
 xhr                     = null
 
 EVENTS =
-  BEFORE_CHANGE:          'page:before-change'
-  FETCH:                  'page:fetch'
-  RECEIVE:                'page:receive'
-  CHANGE:                 'page:change'
-  UPDATE:                 'page:update'
-  LOAD:                   'page:load'
-  RESTORE:                'page:restore'
-  BEFORE_UNLOAD:          'page:before-unload'
-  EXPIRE:                 'page:expire'
+  BEFORE_CHANGE:  'page:before-change'
+  FETCH:          'page:fetch'
+  RECEIVE:        'page:receive'
+  CHANGE:         'page:change'
+  UPDATE:         'page:update'
+  LOAD:           'page:load'
+  RESTORE:        'page:restore'
+  BEFORE_UNLOAD:  'page:before-unload'
+  EXPIRE:         'page:expire'
 
 fetch = (url, options = {}) ->
   url = new ComponentUrl url
@@ -129,18 +129,14 @@ constrainPageCacheTo = (limit) ->
     delete pageCache[key]
 
 replace = (html, options = {}) ->
-  doc = createDocument(html)
-  options.body = doc.body
-  changePage doc, options
+  changePage createDocument(html), options
 
 changePage = (doc, options = {}) ->
-  [title, body, csrfToken, runScripts] = extractTitleAndBody(doc)
+  [title, targetBody, csrfToken, runScripts] = extractTitleAndBody(doc)
   title ?= options.title
 
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
-
-  targetBody = options.body || body
 
   changeNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'))
 
@@ -172,28 +168,28 @@ findNodesMatchingKeys = (body, keys) ->
 
   return matchingNodes
 
-keepNodes = (body, allNodesToKeep) ->
-  for existingNode in allNodesToKeep
+keepNodes = (targetBody, existingNodes) ->
+  for existingNode in existingNodes
     unless nodeId = existingNode.getAttribute('id')
       throw new Error("Turbolinks partial replace: Kept nodes must have an id.")
 
-    if remoteNode = body.querySelector('[id="'+nodeId+'"]')
-      remoteNode.parentNode.replaceChild(existingNode, remoteNode)
+    if newNode = targetBody.querySelector('[id="'+nodeId+'"]')
+      newNode.parentNode.replaceChild(existingNode, newNode)
 
-changeNodes = (body, allNodesToBeChanged) ->
+changeNodes = (targetBody, existingNodes) ->
   parentIsRefreshing = (node) ->
-    for potentialParent in allNodesToBeChanged when node != potentialParent
+    for potentialParent in existingNodes when node != potentialParent
       return true if potentialParent.contains(node)
     false
 
   refreshedNodes = []
-  for existingNode in allNodesToBeChanged
+  for existingNode in existingNodes
     continue if parentIsRefreshing(existingNode)
 
     unless nodeId = existingNode.getAttribute('id')
       throw new Error "Turbolinks partial replacement: change key elements must have an id."
 
-    if newNode = body.querySelector('[id="'+nodeId+'"]')
+    if newNode = targetBody.querySelector('[id="'+nodeId+'"]')
       newNode = newNode.cloneNode(true)
       existingNode.parentNode.replaceChild(newNode, existingNode)
 
