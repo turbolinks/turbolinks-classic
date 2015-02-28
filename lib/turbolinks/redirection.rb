@@ -31,28 +31,27 @@ module Turbolinks
     end
 
     private
-
-    def _extract_turbolinks_options!(options)
-      turbolinks = options.delete(:turbolinks)
-      options = options.extract!(:keep, :change, :flush)
-      raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
-      [turbolinks, options]
-    end
-
-    def _perform_turbolinks_response(body)
-      self.status           = 200
-      self.response_body    = body
-      response.content_type = Mime::JS
-    end
-
-    def _turbolinks_js_options(options)
-      if options[:change]
-        ", { change: ['#{Array(options[:change]).join("', '")}'] }"
-      elsif options[:keep]
-        ", { keep: ['#{Array(options[:keep]).join("', '")}'] }"
-      elsif options[:flush]
-        ", { flush: true }"
+      def _extract_turbolinks_options!(options)
+        turbolinks = options.delete(:turbolinks)
+        options = options.extract!(:keep, :change, :flush)
+        raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
+        [turbolinks, options]
       end
-    end
+
+      def _perform_turbolinks_response(body)
+        self.status           = 200
+        self.response_body    = body
+        response.content_type = Mime::JS
+      end
+
+      def _turbolinks_js_options(options)
+        if options[:change]
+          ", { change: ['#{Array(options[:change]).join("', '")}'] }"
+        elsif options[:keep]
+          ", { keep: ['#{Array(options[:keep]).join("', '")}'] }"
+        elsif options[:flush]
+          ", { flush: true }"
+        end
+      end
   end
 end
