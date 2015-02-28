@@ -11,11 +11,12 @@ module Turbolinks
       end
 
       def abort_xdomain_redirect
-        to_uri = response.headers['Location'] || ""
-        current = request.headers['X-XHR-Referer'] || ""
+        to_uri = response.headers['Location']
+        current = request.headers['X-XHR-Referer']
         unless to_uri.blank? || current.blank? || same_origin?(current, to_uri)
           self.status = 403
         end
+      rescue URI::InvalidURIError
       end
   end
 end

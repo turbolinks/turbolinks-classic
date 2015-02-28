@@ -20,6 +20,10 @@ class TurbolinksController < ActionController::Base
   def redirect_to_back
     redirect_to :back
   end
+
+  def redirect_to_unescaped_path
+    redirect_to "#{request.protocol}#{request.host}/foo bar"
+  end
 end
 
 class TurbolinksTest < ActionController::TestCase
@@ -93,5 +97,23 @@ class TurbolinksTest < ActionController::TestCase
 
     get :redirect_to_same_origin
     assert_response :redirect
+  end
+
+  def test_handles_invalid_xhr_referer_on_redirection
+    @request.headers['X-XHR-Referer'] = ':'
+    get :redirect_to_same_origin
+    assert_response :redirect
+  end
+
+  def test_handles_unescaped_same_origin_location_on_redirection
+    @request.headers['X-XHR-Referer'] = 'http://test.host/'
+    get :redirect_to_unescaped_path
+    assert_response :redirect
+  end
+
+  def test_handles_unescaped_different_origin_location_on_redirection
+    @request.headers['X-XHR-Referer'] = 'https://test.host/'
+    get :redirect_to_unescaped_path
+    assert_response :forbidden
   end
 end
