@@ -1,0 +1,13 @@
+{
+  "name": "turbolinks",
+  "description": "turbolinks test suite",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rails/turbolinks.git"
+  },
+  "devDependencies": {
+    "mocha": "~2.1.0",
+    "chai": "~2.1.0"
+  }
+}
