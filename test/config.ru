@@ -5,6 +5,9 @@ Root = File.expand_path("../..", __FILE__)
 
 Assets = Sprockets::Environment.new do |env|
   env.append_path File.join(Root, "lib", "assets", "javascripts")
+  env.append_path File.join(Root, "node_modules", "mocha")
+  env.append_path File.join(Root, "node_modules", "chai")
+  env.append_path File.join(Root, "test", "javascript")
 end
 
 class SlowResponse
