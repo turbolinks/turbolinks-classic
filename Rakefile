@@ -6,3 +6,12 @@ Rake::TestTask.new do |t|
   t.warning = true
   t.verbose = true
 end
+
+namespace :test do
+  task :all do
+    %w(rails40 rails41 rails42).each do |gemfile|
+      sh "BUNDLE_GEMFILE='Gemfile.#{gemfile}' bundle --quiet"
+      sh "BUNDLE_GEMFILE='Gemfile.#{gemfile}' bundle exec rake test"
+    end
+  end
+end
