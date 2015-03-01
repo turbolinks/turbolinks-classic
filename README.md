@@ -229,6 +229,28 @@ Installation
 1. Add `//= require turbolinks` to your Javascript manifest file (usually found at `app/assets/javascripts/application.js`). If your manifest requires both turbolinks and jQuery, make sure turbolinks is listed *after* jQuery.
 1. Restart your server and you're now using turbolinks!
 
+Running the tests
+-----------------
+
+Ruby:
+
+```
+rake test:all 
+
+BUNDLE_GEMFILE=Gemfile.rails42 bundle
+BUNDLE_GEMFILE=Gemfile.rails42 rake test 
+```
+
+JavaScript:
+
+```
+npm install
+cd test
+bundle
+bundle exec rackup
+open http://localhost:9292/javascript/index.html
+```
+
 Language Ports
 --------------
 
