@@ -204,8 +204,139 @@ Triggering a Turbolinks visit manually
 
 You can use `Turbolinks.visit(path)` to go to a URL through Turbolinks.
 
-You can also use `redirect_via_turbolinks_to` in Rails to perform a redirect via Turbolinks.
+You can also use `redirect_to path, turbolinks: true` in Rails to perform a redirect via Turbolinks.
 
+Partial replacements with Turbolinks
+-------------------------------------
+
+You can use either `Turbolinks.visit(path, options)` or `Turbolinks.replace(html, options)` to trigger partial replacement of nodes in your DOM instead of replacing the entire `body`.
+
+Turbolinks' partial replacement strategy relies on `id` attributes specified on individual nodes or a combination of `id` and `data-turbolinks-permanent` or `data-turbolinks-temporary` attributes.
+
+```html
+<div id="comments"></div>
+<div id="nav" data-turbolinks-permanent></div>
+<div id="footer" data-turbolinks-temporary></div>
+```
+
+Any node with an `id` attribute can be partially replaced. If the `id` contains a colon, the key before the colon can also be targeted to replace many nodes with a similar prefix.
+
+```html
+<div id="comments"></div>
+<div id="comments:123"></div>
+```
+
+`Turbolinks.visit` should be used when you want to perform an XHR request to fetch the latest content from the server and replace all or some of the nodes.
+
+`Turbolinks.replace` should be used when you already have a response body and want to replace the contents of the current page with it. This is needed for contextual responses like validation errors after a failed `create` attempt since fetching the page again would lose the validation errors.
+
+```html+erb
+<body>
+  <div id="sidebar" data-turbolinks-permanent>
+    Sidebar, never changes after initial load.
+  </div>
+
+  <div id="flash" data-turbolinks-temporary>
+    You have <%= @comments.count %> comments.
+  </div>
+
+  <section id="comments">
+    <%= @comments.each do |comment| %>
+      <article id="comments:<%= comment.id %>">
+        <h1><%= comment.author %></h1>
+        <p><%= comment.body %></p>
+      </article>
+    <% end %>
+  </section>
+
+  <%= form_for Comment.new, remote: true, id: 'new_comment' do |form| %>
+    <%= form.text_area :content %>
+    <%= form.submit %>
+  <% end %>
+</body>
+
+<script>
+// Will change #flash, #comments, #comments:123
+Turbolinks.visit(url, change: 'comments')
+
+// Will change #flash, #comment_123
+Turbolinks.visit(url, change: 'comments:123')
+
+// Will only keep #sidebar
+Turbolinks.visit(url)
+
+// Will only keep #sidebar, #flash
+Turbolinks.visit(url, keep: 'flash')
+
+// Will keep nothing
+Turbolinks.visit(url, flush: true)
+
+// Same as visit() but takes a string or Document, allowing you to
+// do inline responses instead of issuing a new GET with Turbolinks.visit.
+// This is useful for things like form validation errors or other
+// contextualized responses.
+Turbolinks.replace(html, options)
+</script>
+```
+
+Partial replacement decisions can also be made server-side by using `redirect_to` or `render` with `change`, `keep`, or `flush` options.
+
+```ruby
+class CommentsController < ActionController::Base
+  def create
+    @comment = Comment.new(comment_params)
+
+    if @comment.save
+      # This will change #flash, #comments
+      redirect_to comments_url, change: 'comments'
+      # => Turbolinks.visit('/comments', change: 'comments')
+    else
+      # Validation failure
+      render :new, change: :new_comment
+      # => Turbolinks.replace('<%=j render :new %>', change: 'new_comment')
+    end
+  end
+end
+```
+
+```ruby
+# Redirect via turbolinks when the request is XHR and not GET.
+# Will refresh any `data-turbolinks-temporary` nodes.
+redirect_to path
+
+# Force a redirect via turbolinks.
+redirect_to path, turbolinks: true
+
+# Force a normal redirection.
+redirect_to path, turbolinks: false
+
+# Partially replace any `data-turbolinks-temporary` nodes and nodes with `id`s matching `comments` or `comments:*`.
+redirect_to path, change: 'comments'
+
+# Partially replace any `data-turbolinks-temoprary` nodes and nodes with `id` not matching `something` and `something:*`.
+redirect_to path, keep: 'something'
+
+# Replace the entire `body` of the document, including `data-turbolinks-permanent` nodes.
+redirect_to path, flush: true
+```
+
+```ruby
+ # Render with turbolinks when the request is XHR and not GET.
+ # Refresh any `data-turbolinks-temporary` nodes and nodes with `id` matching `new_comment`.
+render view, change: 'new_comment'
+
+# Refresh any `data-turbolinks-temporary` nodes and nodes with `id` not matching `something` and `something:*`.
+render view, keep: 'something'
+
+# replace the entire `body` of the document, including `data-turbolinks-permanent` nodes.
+render view, flush: true
+
+# Force a render with turbolinks.
+render view, turbolinks: true
+
+# Force a normal render.
+render view, turbolinks: false
+```
 
 Full speed for pushState browsers, graceful fallback for everything else
 ------------------------------------------------------------------------
@@ -235,10 +366,10 @@ Running the tests
 Ruby:
 
 ```
-rake test:all 
+rake test:all
 
 BUNDLE_GEMFILE=Gemfile.rails42 bundle
-BUNDLE_GEMFILE=Gemfile.rails42 rake test 
+BUNDLE_GEMFILE=Gemfile.rails42 rake test
 ```
 
 JavaScript:
