@@ -1,2 +1,4 @@
 *.lock
 node_modules
+pkg/
+test/log/
