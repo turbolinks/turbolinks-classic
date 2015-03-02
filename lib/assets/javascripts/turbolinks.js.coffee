@@ -159,7 +159,7 @@ findNodes = (body, selector) ->
 
 findNodesMatchingKeys = (body, keys) ->
   matchingNodes = []
-  for key in keys
+  for key in (if Array.isArray(keys) then keys else [keys])
     matchingNodes.push(findNodes(body, '[id^="'+key+':"], [id="'+key+'"]')...)
 
   return matchingNodes
