@@ -2,9 +2,9 @@ Turbolinks
 ===========
 [![Build Status](https://travis-ci.org/rails/turbolinks.svg?branch=master)](https://travis-ci.org/rails/turbolinks)
 
-Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, it keeps the current page instance alive and replaces only the body and the title in the head. Think CGI vs persistent process.
+Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, it keeps the current page instance alive and replaces only the body (or parts of) and the title in the head. Think CGI vs persistent process.
 
-This is similar to [pjax](https://github.com/defunkt/jquery-pjax), but instead of worrying about what element on the page to replace, and tailoring the server-side response to fit, we replace the entire body. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
+This is similar to [pjax](https://github.com/defunkt/jquery-pjax), but instead of worrying about what element on the page to replace and tailoring the server-side response to fit, we replace the entire body by default, and let you specify which elements to replace on an opt-in basis. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
 
 Do note that this of course means that you'll have a long-running, persistent session with maintained state. That's what's making it so fast. But it also means that you may have to pay additional care not to leak memory or otherwise bloat that long-running state. That should rarely be a problem unless you're doing something really funky, but you do have to be aware of it. Your memory leaking sins will not be swept away automatically by the cleansing page change any more.
 
@@ -157,6 +157,8 @@ Turbolinks.allowLinkExtensions('coffee', 'scss'); // => ['html', 'md', 'coffee',
 
 Also, Turbolinks is installed as the last click handler for links. So if you install another handler that calls event.preventDefault(), Turbolinks will not run. This ensures that you can safely use Turbolinks with stuff like `data-method`, `data-remote`, or `data-confirm` from Rails.
 
+Note: in Turbolinks 3.0, the default behavior of `redirect_to` is to redirect via Turbolinks (`Turbolinks.visit` response) for XHR + non-GET requests. You can opt-out of this behavior by passing `turbolinks: false` to `redirect_to`.
+
 
 jquery.turbolinks
 -----------------
@@ -206,8 +208,8 @@ You can use `Turbolinks.visit(path)` to go to a URL through Turbolinks.
 
 You can also use `redirect_to path, turbolinks: true` in Rails to perform a redirect via Turbolinks.
 
-Partial replacements with Turbolinks
--------------------------------------
+Partial replacements with Turbolinks (3.0+)
+-------------------------------------------
 
 You can use either `Turbolinks.visit(path, options)` or `Turbolinks.replace(html, options)` to trigger partial replacement of nodes in your DOM instead of replacing the entire `body`.
 
@@ -300,11 +302,11 @@ end
 ```
 
 ```ruby
-# Redirect via turbolinks when the request is XHR and not GET.
+# Redirect via Turbolinks when the request is XHR and not GET.
 # Will refresh any `data-turbolinks-temporary` nodes.
 redirect_to path
 
-# Force a redirect via turbolinks.
+# Force a redirect via Turbolinks.
 redirect_to path, turbolinks: true
 
 # Force a normal redirection.
@@ -321,17 +323,17 @@ redirect_to path, flush: true
 ```
 
 ```ruby
- # Render with turbolinks when the request is XHR and not GET.
+ # Render with Turbolinks when the request is XHR and not GET.
  # Refresh any `data-turbolinks-temporary` nodes and nodes with `id` matching `new_comment`.
 render view, change: 'new_comment'
 
 # Refresh any `data-turbolinks-temporary` nodes and nodes with `id` not matching `something` and `something:*`.
 render view, keep: 'something'
 
-# replace the entire `body` of the document, including `data-turbolinks-permanent` nodes.
+# Replace the entire `body` of the document, including `data-turbolinks-permanent` nodes.
 render view, flush: true
 
-# Force a render with turbolinks.
+# Force a render with Turbolinks.
 render view, turbolinks: true
 
 # Force a normal render.
