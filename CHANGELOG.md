@@ -1,5 +1,79 @@
 ## Turbolinks (master)
 
+*   Deprecated `redirect_via_turbolinks_to` in favor of `redirect_to url, turbolinks: true`.
+
+    *Thibaut Courouble*
+
+*   Make `redirect_to` perform a `Turbolinks.visit` by default when the request is `XHR` and not `GET`,
+    unless `turbolinks: false` is passed to `redirect_to`.
+
+    *David Heinemeier Hansson*, *Thibaut Courouble*
+
+*   Add partial replacement functionality.
+
+    New `Turbolinks.replace` API:
+
+    ```coffeescript
+    # Replace <body>
+    Turbolinks.replace(html)
+
+    # Replace nodes with id "comments", "comments:foo", etc.
+    Turbolinks.replace(html, change: ['comments'])
+
+    # Replace <body>, except node with id "flash"
+    Turbolinks.replace(html, keep: ['flash'])
+
+    # Replace <body>, including [data-turbolinks-permanent] nodes
+    Turbolinks.replace(html, flush: true)
+    ```
+
+    Nodes with `[data-turbolinks-permanent]` are never replaced, unless `flush: true` is passed.
+    
+    Nodes with `[data-turbolinks-temporary]` are always replaced, unless `keep: [id]` is passed.
+
+    The same options are available on `Turbolinks.visit`.
+
+    New `redirect_to` API:
+
+    ```ruby
+    # Force a Turbolinks.visit response
+    redirect_to url_for_option, turbolinks: true
+
+    # Force a normal redirection
+    redirect_to url_for_option, turbolinks: false
+
+    # Pass options to Turbolinks.visit
+    redirect_to url_for_option, change: :comments
+    redirect_to url_for_option, change: [:comments, :sidebar]
+
+    redirect_to url_for_option, keep: :sidebar
+    redirect_to url_for_option, keep: [:sidebar, :flash]
+
+    redirect_to url_for_option, flush: true
+    ```
+
+    New `render` API:
+
+    ```ruby
+    # Make the response perform a Turbolinks.replace when the request is XHR and not GET,
+    # and pass options Turbolinks.replace
+    render render_options, change: :comment_form
+    render render_options, keep: :flash
+    render render_options, flush: true
+
+    # Force a normal render (ignore :change, :keep and :flush options)
+    render render_options, change: :comment_form, turbolinks: false
+
+    # Force a Turbolinks.replace response
+    render render_options, change: :comment_form, turbolinks: true
+    ```
+
+    *Kristian Plettenberg-Dussault*, *Thibaut Courouble*, *David Heinemeier Hansson*
+
+*   Fix `URI::InvalidURIError` when `X-XHR-Referer` is invalid and the request performs a redirection.
+
+    *Thibaut Courouble*
+
 ## Turbolinks 2.5.3 (December 8, 2014)
 
 *   Prevent the progress bar from filling the entire screen in older versions of Safari.
