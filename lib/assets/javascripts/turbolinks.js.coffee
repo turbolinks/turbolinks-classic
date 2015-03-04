@@ -149,7 +149,8 @@ changePage = (doc, options) ->
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
     executeScriptTags() if runScripts
-    currentState = window.history.state
+
+  currentState = window.history.state
 
   triggerEvent EVENTS.CHANGE
   triggerEvent EVENTS.UPDATE
