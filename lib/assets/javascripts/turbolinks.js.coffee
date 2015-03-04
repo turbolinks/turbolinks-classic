@@ -66,7 +66,7 @@ fetchReplacement = (url, options) ->
     triggerEvent EVENTS.RECEIVE, url: url.absolute
 
     if doc = processResponse()
-      reflectNewUrl url unless options.change? || options.keep? || options.flush?
+      reflectNewUrl url
       reflectRedirectedUrl()
       changePage doc, options
       if options.showProgressBar
