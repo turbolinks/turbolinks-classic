@@ -95,3 +95,38 @@ suite 'Turbolinks.visit()', ->
         done()
       , 0
     @Turbolinks.visit('404')
+
+  test "without transition cache", (done) ->
+    load = 0
+    restoreCalled = false
+    @document.addEventListener 'page:load', =>
+      load += 1
+      if load is 1
+        assert.equal @document.title, 'title 2'
+        setTimeout (=> @Turbolinks.visit('iframe.html')), 0
+      else if load is 2
+        assert.notOk restoreCalled
+        assert.equal @document.title, 'title'
+        done()
+    @document.addEventListener 'page:restore', =>
+      restoreCalled = true
+    @Turbolinks.visit('iframe2.html')
+
+  test "with transition cache", (done) ->
+    load = 0
+    restoreCalled = false
+    @document.addEventListener 'page:load', =>
+      load += 1
+      if load is 1
+        assert.equal @document.title, 'title 2'
+        setTimeout (=> @Turbolinks.visit('iframe.html')), 0
+      else if load is 2
+        assert.ok restoreCalled
+        assert.equal @document.title, 'title'
+        done()
+    @document.addEventListener 'page:restore', =>
+      assert.equal load, 1
+      assert.equal @document.title, 'title'
+      restoreCalled = true
+    @Turbolinks.enableTransitionCache()
+    @Turbolinks.visit('iframe2.html')
