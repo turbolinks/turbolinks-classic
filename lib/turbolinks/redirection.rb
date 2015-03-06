@@ -33,7 +33,7 @@ module Turbolinks
     private
       def _extract_turbolinks_options!(options)
         turbolinks = options.delete(:turbolinks)
-        options = options.extract!(:keep, :change, :flush)
+        options = options.slice(:keep, :change, :flush)
         raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
         [turbolinks, options]
       end
