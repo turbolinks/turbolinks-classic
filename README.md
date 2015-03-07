@@ -353,6 +353,8 @@ Turbolinks is designed to work with any browser that fully supports pushState an
 
 Do note that existing JavaScript libraries may not all be compatible with Turbolinks out of the box due to the change in instantiation cycle. You might very well have to modify them to work with Turbolinks' new set of events.  For help with this, check out the [Turbolinks Compatibility](http://reed.github.io/turbolinks-compatibility) project.
 
+Turbolinks works with Rails 4.0 and newer.
+
 
 Installation
 ------------
