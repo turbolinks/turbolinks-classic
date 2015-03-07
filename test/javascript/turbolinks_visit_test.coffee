@@ -21,6 +21,7 @@ suite 'Turbolinks.visit()', ->
   test "successful", (done) ->
     body = @$('body')
     permanent = @$('#permanent')
+    permanent.addEventListener 'click', -> done()
     pageReceivedFired = beforeUnloadFired = false
     @document.addEventListener 'page:receive', =>
       state = turbolinks: true, url: 'http://localhost:9292/javascript/iframe.html'
@@ -48,13 +49,14 @@ suite 'Turbolinks.visit()', ->
       assert.equal @$('#temporary').textContent, 'temporary content 2'
       assert.equal @document.title, 'title 2'
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'token2'
-      assert.notEqual @$('#permanent'), permanent # permanent nodes are cloned
       assert.notEqual @$('body'), body # body is replaced
 
       state = turbolinks: true, url: 'http://localhost:9292/javascript/iframe2.html'
       assert.deepEqual @history.state, state
       assert.equal @location.href, state.url
-      done()
+
+      assert.equal @$('#permanent'), permanent # permanent nodes are transferred
+      @$('#permanent').click() # event listeners on permanent nodes should not be lost
     @Turbolinks.visit('iframe2.html')
 
   test "successful with :change", (done) ->

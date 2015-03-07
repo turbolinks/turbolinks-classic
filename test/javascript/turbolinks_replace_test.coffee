@@ -37,6 +37,7 @@ suite 'Turbolinks.replace()', ->
     """
     body = @$('body')
     permanent = @$('#permanent')
+    permanent.addEventListener 'click', -> done()
     beforeUnloadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.notOk @window.bodyScript
@@ -58,9 +59,9 @@ suite 'Turbolinks.replace()', ->
       assert.equal @$('#permanent').textContent, 'permanent content'
       assert.equal @document.title, 'new title'
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'new-token'
-      assert.notEqual @$('#permanent'), permanent # permanent nodes are cloned
       assert.notEqual @$('body'), body # body is replaced
-      done()
+      assert.equal @$('#permanent'), permanent # permanent nodes are transferred
+      @$('#permanent').click() # event listeners on permanent nodes should not be lost
     @Turbolinks.replace(doc)
 
   test "with :flush", (done) ->
@@ -100,13 +101,16 @@ suite 'Turbolinks.replace()', ->
       </html>
     """
     beforeUnloadFired = false
+    div = @$('#div')
+    div.addEventListener 'click', -> done()
     @document.addEventListener 'page:before-unload', =>
       assert.equal @$('#div').textContent, 'div content'
       beforeUnloadFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
       assert.equal @$('#div').textContent, 'div content'
-      done()
+      assert.equal @$('#div'), div # :keep nodes are transferred
+      @$('#div').click() # event listeners on :keep nodes should not be lost
     @Turbolinks.replace(doc, keep: ['div'])
 
   test "with :change", (done) ->
