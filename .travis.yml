@@ -11,6 +11,7 @@ sudo: false
 script: bundle exec rake test
 
 gemfile:
+  - Gemfile.rails32
   - Gemfile.rails40
   - Gemfile.rails41
   - Gemfile.rails42
