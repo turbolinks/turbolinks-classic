@@ -2,6 +2,7 @@ module Turbolinks
   # Provides a means of using Turbolinks to perform renders and redirects.
   # The server will respond with a JavaScript call to Turbolinks.visit/replace().
   module Redirection
+
     def redirect_to(url = {}, response_status = {})
       turbolinks, options = _extract_turbolinks_options!(response_status)
 
@@ -33,7 +34,7 @@ module Turbolinks
     private
       def _extract_turbolinks_options!(options)
         turbolinks = options.delete(:turbolinks)
-        options = options.slice(:keep, :change, :flush)
+        options = options.extract!(:keep, :change, :flush).delete_if{|_,value| value.nil? }
         raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
         [turbolinks, options]
       end
