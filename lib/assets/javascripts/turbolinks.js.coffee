@@ -1,6 +1,7 @@
 pageCache               = {}
 cacheSize               = 10
 transitionCacheEnabled  = false
+requestCachingEnabled   = true
 progressBar             = null
 
 currentState            = null
@@ -43,6 +44,10 @@ transitionCacheFor = (url) ->
 enableTransitionCache = (enable = true) ->
   transitionCacheEnabled = enable
 
+disableRequestCaching = (disable = true) ->
+  requestCachingEnabled = not disable
+  disable
+
 enableProgressBar = (enable = true) ->
   return unless browserSupportsTurbolinks
   if enable
@@ -52,13 +57,14 @@ enableProgressBar = (enable = true) ->
     progressBar = null
 
 fetchReplacement = (url, options) ->
+  options.cacheRequest ?= requestCachingEnabled
   options.showProgressBar ?= true
 
   triggerEvent EVENTS.FETCH, url: url.absolute
 
   xhr?.abort()
   xhr = new XMLHttpRequest
-  xhr.open 'GET', url.withoutHashForIE10compatibility(), true
+  xhr.open 'GET', url.formatForXHR(cache: options.cacheRequest), true
   xhr.setRequestHeader 'Accept', 'text/html, application/xhtml+xml, application/xml'
   xhr.setRequestHeader 'X-XHR-Referer', referer
 
@@ -255,6 +261,9 @@ popCookie = (name) ->
   document.cookie = name + '=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/'
   value
 
+uniqueId = ->
+  new Date().getTime().toString(36)
+
 triggerEvent = (name, data) ->
   if typeof Prototype isnt 'undefined'
     Event.fire document, name, data, true
@@ -337,6 +346,17 @@ class ComponentUrl
 
   crossOrigin: ->
     @origin isnt (new ComponentUrl).origin
+
+  formatForXHR: (options = {}) ->
+    (if options.cache then @ else @withAntiCacheParam()).withoutHashForIE10compatibility()
+
+  withAntiCacheParam: ->
+    new ComponentUrl(
+      if /([?&])_=[^&]*/.test @absolute
+        @absolute.replace /([?&])_=[^&]*/, "$1_=#{uniqueId()}"
+      else
+        new ComponentUrl(@absolute + (if /\?/.test(@absolute) then "&" else "?") + "_=#{uniqueId()}")
+    )
 
   _parse: ->
     (@link ?= document.createElement 'a').href = @original
@@ -607,6 +627,7 @@ else
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
 #   Turbolinks.enableTransitionCache()
+#   Turbolinks.disableRequestCaching()
 #   Turbolinks.cacheCurrentPage()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
@@ -617,6 +638,7 @@ else
   pagesCached,
   cacheCurrentPage,
   enableTransitionCache,
+  disableRequestCaching,
   enableProgressBar,
   allowLinkExtensions: Link.allowExtensions,
   supported: browserSupportsTurbolinks,

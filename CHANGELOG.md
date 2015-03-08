@@ -28,7 +28,7 @@
     ```
 
     Nodes with `[data-turbolinks-permanent]` are never replaced, unless `flush: true` is passed.
-    
+
     Nodes with `[data-turbolinks-temporary]` are always replaced, unless `keep: [id]` is passed.
 
     The same options are available on `Turbolinks.visit`.
@@ -77,6 +77,18 @@
 *   Fix missing `X-XHR-Redirected-To` header following routes.rb redirect.
 
     *Thibaut Courouble*
+
+*   Add ability to control XHR request caching by adding cache-busting param to the URL.
+
+    ```coffeescript
+    # Disable caching globally
+    Turbolinks.disableRequestCaching()
+
+    # Disable caching per request
+    Turbolinks.visit url, cacheRequest: false
+    ```
+
+    *Nick Reed*
 
 ## Turbolinks 2.5.3 (December 8, 2014)
 

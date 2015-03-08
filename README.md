@@ -340,6 +340,21 @@ render view, turbolinks: true
 render view, turbolinks: false
 ```
 
+XHR Request Caching (3.0+)
+--------------------------
+
+To prevent browsers from caching Turbolinks requests:
+
+```coffeescript
+# Globally
+Turbolinks.disableRequestCaching()
+
+# Per Request
+Turbolinks.visit url, cacheRequest: false
+```
+
+This works just like `jQuery.ajax(url, cache: false)`, appending `"_#{timestamp}"` to the GET parameters.
+
 Full speed for pushState browsers, graceful fallback for everything else
 ------------------------------------------------------------------------
 
