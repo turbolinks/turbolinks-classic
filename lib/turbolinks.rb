@@ -27,6 +27,19 @@ module Turbolinks
           end
           alias referrer referer
         end
+
+        ActionDispatch::Routing::Redirect.class_eval do
+          def call_with_turbolinks(env)
+            status, headers, body = call_without_turbolinks(env)
+
+            if env['rack.session'] && env['HTTP_X_XHR_REFERER']
+              env['rack.session'][:_turbolinks_redirect_to] = headers['Location']
+            end
+
+            [status, headers, body]
+          end
+          alias_method_chain :call, :turbolinks
+        end
       end
 
       ActiveSupport.on_load(:action_view) do
