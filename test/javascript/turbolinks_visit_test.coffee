@@ -28,7 +28,7 @@ suite 'Turbolinks.visit()', ->
       assert.deepEqual @history.state, state
       pageReceivedFired = true
     @document.addEventListener 'page:before-unload', =>
-      assert.notOk @window.bodyScript
+      assert.isUndefined @window.bodyScript
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.ok @$('#div')
@@ -39,9 +39,9 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:load', =>
       assert.ok pageReceivedFired
       assert.ok beforeUnloadFired
-      assert.ok @window.bodyScript
-      assert.notOk @window.headScript
-      assert.notOk @window.bodyScriptEvalFalse
+      assert.strictEqual @window.bodyScript, 1
+      assert.isUndefined @window.headScript
+      assert.isUndefined @window.bodyScriptEvalFalse
       assert.ok @$('#new-div')
       assert.ok @$('body').hasAttribute('new-attribute')
       assert.notOk @$('#div')
@@ -71,8 +71,8 @@ suite 'Turbolinks.visit()', ->
       beforeUnloadFired = true
     @document.addEventListener 'page:load', =>
       assert.ok beforeUnloadFired
-      assert.notOk @window.bodyScript
-      assert.notOk @window.headScript
+      assert.isUndefined @window.bodyScript
+      assert.isUndefined @window.headScript
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.equal @$('#change').textContent, 'change content 2'

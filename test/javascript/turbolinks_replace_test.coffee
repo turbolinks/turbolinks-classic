@@ -30,7 +30,7 @@ suite 'Turbolinks.replace()', ->
         <div id="new-div"></div>
         <div id="permanent" data-turbolinks-permanent>new content</div>
         <div id="temporary" data-turbolinks-temporary>new content</div>
-        <script>var bodyScript = true</script>
+        <script>window.bodyScript = window.bodyScript || 0; window.bodyScript++;</script>
         <script data-turbolinks-eval="false">var bodyScriptEvalFalse = true</script>
       </body>
       </html>
@@ -40,7 +40,7 @@ suite 'Turbolinks.replace()', ->
     permanent.addEventListener 'click', -> done()
     beforeUnloadFired = false
     @document.addEventListener 'page:before-unload', =>
-      assert.notOk @window.bodyScript
+      assert.isUndefined @window.bodyScript
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.ok @$('#div')
@@ -50,9 +50,9 @@ suite 'Turbolinks.replace()', ->
       beforeUnloadFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
-      assert.ok @window.bodyScript
-      assert.notOk @window.headScript
-      assert.notOk @window.bodyScriptEvalFalse
+      assert.strictEqual @window.bodyScript, 1
+      assert.isUndefined @window.headScript
+      assert.isUndefined @window.bodyScriptEvalFalse
       assert.ok @$('#new-div')
       assert.ok @$('body').hasAttribute('new-attribute')
       assert.notOk @$('#div')
@@ -145,8 +145,8 @@ suite 'Turbolinks.replace()', ->
       beforeUnloadFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
-      assert.notOk @window.bodyScript
-      assert.notOk @window.headScript
+      assert.isUndefined @window.bodyScript
+      assert.isUndefined @window.headScript
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.equal @$('#change').textContent, 'new content'
