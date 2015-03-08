@@ -28,7 +28,7 @@ suite 'Turbolinks.visit()', ->
       assert.deepEqual @history.state, state
       pageReceivedFired = true
     @document.addEventListener 'page:before-unload', =>
-      assert.notOk @window.bodyScript
+      assert.isUndefined @window.j
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.ok @$('#div')
@@ -39,9 +39,10 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:load', =>
       assert.ok pageReceivedFired
       assert.ok beforeUnloadFired
-      assert.ok @window.bodyScript
-      assert.notOk @window.headScript
-      assert.notOk @window.bodyScriptEvalFalse
+      assert.equal @window.i, 1
+      assert.equal @window.j, 1
+      assert.isUndefined @window.headScript
+      assert.isUndefined @window.bodyScriptEvalFalse
       assert.ok @$('#new-div')
       assert.ok @$('body').hasAttribute('new-attribute')
       assert.notOk @$('#div')
@@ -64,6 +65,7 @@ suite 'Turbolinks.visit()', ->
     change = @$('#change')
     beforeUnloadFired = false
     @document.addEventListener 'page:before-unload', =>
+      assert.equal @window.i, 1
       assert.equal @$('#change').textContent, 'change content'
       assert.equal @$('[id="change:key"]').textContent, 'change content'
       assert.equal @$('#temporary').textContent, 'temporary content'
@@ -71,8 +73,10 @@ suite 'Turbolinks.visit()', ->
       beforeUnloadFired = true
     @document.addEventListener 'page:load', =>
       assert.ok beforeUnloadFired
-      assert.notOk @window.bodyScript
-      assert.notOk @window.headScript
+      assert.equal @window.i, 2
+      assert.isUndefined @window.j
+      assert.isUndefined @window.headScript
+      assert.isUndefined @window.bodyScriptEvalFalse
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.equal @$('#change').textContent, 'change content 2'
@@ -108,6 +112,7 @@ suite 'Turbolinks.visit()', ->
         setTimeout (=> @Turbolinks.visit('iframe.html')), 0
       else if load is 2
         assert.notOk restoreCalled
+        assert.equal @window.i, 2
         assert.equal @document.title, 'title'
         done()
     @document.addEventListener 'page:restore', =>
@@ -124,10 +129,12 @@ suite 'Turbolinks.visit()', ->
         setTimeout (=> @Turbolinks.visit('iframe.html')), 0
       else if load is 2
         assert.ok restoreCalled
+        assert.equal @window.i, 2
         assert.equal @document.title, 'title'
         done()
     @document.addEventListener 'page:restore', =>
       assert.equal load, 1
+      assert.equal @window.i, 1
       assert.equal @document.title, 'title'
       restoreCalled = true
     @Turbolinks.enableTransitionCache()

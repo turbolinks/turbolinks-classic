@@ -93,7 +93,7 @@ fetchReplacement = (url, options) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  changePage createDocument(cachedPage.body.outerHTML), title: cachedPage.title
+  changePage createDocument(cachedPage.body.outerHTML), title: cachedPage.title, runScripts: false
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -130,7 +130,7 @@ replace = (html, options = {}) ->
   changePage createDocument(html), options
 
 changePage = (doc, options) ->
-  [title, targetBody, csrfToken, runScripts] = extractTitleAndBody(doc)
+  [title, targetBody, csrfToken] = extractTitleAndBody(doc)
   title ?= options.title
 
   triggerEvent EVENTS.BEFORE_UNLOAD
@@ -148,8 +148,8 @@ changePage = (doc, options) ->
     document.documentElement.replaceChild targetBody, document.body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
-    executeScriptTags() if runScripts
 
+  executeScriptTags() unless options.runScripts is false
   currentState = window.history.state
 
   triggerEvent EVENTS.CHANGE
@@ -177,12 +177,10 @@ swapNodes = (targetBody, existingNodes, options) ->
       else
         targetNode = targetNode.cloneNode(true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
-        if targetNode.nodeName == 'SCRIPT' && targetNode.getAttribute("data-turbolinks-eval") != "false"
-          executeScriptTag(targetNode)
   return
 
 executeScriptTags = ->
-  scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
+  scripts = document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
   for script in scripts when script.type in ['', 'text/javascript']
     copy = document.createElement 'script'
     copy.setAttribute attr.name, attr.value for attr in script.attributes
@@ -301,7 +299,7 @@ processResponse = ->
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
-  [ title?.textContent, removeNoscriptTags(doc.querySelector('body')), CSRFToken.get(doc).token, 'runScripts' ]
+  [ title?.textContent, removeNoscriptTags(doc.querySelector('body')), CSRFToken.get(doc).token ]
 
 CSRFToken =
   get: (doc = document) ->

@@ -14,7 +14,8 @@
   <div id="change:key">change content 2</div>
   <div id="permanent" data-turbolinks-permanent>permanent content 2</div>
   <div id="temporary" data-turbolinks-temporary>temporary content 2</div>
-  <script>var bodyScript = true</script>
+  <script id="script">document.body.removeChild(document.getElementById('script'))</script>
+  <script>window.j = window.j || 0; window.j++;</script>
   <script data-turbolinks-eval="false">var bodyScriptEvalFalse = true</script>
 </body>
 </html>
