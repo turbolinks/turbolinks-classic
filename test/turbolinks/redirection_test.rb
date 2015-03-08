@@ -90,8 +90,8 @@ class RedirectionTest < ActionController::TestCase
     assert_turbolinks_visit 'http://example.com'
   end
 
-  def test_redirect_to_url_hash_via_xhr_and_patch_redirects_via_turbolinks
-    xhr :patch, :redirect_to_url_hash
+  def test_redirect_to_url_hash_via_xhr_and_put_redirects_via_turbolinks
+    xhr :put, :redirect_to_url_hash
     assert_turbolinks_visit 'http://test.host/redirect/action'
   end
 
@@ -116,8 +116,8 @@ class RedirectionTest < ActionController::TestCase
     assert_redirected_to 'http://test.host/redirect/action'
   end
 
-  def test_redirect_to_via_patch_and_not_xhr_does_normal_redirect
-    patch :redirect_to_url_string
+  def test_redirect_to_via_put_and_not_xhr_does_normal_redirect
+    put :redirect_to_url_string
     assert_redirected_to 'http://example.com'
   end
 

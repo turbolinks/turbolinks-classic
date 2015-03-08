@@ -72,9 +72,9 @@ class RenderTest < ActionController::TestCase
     assert_normal_render 'content'
   end
 
-  def test_render_action_via_xhr_and_patch
+  def test_render_action_via_xhr_and_put
     @request.env['HTTP_ACCEPT'] = Mime::HTML
-    xhr :patch, :render_action
+    xhr :put, :render_action
     assert_normal_render 'content'
   end
 
@@ -103,8 +103,8 @@ class RenderTest < ActionController::TestCase
     assert_turbolinks_replace 'content', "{ change: ['foo'] }"
   end
 
-  def test_render_via_xhr_and_patch_with_multiple_change_option_renders_via_turbolinks
-    xhr :patch, :render_with_multiple_change_option
+  def test_render_via_xhr_and_put_with_multiple_change_option_renders_via_turbolinks
+    xhr :put, :render_with_multiple_change_option
     assert_turbolinks_replace 'content', "{ change: ['foo', 'bar'] }"
   end
 

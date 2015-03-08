@@ -30,27 +30,27 @@ class TurbolinksTest < ActionController::TestCase
   tests TurbolinksController
 
   def test_request_referer_returns_xhr_referer_or_standard_referer
-    @request.headers['Referer'] = 'referer'
+    @request.env['HTTP_REFERER'] = 'referer'
     assert_equal 'referer', @request.referer
 
-    @request.headers['X-XHR-Referer'] = 'xhr-referer'
+    @request.env['HTTP_X_XHR_REFERER'] = 'xhr-referer'
     assert_equal 'xhr-referer', @request.referer
   end
 
   def test_url_for_with_back_uses_xhr_referer_when_available
-    @request.headers['Referer'] = 'referer'
+    @request.env['HTTP_REFERER'] = 'referer'
     assert_equal 'referer', @controller.view_context.url_for(:back)
 
-    @request.headers['X-XHR-Referer'] = 'xhr-referer'
+    @request.env['HTTP_X_XHR_REFERER'] = 'xhr-referer'
     assert_equal 'xhr-referer', @controller.view_context.url_for(:back)
   end
 
   def test_redirect_to_back_uses_xhr_referer_when_available
-    @request.headers['Referer'] = 'http://test.host/referer'
+    @request.env['HTTP_REFERER'] = 'http://test.host/referer'
     get :redirect_to_back
     assert_redirected_to 'http://test.host/referer'
 
-    @request.headers['X-XHR-Referer'] = 'http://test.host/xhr-referer'
+    @request.env['HTTP_X_XHR_REFERER'] = 'http://test.host/xhr-referer'
     get :redirect_to_back
     assert_redirected_to 'http://test.host/xhr-referer'
   end
@@ -58,8 +58,8 @@ class TurbolinksTest < ActionController::TestCase
   def test_sets_request_method_cookie_on_non_get_requests
     post :simple_action
     assert_equal 'POST', cookies[:request_method]
-    patch :simple_action
-    assert_equal 'PATCH', cookies[:request_method]
+    put :simple_action
+    assert_equal 'PUT', cookies[:request_method]
   end
 
   def test_pops_request_method_cookie_on_get_request
@@ -73,9 +73,9 @@ class TurbolinksTest < ActionController::TestCase
     get :simple_action
     assert_nil @response.headers['X-XHR-Redirected-To']
 
-    @request.headers['X-XHR-Referer'] = 'http://test.host/'
+    @request.env['HTTP_X_XHR_REFERER'] = 'http://test.host/'
     get :redirect_to_same_origin
-    @request.headers['X-XHR-Referer'] = nil
+    @request.env['HTTP_X_XHR_REFERER'] = nil
     get :simple_action
     assert_equal 'http://test.host/path', @response.headers['X-XHR-Redirected-To']
   end
@@ -87,7 +87,7 @@ class TurbolinksTest < ActionController::TestCase
     get :redirect_to_different_protocol
     assert_response :redirect
 
-    @request.headers['X-XHR-Referer'] = 'http://test.host'
+    @request.env['HTTP_X_XHR_REFERER'] = 'http://test.host'
 
     get :redirect_to_different_host
     assert_response :forbidden
@@ -100,19 +100,19 @@ class TurbolinksTest < ActionController::TestCase
   end
 
   def test_handles_invalid_xhr_referer_on_redirection
-    @request.headers['X-XHR-Referer'] = ':'
+    @request.env['HTTP_X_XHR_REFERER'] = ':'
     get :redirect_to_same_origin
     assert_response :redirect
   end
 
   def test_handles_unescaped_same_origin_location_on_redirection
-    @request.headers['X-XHR-Referer'] = 'http://test.host/'
+    @request.env['HTTP_X_XHR_REFERER'] = 'http://test.host/'
     get :redirect_to_unescaped_path
     assert_response :redirect
   end
 
   def test_handles_unescaped_different_origin_location_on_redirection
-    @request.headers['X-XHR-Referer'] = 'https://test.host/'
+    @request.env['HTTP_X_XHR_REFERER'] = 'https://test.host/'
     get :redirect_to_unescaped_path
     assert_response :forbidden
   end

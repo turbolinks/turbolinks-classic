@@ -4,7 +4,7 @@ require 'abstract_controller/railties/routes_helpers'
 require 'action_controller'
 require 'turbolinks'
 
-require 'active_support/testing/autorun'
+require 'active_support/testing/autorun' if Rails.version >= '4'
 require 'active_support/test_case'
 ActiveSupport::TestCase.test_order = :random if ActiveSupport::TestCase.respond_to?(:test_order=)
 
@@ -26,9 +26,8 @@ module ActionController
   end
 
   class TestCase
-    def before_setup
+    setup do
       @routes = TestApplication.routes
-      super
     end
   end
 end
