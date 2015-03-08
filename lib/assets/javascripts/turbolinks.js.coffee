@@ -93,7 +93,7 @@ fetchReplacement = (url, options) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  changePage createDocument(cachedPage.body.outerHTML), title: cachedPage.title
+  changePage createDocument(cachedPage.body.outerHTML), title: cachedPage.title, runScripts: false
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -130,7 +130,7 @@ replace = (html, options = {}) ->
   changePage createDocument(html), options
 
 changePage = (doc, options) ->
-  [title, targetBody, csrfToken, runScripts] = extractTitleAndBody(doc)
+  [title, targetBody, csrfToken] = extractTitleAndBody(doc)
   title ?= options.title
 
   triggerEvent EVENTS.BEFORE_UNLOAD
@@ -148,7 +148,7 @@ changePage = (doc, options) ->
     document.documentElement.replaceChild targetBody, document.body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
-    executeScriptTags() if runScripts
+    executeScriptTags() unless options.runScripts is false
 
   currentState = window.history.state
 
@@ -301,7 +301,7 @@ processResponse = ->
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
-  [ title?.textContent, removeNoscriptTags(doc.querySelector('body')), CSRFToken.get(doc).token, 'runScripts' ]
+  [ title?.textContent, removeNoscriptTags(doc.querySelector('body')), CSRFToken.get(doc).token ]
 
 CSRFToken =
   get: (doc = document) ->

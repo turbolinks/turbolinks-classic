@@ -108,6 +108,7 @@ suite 'Turbolinks.visit()', ->
         setTimeout (=> @Turbolinks.visit('iframe.html')), 0
       else if load is 2
         assert.notOk restoreCalled
+        assert.equal @window.i, 2
         assert.equal @document.title, 'title'
         done()
     @document.addEventListener 'page:restore', =>
@@ -124,10 +125,12 @@ suite 'Turbolinks.visit()', ->
         setTimeout (=> @Turbolinks.visit('iframe.html')), 0
       else if load is 2
         assert.ok restoreCalled
+        assert.equal @window.i, 2
         assert.equal @document.title, 'title'
         done()
     @document.addEventListener 'page:restore', =>
       assert.equal load, 1
+      assert.equal @window.i, 1
       assert.equal @document.title, 'title'
       restoreCalled = true
     @Turbolinks.enableTransitionCache()
