@@ -57,6 +57,7 @@ suite 'Turbolinks.replace()', ->
       assert.ok @$('body').hasAttribute('new-attribute')
       assert.notOk @$('#div')
       assert.equal @$('#permanent').textContent, 'permanent content'
+      assert.equal @$('#temporary').textContent, 'new content'
       assert.equal @document.title, 'new title'
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'new-token'
       assert.notEqual @$('body'), body # body is replaced

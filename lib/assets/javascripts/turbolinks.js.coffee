@@ -134,8 +134,8 @@ changePage = (doc, options) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 
-  swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
   if options.change
+    swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
     swapNodes(targetBody, findNodesMatchingKeys(document.body, options.change), keep: false)
   else
     unless options.flush
