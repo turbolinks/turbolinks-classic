@@ -22,7 +22,7 @@ suite 'Turbolinks.visit()', ->
     body = @$('body')
     permanent = @$('#permanent')
     permanent.addEventListener 'click', -> done()
-    pageReceivedFired = beforeUnloadFired = false
+    pageReceivedFired = beforeUnloadFired = afterRemoveFired = false
     @document.addEventListener 'page:receive', =>
       state = turbolinks: true, url: "#{location.origin}/javascript/iframe.html"
       assert.deepEqual @history.state, state
@@ -36,9 +36,15 @@ suite 'Turbolinks.visit()', ->
       assert.equal @document.title, 'title'
       assert.equal @$('body'), body
       beforeUnloadFired = true
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, body
+      assert.notEqual permanent, event.data.querySelector('#permanent')
+      afterRemoveFired = true
     @document.addEventListener 'page:load', =>
       assert.ok pageReceivedFired
       assert.ok beforeUnloadFired
+      assert.ok afterRemoveFired
       assert.equal @window.i, 1
       assert.equal @window.j, 1
       assert.isUndefined @window.headScript
@@ -63,6 +69,7 @@ suite 'Turbolinks.visit()', ->
   test "successful with :change", (done) ->
     body = @$('body')
     change = @$('#change')
+    temporary = @$('#temporary')
     beforeUnloadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @window.i, 1
@@ -87,6 +94,7 @@ suite 'Turbolinks.visit()', ->
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'token'
       assert.equal @document.title, 'title 2'
       assert.notEqual @$('#change'), change # changed nodes are cloned
+      assert.notEqual @$('#temporary'), temporary # temporary nodes are cloned
       assert.equal @$('body'), body
       assert.equal @location.href, "#{location.origin}/javascript/iframe2.html"
       done()

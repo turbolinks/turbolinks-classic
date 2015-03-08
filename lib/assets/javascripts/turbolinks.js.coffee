@@ -21,6 +21,7 @@ EVENTS =
   RESTORE:        'page:restore'
   BEFORE_UNLOAD:  'page:before-unload'
   EXPIRE:         'page:expire'
+  AFTER_REMOVE:   'page:after-remove'
 
 fetch = (url, options = {}) ->
   url = new ComponentUrl url
@@ -143,7 +144,8 @@ changePage = (doc, options) ->
       nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
       swapNodes(targetBody, nodesToBeKept, keep: true)
 
-    document.documentElement.replaceChild targetBody, document.body
+    existingBody = document.documentElement.replaceChild(targetBody, document.body)
+    triggerEvent(EVENTS.AFTER_REMOVE, existingBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
 
@@ -176,6 +178,7 @@ swapNodes = (targetBody, existingNodes, options) ->
       else
         targetNode = targetNode.cloneNode(true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
+        triggerEvent(EVENTS.AFTER_REMOVE, existingNode)
   return
 
 executeScriptTags = ->

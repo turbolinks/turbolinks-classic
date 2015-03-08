@@ -70,6 +70,10 @@
 
     *Kristian Plettenberg-Dussault*, *Thibaut Courouble*, *David Heinemeier Hansson*
 
+*   Add a `page:after-remove` event, triggered after a node (stored in `event.data`) is removed from the DOM, to give user scripts the opportunity to clean up references and data related to these nodes (e.g. `jQuery.fn.remove()`), and avoid memory leaks.
+
+    *Thibaut Courouble*, *Drew Martin*
+
 *   Fix `URI::InvalidURIError` when `X-XHR-Referer` is invalid and the request performs a redirection.
 
     *Thibaut Courouble*
