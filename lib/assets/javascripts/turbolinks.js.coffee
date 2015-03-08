@@ -148,8 +148,8 @@ changePage = (doc, options) ->
     document.documentElement.replaceChild targetBody, document.body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
-    executeScriptTags() unless options.runScripts is false
 
+  executeScriptTags() unless options.runScripts is false
   currentState = window.history.state
 
   triggerEvent EVENTS.CHANGE
@@ -177,8 +177,6 @@ swapNodes = (targetBody, existingNodes, options) ->
       else
         targetNode = targetNode.cloneNode(true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
-        if targetNode.nodeName == 'SCRIPT' && targetNode.getAttribute("data-turbolinks-eval") != "false"
-          executeScriptTag(targetNode)
   return
 
 executeScriptTags = ->
