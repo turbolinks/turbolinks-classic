@@ -74,6 +74,10 @@
 
     *Thibaut Courouble*
 
+*   Fix missing `X-XHR-Redirected-To` header following routes.rb redirect.
+
+    *Thibaut Courouble*
+
 ## Turbolinks 2.5.3 (December 8, 2014)
 
 *   Prevent the progress bar from filling the entire screen in older versions of Safari.

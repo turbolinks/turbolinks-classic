@@ -117,3 +117,31 @@ class TurbolinksTest < ActionController::TestCase
     assert_response :forbidden
   end
 end
+
+class TurbolinksIntegrationTest < ActionDispatch::IntegrationTest
+  setup do
+    @session = open_session
+  end
+
+  def test_sets_xhr_redirected_to_header_on_redirect_requests_coming_from_turbolinks
+    get '/redirect_hash'
+    get response.location
+    assert_nil response.headers['X-XHR-Redirected-To']
+
+    get '/redirect_hash', nil, { 'HTTP_X_XHR_REFERER' => 'http://www.example.com/' }
+    assert_response :redirect
+    assert_nil response.headers['X-XHR-Redirected-To']
+
+    get response.location, nil, { 'HTTP_X_XHR_REFERER' => nil }
+    assert_equal 'http://www.example.com/turbolinks/simple_action', response.headers['X-XHR-Redirected-To']
+    assert_response :ok
+
+    get '/redirect_path', nil, { 'HTTP_X_XHR_REFERER' => 'http://www.example.com/' }
+    assert_response :redirect
+    assert_nil response.headers['X-XHR-Redirected-To']
+
+    get response.location, nil, { 'HTTP_X_XHR_REFERER' => nil }
+    assert_equal 'http://www.example.com/turbolinks/simple_action', response.headers['X-XHR-Redirected-To']
+    assert_response :ok
+  end
+end
