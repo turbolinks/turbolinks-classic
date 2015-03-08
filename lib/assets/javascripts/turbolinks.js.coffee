@@ -182,7 +182,7 @@ swapNodes = (targetBody, existingNodes, options) ->
   return
 
 executeScriptTags = ->
-  scripts = Array::slice.call document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
+  scripts = document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
   for script in scripts when script.type in ['', 'text/javascript']
     copy = document.createElement 'script'
     copy.setAttribute attr.name, attr.value for attr in script.attributes
