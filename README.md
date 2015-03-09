@@ -103,9 +103,13 @@ Progress Bar
 
 Because Turbolinks skips the traditional full page reload, browsers won't display their native progress bar when changing pages. To fill this void, Turbolinks offers an optional JavaScript-and-CSS-based progress bar to display page loading progress.
 
-To enable the progress bar, include the following in your JavaScript:
+As of Turbolinks 3.0, the progress bar is turned on by default.
+
+To disable (or re-enable) the progress bar, include one of the following in your JavaScript:
+
 ```javascript
-Turbolinks.enableProgressBar();
+Turbolinks.ProgressBar.disable();
+Turbolinks.ProgressBar.enable();
 ```
 
 The progress bar is implemented on the `<html>` element's pseudo `:before` element and can be **customized** by including CSS with higher specificity than the included styles. For example:
@@ -117,8 +121,13 @@ html.turbolinks-progress-bar::before {
 }
 ```
 
-In Turbolinks 3.0, the progress bar will be turned on by default.
+Control the progress bar manually using these methods:
 
+```javascript
+Turbolinks.ProgressBar.start();
+Turbolinks.ProgressBar.advanceTo(value); // where value is between 0-100
+Turbolinks.ProgressBar.done();
+```
 
 Initialization
 --------------

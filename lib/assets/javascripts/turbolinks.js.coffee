@@ -48,14 +48,6 @@ disableRequestCaching = (disable = true) ->
   requestCachingEnabled = not disable
   disable
 
-enableProgressBar = (enable = true) ->
-  return unless browserSupportsTurbolinks
-  if enable
-    progressBar ?= new ProgressBar 'html'
-  else
-    progressBar?.uninstall()
-    progressBar = null
-
 fetchReplacement = (url, options) ->
   options.cacheRequest ?= requestCachingEnabled
   options.showProgressBar ?= true
@@ -450,6 +442,13 @@ class ProgressBar
   # iOS 6 where the progress bar would fill the entire page.
   originalOpacity = 0.99
 
+  @enable: ->
+    progressBar ?= new ProgressBar 'html'
+
+  @disable: ->
+    progressBar?.uninstall()
+    progressBar = null
+
   constructor: (@elementSelector) ->
     @value = 0
     @content = ''
@@ -555,6 +554,12 @@ class ProgressBar
     }
     """
 
+ProgressBarAPI =
+  enable: ProgressBar.enable
+  disable: ProgressBar.disable
+  start: -> ProgressBar.enable().start()
+  advanceTo: (value) -> progressBar?.advanceTo(value)
+  done: -> progressBar?.done()
 
 # Delay execution of function long enough to miss the popstate event
 # some browsers fire on the initial page load.
@@ -584,6 +589,8 @@ installHistoryChangeHandler = (event) ->
 initializeTurbolinks = ->
   rememberCurrentUrl()
   rememberCurrentState()
+
+  ProgressBar.enable()
 
   document.addEventListener 'click', Click.installHandlerLast, true
 
@@ -626,9 +633,14 @@ else
 #   Turbolinks.visit(url)
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
+#   Turbolinks.cacheCurrentPage()
 #   Turbolinks.enableTransitionCache()
 #   Turbolinks.disableRequestCaching()
-#   Turbolinks.cacheCurrentPage()
+#   Turbolinks.ProgressBar.enable()
+#   Turbolinks.ProgressBar.disable()
+#   Turbolinks.ProgressBar.start()
+#   Turbolinks.ProgressBar.advanceTo(80)
+#   Turbolinks.ProgressBar.done()
 #   Turbolinks.allowLinkExtensions('md')
 #   Turbolinks.supported
 #   Turbolinks.EVENTS
@@ -639,7 +651,7 @@ else
   cacheCurrentPage,
   enableTransitionCache,
   disableRequestCaching,
-  enableProgressBar,
+  ProgressBar: ProgressBarAPI,
   allowLinkExtensions: Link.allowExtensions,
   supported: browserSupportsTurbolinks,
   EVENTS: clone(EVENTS)
