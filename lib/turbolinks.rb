@@ -28,6 +28,7 @@ module Turbolinks
           alias referrer referer
         end
 
+        require 'action_dispatch/routing/redirection'
         ActionDispatch::Routing::Redirect.class_eval do
           def call_with_turbolinks(env)
             status, headers, body = call_without_turbolinks(env)
