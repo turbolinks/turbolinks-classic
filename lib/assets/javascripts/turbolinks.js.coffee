@@ -170,6 +170,7 @@ swapNodes = (targetBody, existingNodes, options) ->
 
     if targetNode = targetBody.querySelector('[id="'+nodeId+'"]')
       if options.keep
+        existingNode.parentNode.insertBefore(existingNode.cloneNode(true), existingNode)
         targetBody.ownerDocument.adoptNode(existingNode)
         targetNode.parentNode.replaceChild(existingNode, targetNode)
       else

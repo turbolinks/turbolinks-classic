@@ -120,22 +120,27 @@ suite 'Turbolinks.visit()', ->
     @Turbolinks.visit('iframe2.html')
 
   test "with transition cache", (done) ->
+    permanent = @$('#permanent')
+    permanent.addEventListener 'click', -> done()
     load = 0
     restoreCalled = false
     @document.addEventListener 'page:load', =>
       load += 1
       if load is 1
         assert.equal @document.title, 'title 2'
+        assert.equal @$('#permanent'), permanent
         setTimeout (=> @Turbolinks.visit('iframe.html')), 0
       else if load is 2
         assert.ok restoreCalled
         assert.equal @window.i, 2
         assert.equal @document.title, 'title'
-        done()
+        assert.equal @$('#permanent'), permanent
+        @$('#permanent').click() # event listeners on permanent nodes should not be lost
     @document.addEventListener 'page:restore', =>
       assert.equal load, 1
       assert.equal @window.i, 1
       assert.equal @document.title, 'title'
+      assert.equal @$('#permanent'), permanent
       restoreCalled = true
     @Turbolinks.enableTransitionCache()
     @Turbolinks.visit('iframe2.html')
