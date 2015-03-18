@@ -6,11 +6,13 @@ module Turbolinks
     def redirect_to(url = {}, response_status = {})
       turbolinks, options = _extract_turbolinks_options!(response_status)
 
-      super(url, response_status)
+      value = super(url, response_status)
 
       if turbolinks || (turbolinks != false && request.xhr? && !request.get?)
         _perform_turbolinks_response "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
       end
+
+      value
     end
 
     def render(*args, &block)
