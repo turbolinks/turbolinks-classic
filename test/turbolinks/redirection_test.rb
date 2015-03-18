@@ -5,6 +5,11 @@ class RedirectController < ActionController::Base
     redirect_to 'http://example.com'
   end
 
+  def redirect_to_and_return
+    redirect_to '/path' and return
+    raise "redirect_to should return a truthy value"
+  end
+
   def redirect_to_url_string_with_turbolinks
     redirect_to 'http://example.com', turbolinks: true
   end
@@ -74,6 +79,11 @@ end
 
 class RedirectionTest < ActionController::TestCase
   tests RedirectController
+
+  def test_redirect_to_returns_a_truthy_value
+    get :redirect_to_and_return
+    assert_redirected_to '/path'
+  end
 
   def test_redirect_to_url_string_with_turbolinks
     get :redirect_to_url_string_with_turbolinks
