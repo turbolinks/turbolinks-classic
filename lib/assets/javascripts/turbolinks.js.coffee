@@ -20,7 +20,6 @@ EVENTS =
   LOAD:           'page:load'
   RESTORE:        'page:restore'
   BEFORE_UNLOAD:  'page:before-unload'
-  EXPIRE:         'page:expire'
   AFTER_REMOVE:   'page:after-remove'
 
 fetch = (url, options = {}) ->
@@ -122,7 +121,6 @@ constrainPageCacheTo = (limit) ->
   .sort (a, b) -> b - a
 
   for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
-    triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
 replace = (html, options = {}) ->
