@@ -135,6 +135,7 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:load', =>
       load += 1
       if load is 1
+        assert.ok @$('body').hasAttribute('new-attribute')
         assert.equal @document.title, 'title 2'
         assert.equal @$('#permanent'), permanent
         setTimeout (=> @Turbolinks.visit('iframe.html')), 0
@@ -147,6 +148,7 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:restore', =>
       assert.equal load, 1
       assert.equal @window.i, 1
+      assert.notOk @$('body').hasAttribute('new-attribute')
       assert.equal @document.title, 'title'
       assert.equal @$('#permanent'), permanent
       restoreCalled = true

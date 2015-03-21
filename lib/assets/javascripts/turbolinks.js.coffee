@@ -92,7 +92,7 @@ fetchReplacement = (url, options) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  changePage createDocument(cachedPage.body.outerHTML), title: cachedPage.title, runScripts: false
+  changePage createDocument(cachedPage.body), title: cachedPage.title, runScripts: false
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -102,7 +102,7 @@ cacheCurrentPage = ->
 
   pageCache[currentStateUrl.absolute] =
     url:                      currentStateUrl.relative,
-    body:                     document.body,
+    body:                     document.body.outerHTML,
     title:                    document.title,
     positionY:                window.pageYOffset,
     positionX:                window.pageXOffset,
