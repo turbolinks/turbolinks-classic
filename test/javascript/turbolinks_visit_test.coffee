@@ -152,3 +152,49 @@ suite 'Turbolinks.visit()', ->
       restoreCalled = true
     @Turbolinks.enableTransitionCache()
     @Turbolinks.visit('iframe2.html')
+
+  test "history.back() cache hit", (done) ->
+    @$('#permanent').addEventListener 'click', -> done()
+    change = 0
+    fetchCalled = false
+    @document.addEventListener 'page:change', =>
+      change += 1
+      if change is 1
+        @document.addEventListener 'page:fetch', -> fetchCalled = true
+        assert.equal @window.i, 1
+        assert.equal @window.j, 1
+        assert.equal @document.title, 'title 2'
+        assert.notOk @document.querySelector('#div')
+        setTimeout =>
+          @history.back()
+        , 0
+      else if change is 2
+        assert.notOk fetchCalled
+        assert.equal @window.i, 1
+        assert.equal @window.j, 1
+        assert.equal @document.title, 'title'
+        assert.notOk @document.querySelector('#new-div')
+        @document.querySelector('#permanent').click()
+    @Turbolinks.visit('iframe2.html')
+
+  test "history.back() cache miss", (done) ->
+    @$('#permanent').addEventListener 'click', -> done()
+    change = 0
+    @document.addEventListener 'page:change', =>
+      change += 1
+      if change is 1
+        assert.equal @window.i, 1
+        assert.equal @window.j, 1
+        assert.equal @document.title, 'title 2'
+        assert.notOk @document.querySelector('#div')
+        setTimeout =>
+          @history.back()
+        , 0
+      else if change is 2
+        assert.equal @window.i, 2
+        assert.equal @window.j, 1
+        assert.equal @document.title, 'title'
+        assert.notOk @document.querySelector('#new-div')
+        @window.document.querySelector('#permanent').click()
+    @Turbolinks.pagesCached(0)
+    @Turbolinks.visit('iframe2.html')
