@@ -141,7 +141,7 @@ Some examples, given a standard RESTful resource:
 * `POST :create` => resource creation failed => render `:new`
   * Turbolinks **DISABLED**
 
-**Why not all request types?** Some browsers track the request method of each page load, but triggering pushState methods don't change this value.  This could lead to the situation where pressing the browser's reload button on a page that was fetched with Turbolinks would attempt a `POST` (or something other than `GET`) because the last full page load used that method.
+**Why not all request types?** Some browsers track the request method of each page load, but triggering pushState methods doesn't change this value.  This could lead to the situation where pressing the browser's reload button on a page that was fetched with Turbolinks would attempt a `POST` (or something other than `GET`) because the last full page load used that method.
 
 
 Opting out of Turbolinks
