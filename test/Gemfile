@@ -1,4 +1,0 @@
-source 'https://rubygems.org'
-
-gem 'sprockets', '~> 2.8.0'
-gem 'coffee-script', '~> 2.2.0'
