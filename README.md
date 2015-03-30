@@ -403,11 +403,11 @@ BUNDLE_GEMFILE=Gemfile.rails42 rake test
 JavaScript:
 
 ```
+bundle install
 npm install
-cd test
-bundle
-bundle exec rackup
-open http://localhost:9292/javascript/index.html
+
+script/test   # requires phantomjs >= 2.0
+script/server # http://localhost:9292/javascript/index.html
 ```
 
 Language Ports
