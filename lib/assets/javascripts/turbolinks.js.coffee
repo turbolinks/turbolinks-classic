@@ -20,7 +20,7 @@ EVENTS =
   LOAD:           'page:load'
   RESTORE:        'page:restore'
   BEFORE_UNLOAD:  'page:before-unload'
-  EXPIRE:         'page:expire'
+  AFTER_REMOVE:   'page:after-remove'
 
 fetch = (url, options = {}) ->
   url = new ComponentUrl url
@@ -91,7 +91,7 @@ fetchReplacement = (url, options) ->
 
 fetchHistory = (cachedPage) ->
   xhr?.abort()
-  changePage createDocument(cachedPage.body.outerHTML), title: cachedPage.title, runScripts: false
+  changePage createDocument(cachedPage.body), title: cachedPage.title, runScripts: false
   progressBar?.done()
   recallScrollPosition cachedPage
   triggerEvent EVENTS.RESTORE
@@ -101,7 +101,7 @@ cacheCurrentPage = ->
 
   pageCache[currentStateUrl.absolute] =
     url:                      currentStateUrl.relative,
-    body:                     document.body,
+    body:                     document.body.outerHTML,
     title:                    document.title,
     positionY:                window.pageYOffset,
     positionX:                window.pageXOffset,
@@ -121,7 +121,6 @@ constrainPageCacheTo = (limit) ->
   .sort (a, b) -> b - a
 
   for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
-    triggerEvent EVENTS.EXPIRE, pageCache[key]
     delete pageCache[key]
 
 replace = (html, options = {}) ->
@@ -134,8 +133,8 @@ changePage = (doc, options) ->
   triggerEvent EVENTS.BEFORE_UNLOAD
   document.title = title
 
-  swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
   if options.change
+    swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
     swapNodes(targetBody, findNodesMatchingKeys(document.body, options.change), keep: false)
   else
     unless options.flush
@@ -143,7 +142,8 @@ changePage = (doc, options) ->
       nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
       swapNodes(targetBody, nodesToBeKept, keep: true)
 
-    document.documentElement.replaceChild targetBody, document.body
+    existingBody = document.documentElement.replaceChild(targetBody, document.body)
+    triggerEvent(EVENTS.AFTER_REMOVE, existingBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
 
@@ -176,6 +176,7 @@ swapNodes = (targetBody, existingNodes, options) ->
       else
         targetNode = targetNode.cloneNode(true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
+        triggerEvent(EVENTS.AFTER_REMOVE, existingNode)
   return
 
 executeScriptTags = ->

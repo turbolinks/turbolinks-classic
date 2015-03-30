@@ -38,7 +38,7 @@ suite 'Turbolinks.replace()', ->
     body = @$('body')
     permanent = @$('#permanent')
     permanent.addEventListener 'click', -> done()
-    beforeUnloadFired = false
+    beforeUnloadFired = afterRemoveFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.isUndefined @window.j
       assert.notOk @$('#new-div')
@@ -48,8 +48,14 @@ suite 'Turbolinks.replace()', ->
       assert.equal @document.title, 'title'
       assert.equal @$('body'), body
       beforeUnloadFired = true
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, body
+      assert.notEqual permanent, event.data.querySelector('#permanent')
+      afterRemoveFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
+      assert.ok afterRemoveFired
       assert.equal @window.j, 1
       assert.isUndefined @window.headScript
       assert.isUndefined @window.bodyScriptEvalFalse
@@ -57,6 +63,7 @@ suite 'Turbolinks.replace()', ->
       assert.ok @$('body').hasAttribute('new-attribute')
       assert.notOk @$('#div')
       assert.equal @$('#permanent').textContent, 'permanent content'
+      assert.equal @$('#temporary').textContent, 'new content'
       assert.equal @document.title, 'new title'
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'new-token'
       assert.notEqual @$('body'), body # body is replaced
@@ -77,12 +84,19 @@ suite 'Turbolinks.replace()', ->
       </body>
       </html>
     """
-    beforeUnloadFired = false
+    body = @$('body')
+    beforeUnloadFired = afterRemoveFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @$('#permanent').textContent, 'permanent content'
       beforeUnloadFired = true
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, body
+      assert.ok event.data.querySelector('#permanent')
+      afterRemoveFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
+      assert.ok afterRemoveFired
       assert.equal @$('#permanent').textContent, 'new content'
       done()
     @Turbolinks.replace(doc, flush: true)
@@ -100,14 +114,21 @@ suite 'Turbolinks.replace()', ->
       </body>
       </html>
     """
-    beforeUnloadFired = false
+    body = @$('body')
     div = @$('#div')
     div.addEventListener 'click', -> done()
+    beforeUnloadFired = afterRemoveFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @$('#div').textContent, 'div content'
       beforeUnloadFired = true
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, body
+      assert.notEqual body, event.data.querySelector('#div')
+      afterRemoveFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
+      assert.ok afterRemoveFired
       assert.equal @$('#div').textContent, 'div content'
       assert.equal @$('#div'), div # :keep nodes are transferred
       @$('#div').click() # event listeners on :keep nodes should not be lost
@@ -136,6 +157,7 @@ suite 'Turbolinks.replace()', ->
     """
     body = @$('body')
     change = @$('#change')
+    temporary = @$('#temporary')
     beforeUnloadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @window.i, 1
@@ -144,8 +166,13 @@ suite 'Turbolinks.replace()', ->
       assert.equal @$('#temporary').textContent, 'temporary content'
       assert.equal @document.title, 'title'
       beforeUnloadFired = true
+    afterRemoveNodes = [@$('#temporary'), change, @$('[id="change:key"]')]
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, afterRemoveNodes.shift()
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
+      assert.equal afterRemoveNodes.length, 0
       assert.equal @window.i, 2
       assert.isUndefined @window.bodyScript
       assert.isUndefined @window.headScript
@@ -158,6 +185,7 @@ suite 'Turbolinks.replace()', ->
       assert.equal @$('#permanent').textContent, 'permanent content'
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'token'
       assert.equal @document.title, 'new title'
+      assert.notEqual @$('#temporary'), temporary # temporary nodes are cloned
       assert.notEqual @$('#change'), change # changed nodes are cloned
       assert.equal @$('body'), body
       done()

@@ -35,6 +35,7 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 * `page:fetch` starting to fetch a new target page
 * `page:receive` the page has been fetched from the server, but not yet parsed
 * `page:before-unload` the page has been parsed and is about to be changed
+* `page:after-remove` a node (stored in `event.data`) has been removed from the DOM and should be cleaned up (e.g. with `jQuery.fn.remove()`)
 * `page:change` the page has been changed to the new version (and on DOMContentLoaded)
 * `page:update` is triggered alongside both page:change and jQuery's ajaxSuccess (if jQuery is available - otherwise you can manually trigger it when calling XMLHttpRequest in your own code)
 * `page:load` is fired at the end of the loading process.
@@ -62,8 +63,6 @@ If you need to make dynamic HTML updates in the current page and want it to be c
 ```javascript
 Turbolinks.cacheCurrentPage();
 ```
-
-When a page is removed from the cache due to the cache reaching its size limit, the `page:expire` event is triggered.  Listeners bound to this event can access the cached page object using `event.originalEvent.data`.  Keys of note for this page cache object include `url`, `body`, and `title`.
 
 To implement a client-side spinner, you could listen for `page:fetch` to start it and `page:receive` to stop it.
 
