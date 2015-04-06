@@ -200,3 +200,13 @@ suite 'Turbolinks.visit()', ->
         @window.document.querySelector('#permanent').click()
     @Turbolinks.pagesCached(0)
     @Turbolinks.visit('iframe2.html')
+
+  test "jquery cleanup", (done) ->
+    body = @document.body
+    @window.jQuery(body).on 'click', ->
+      done new Error("jQuery event wasn't cleaned up")
+      done = null
+    @document.addEventListener 'page:load', ->
+      body.click()
+      setTimeout (-> done?()), 0
+    @Turbolinks.visit('iframe2.html')

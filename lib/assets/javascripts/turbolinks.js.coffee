@@ -143,7 +143,7 @@ changePage = (doc, options) ->
       swapNodes(targetBody, nodesToBeKept, keep: true)
 
     existingBody = document.documentElement.replaceChild(targetBody, document.body)
-    triggerEvent(EVENTS.AFTER_REMOVE, existingBody)
+    onNodeRemoved(existingBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
 
@@ -176,8 +176,13 @@ swapNodes = (targetBody, existingNodes, options) ->
       else
         targetNode = targetNode.cloneNode(true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
-        triggerEvent(EVENTS.AFTER_REMOVE, existingNode)
+        onNodeRemoved(existingNode)
   return
+
+onNodeRemoved = (node) ->
+  if typeof jQuery isnt 'undefined'
+    jQuery(node).remove()
+  triggerEvent(EVENTS.AFTER_REMOVE, node)
 
 executeScriptTags = ->
   scripts = document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
