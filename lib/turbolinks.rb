@@ -1,5 +1,6 @@
 require 'turbolinks/version'
 require 'turbolinks/xhr_headers'
+require 'turbolinks/xhr_redirect'
 require 'turbolinks/xhr_url_for'
 require 'turbolinks/cookies'
 require 'turbolinks/x_domain_blocker'
@@ -30,16 +31,11 @@ module Turbolinks
 
         require 'action_dispatch/routing/redirection'
         ActionDispatch::Routing::Redirect.class_eval do
-          def call_with_turbolinks(env)
-            status, headers, body = call_without_turbolinks(env)
-
-            if env['rack.session'] && env['HTTP_X_XHR_REFERER']
-              env['rack.session'][:_turbolinks_redirect_to] = headers['Location']
-            end
-
-            [status, headers, body]
+          if defined?(prepend)
+            prepend XHRRedirect
+          else
+            include LegacyXHRRedirect
           end
-          alias_method_chain :call, :turbolinks
         end
       end
 
