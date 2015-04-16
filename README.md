@@ -269,7 +269,7 @@ Any node with an `id` attribute can be partially replaced. If the `id` contains 
 // Will change #flash, #comments, #comments:123
 Turbolinks.visit(url, change: 'comments')
 
-// Will change #flash, #comment:123
+// Will change #flash, #comments:123
 Turbolinks.visit(url, change: 'comments:123')
 
 // Will only keep #sidebar
