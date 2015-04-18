@@ -21,7 +21,7 @@ module Turbolinks
 
       super(*args, render_options, &block)
 
-      if turbolinks || (turbolinks != false && options.size > 0 && request.xhr? && !request.get?)
+      if turbolinks || (turbolinks != false && options.size > 0 && request.xhr?)
         _perform_turbolinks_response "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
       end
 

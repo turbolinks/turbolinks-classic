@@ -331,7 +331,7 @@ redirect_to path, flush: true
 ```
 
 ```ruby
- # Render with Turbolinks when the request is XHR and not GET.
+ # Render with Turbolinks when the request is XHR.
  # Refresh any `data-turbolinks-temporary` nodes and nodes with `id` matching `new_comment`.
 render view, change: 'new_comment'
 
