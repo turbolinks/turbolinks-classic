@@ -128,6 +128,8 @@ Turbolinks.ProgressBar.advanceTo(value); // where value is between 0-100
 Turbolinks.ProgressBar.done();
 ```
 
+\* *Note that the Progress Bar API has changed from what it was prior to version 3.0.  Consult the CHANGELOG for details.*
+
 Initialization
 --------------
 
