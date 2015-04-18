@@ -147,7 +147,8 @@ changePage = (doc, options) ->
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
 
-  executeScriptTags() unless options.runScripts is false
+  scriptsToRun = if options.runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
+  executeScriptTags(scriptsToRun)
   currentState = window.history.state
 
   triggerEvent EVENTS.CHANGE
@@ -184,8 +185,8 @@ onNodeRemoved = (node) ->
     jQuery(node).remove()
   triggerEvent(EVENTS.AFTER_REMOVE, node)
 
-executeScriptTags = ->
-  scripts = document.body.querySelectorAll 'script:not([data-turbolinks-eval="false"])'
+executeScriptTags = (selector) ->
+  scripts = document.body.querySelectorAll(selector)
   for script in scripts when script.type in ['', 'text/javascript']
     copy = document.createElement 'script'
     copy.setAttribute attr.name, attr.value for attr in script.attributes
