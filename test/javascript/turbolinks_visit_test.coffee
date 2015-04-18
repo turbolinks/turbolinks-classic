@@ -164,6 +164,7 @@ suite 'Turbolinks.visit()', ->
       if change is 1
         @document.addEventListener 'page:fetch', -> fetchCalled = true
         assert.equal @window.i, 1
+        assert.equal @window.k, 1
         assert.equal @window.j, 1
         assert.equal @document.title, 'title 2'
         assert.notOk @document.querySelector('#div')
@@ -172,7 +173,8 @@ suite 'Turbolinks.visit()', ->
         , 0
       else if change is 2
         assert.notOk fetchCalled
-        assert.equal @window.i, 1
+        assert.equal @window.i, 1 # normal scripts are not re-run
+        assert.equal @window.k, 2 # data-turbolinks-eval="always" scripts are re-run
         assert.equal @window.j, 1
         assert.equal @document.title, 'title'
         assert.notOk @document.querySelector('#new-div')

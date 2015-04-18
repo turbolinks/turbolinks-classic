@@ -209,6 +209,14 @@ As a rule of thumb when switching to Turbolinks, move all of your javascript tag
 </script>
 ```
 
+Turbolinks will not re-evaluate script tags on back/forward navigation, unless their `data-turbolinks-eval` attribute is set to `always`:
+
+```html
+<script type="text/javascript" data-turbolinks-eval=always>
+  console.log("I'm run on every page load, including history back/forward");
+</script>
+```
+
 Triggering a Turbolinks visit manually
 ---------------------------------------
 
