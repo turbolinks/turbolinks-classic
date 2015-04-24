@@ -639,6 +639,7 @@ else
 
 # Public API
 #   Turbolinks.visit(url)
+#   Turbolinks.replace(html)
 #   Turbolinks.pagesCached()
 #   Turbolinks.pagesCached(20)
 #   Turbolinks.cacheCurrentPage()
