@@ -7,6 +7,7 @@ suite 'Turbolinks.visit()', ->
     @iframe.setAttribute('src', 'iframe.html')
     document.body.appendChild(@iframe)
     @iframe.onload = =>
+      @iframe.onload = null
       @window = @iframe.contentWindow
       @document = @window.document
       @Turbolinks = @window.Turbolinks
@@ -24,7 +25,7 @@ suite 'Turbolinks.visit()', ->
     permanent.addEventListener 'click', -> done()
     pageReceivedFired = beforeUnloadFired = afterRemoveFired = false
     @document.addEventListener 'page:receive', =>
-      state = turbolinks: true, url: "#{location.origin}/javascript/iframe.html"
+      state = turbolinks: true, url: "#{location.protocol}//#{location.host}/javascript/iframe.html"
       assert.deepEqual @history.state, state
       pageReceivedFired = true
     @document.addEventListener 'page:before-unload', =>
@@ -58,7 +59,7 @@ suite 'Turbolinks.visit()', ->
       assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'token2'
       assert.notEqual @$('body'), body # body is replaced
 
-      state = turbolinks: true, url: "#{location.origin}/javascript/iframe2.html"
+      state = turbolinks: true, url: "#{location.protocol}//#{location.host}/javascript/iframe2.html"
       assert.deepEqual @history.state, state
       assert.equal @location.href, state.url
 
@@ -96,7 +97,7 @@ suite 'Turbolinks.visit()', ->
       assert.notEqual @$('#change'), change # changed nodes are cloned
       assert.notEqual @$('#temporary'), temporary # temporary nodes are cloned
       assert.equal @$('body'), body
-      assert.equal @location.href, "#{location.origin}/javascript/iframe2.html"
+      assert.equal @location.href, "#{location.protocol}//#{location.host}/javascript/iframe2.html"
       done()
     @Turbolinks.visit('iframe2.html', change: ['change'])
 
@@ -105,10 +106,13 @@ suite 'Turbolinks.visit()', ->
     @window.addEventListener 'unload', =>
       unloadFired = true
       setTimeout =>
-        assert.equal @iframe.contentWindow.location.href, "#{location.origin}/javascript/404"
+        try
+          assert.equal @iframe.contentWindow.location.href, "#{location.protocol}//#{location.host}/404"
+        catch e
+          throw e unless /denied/.test(e.message) # IE
         done()
       , 0
-    @Turbolinks.visit('404')
+    @Turbolinks.visit('/404')
 
   test "without transition cache", (done) ->
     load = 0
