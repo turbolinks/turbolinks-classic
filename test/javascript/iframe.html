@@ -5,12 +5,6 @@
   <title>title</title>
   <meta content="authenticity_token" name="csrf-param">
   <meta content="token" name="csrf-token">
-  <script>
-    (function() { // workaround for bypassOnLoadPopstate
-      var originalSetTimeout = window.setTimeout;
-      window.setTimeout = function(fn) { return originalSetTimeout(fn, 0); };
-    })();
-  </script>
   <script src="/js/jquery.js"></script>
   <script src="/js/turbolinks.js"></script>
 </head>

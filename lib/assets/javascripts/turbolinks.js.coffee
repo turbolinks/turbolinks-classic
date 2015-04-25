@@ -569,11 +569,6 @@ ProgressBarAPI =
   advanceTo: (value) -> progressBar?.advanceTo(value)
   done: -> progressBar?.done()
 
-# Delay execution of function long enough to miss the popstate event
-# some browsers fire on the initial page load.
-bypassOnLoadPopstate = (fn) ->
-  setTimeout fn, 500
-
 installDocumentReadyPageEventTriggers = ->
   document.addEventListener 'DOMContentLoaded', ( ->
     triggerEvent EVENTS.CHANGE
@@ -586,8 +581,8 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
       return unless jQuery.trim xhr.responseText
       triggerEvent EVENTS.UPDATE
 
-installHistoryChangeHandler = (event) ->
-  if event.state?.turbolinks
+onHistoryChange = (event) ->
+  if event.state?.turbolinks && event.state.url != currentState.url
     if cachedPage = pageCache[(new ComponentUrl(event.state.url)).absolute]
       cacheCurrentPage()
       fetchHistory cachedPage
@@ -606,8 +601,8 @@ initializeTurbolinks = ->
     rememberCurrentUrl()
     rememberCurrentState()
   , false
-  bypassOnLoadPopstate ->
-    window.addEventListener 'popstate', installHistoryChangeHandler, false
+
+  window.addEventListener 'popstate', onHistoryChange, false
 
 # Handle bug in Firefox 26/27 where history.state is initially undefined
 historyStateIsDefined =
