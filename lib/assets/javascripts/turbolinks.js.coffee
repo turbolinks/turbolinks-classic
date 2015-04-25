@@ -604,20 +604,19 @@ initializeTurbolinks = ->
 
   window.addEventListener 'popstate', onHistoryChange, false
 
-# Handle bug in Firefox 26/27 where history.state is initially undefined
-historyStateIsDefined =
-  window.history.state != undefined or navigator.userAgent.match /Firefox\/2[6|7]/
+browserSupportsPushState = window.history and 'pushState' of window.history
 
-browserSupportsPushState =
-  window.history and window.history.pushState and window.history.replaceState and historyStateIsDefined
+# Copied from https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
+ua = navigator.userAgent
+browserIsBuggy =
+  (ua.indexOf('Android 2.') != -1 or ua.indexOf('Android 4.0') != -1) and
+  ua.indexOf('Mobile Safari') != -1 and
+  ua.indexOf('Chrome') == -1 and
+  ua.indexOf('Windows Phone') == -1
 
-browserIsntBuggy =
-  !navigator.userAgent.match /CriOS\//
+requestMethodIsSafe = popCookie('request_method') in ['GET','']
 
-requestMethodIsSafe =
-  popCookie('request_method') in ['GET','']
-
-browserSupportsTurbolinks = browserSupportsPushState and browserIsntBuggy and requestMethodIsSafe
+browserSupportsTurbolinks = browserSupportsPushState and !browserIsBuggy and requestMethodIsSafe
 
 browserSupportsCustomEvents =
   document.addEventListener and document.createEvent
