@@ -169,6 +169,8 @@ Also, Turbolinks is installed as the last click handler for links. So if you ins
 
 Note: in Turbolinks 3.0, the default behavior of `redirect_to` is to redirect via Turbolinks (`Turbolinks.visit` response) for XHR + non-GET requests. You can opt-out of this behavior by passing `turbolinks: false` to `redirect_to`.
 
+By default, Turbolinks includes itself in `ActionController::Base`. To opt out of the Turbolinks features in certain controllers, set `config.auto_include_turbolinks` to `false` in `application.rb` and include `Turbolinks::Controller` in the controllers where you use Turbolinks.
+
 
 jquery.turbolinks
 -----------------

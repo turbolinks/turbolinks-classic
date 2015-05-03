@@ -7,19 +7,27 @@ require 'turbolinks/x_domain_blocker'
 require 'turbolinks/redirection'
 
 module Turbolinks
-  class Engine < ::Rails::Engine
-    initializer :turbolinks do |config|
-      ActiveSupport.on_load(:action_controller) do
-        ActionController::Base.class_eval do
-          include XHRHeaders, Cookies, XDomainBlocker, Redirection
+  module Controller
+    include XHRHeaders, Cookies, XDomainBlocker, Redirection
 
-          if respond_to?(:before_action)
-            before_action :set_xhr_redirected_to, :set_request_method_cookie
-            after_action :abort_xdomain_redirect
-          else
-            before_filter :set_xhr_redirected_to, :set_request_method_cookie
-            after_filter :abort_xdomain_redirect
-          end
+    def self.included(base)
+      if base.respond_to?(:before_action)
+        base.before_action :set_xhr_redirected_to, :set_request_method_cookie
+        base.after_action :abort_xdomain_redirect
+      else
+        base.before_filter :set_xhr_redirected_to, :set_request_method_cookie
+        base.after_filter :abort_xdomain_redirect
+      end
+    end
+  end
+
+  class Engine < ::Rails::Engine
+    config.auto_include_turbolinks = true
+
+    initializer :turbolinks do |app|
+      ActiveSupport.on_load(:action_controller) do
+        if app.config.auto_include_turbolinks
+          include Controller
         end
 
         ActionDispatch::Request.class_eval do

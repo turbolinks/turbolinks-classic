@@ -1,6 +1,6 @@
 require_relative 'test_helper'
 
-class TurbolinksController < ActionController::Base
+class TurbolinksController < TestController
   def simple_action
     render text: ' '
   end
