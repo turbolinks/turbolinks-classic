@@ -124,6 +124,11 @@
 
     *Thibaut Courouble*, *Kevin Hughes*
 
+*   Add ability to opt out of Turbolinks in certain controllers by setting `config.auto_include_turbolinks` to `false` in `application.rb` and including `Turbolinks::Controller` in the controllers where Turbolinks is used.
+
+    *Thibaut Courouble*
+
+
 ## Turbolinks 2.5.3 (December 8, 2014)
 
 *   Prevent the progress bar from filling the entire screen in older versions of Safari.

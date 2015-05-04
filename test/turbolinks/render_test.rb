@@ -1,6 +1,6 @@
 require_relative 'test_helper'
 
-class RenderController < ActionController::Base
+class RenderController < TestController
   require 'action_view/testing/resolvers'
   self.view_paths = ActionView::FixtureResolver.new('render/action.html.erb' => 'content')
 

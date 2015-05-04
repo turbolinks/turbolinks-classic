@@ -1,6 +1,6 @@
 require_relative 'test_helper'
 
-class RedirectController < ActionController::Base
+class RedirectController < TestController
   def redirect_to_url_string
     redirect_to 'http://example.com'
   end
