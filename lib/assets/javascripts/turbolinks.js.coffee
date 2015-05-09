@@ -197,10 +197,6 @@ executeScriptTags = (selector) ->
     parentNode.insertBefore copy, nextSibling
   return
 
-removeNoscriptTags = (node) ->
-  node.innerHTML = node.innerHTML.replace /<noscript[\S\s]*?<\/noscript>/ig, ''
-  node
-
 # Firefox bug: Doesn't autofocus fields that are inserted via JavaScript
 setAutofocusElement = ->
   autofocusElement = (list = document.querySelectorAll 'input[autofocus], textarea[autofocus]')[list.length - 1]
@@ -308,7 +304,7 @@ processResponse = ->
 
 extractTitleAndBody = (doc) ->
   title = doc.querySelector 'title'
-  [ title?.textContent, removeNoscriptTags(doc.querySelector('body')), CSRFToken.get(doc).token ]
+  [ title?.textContent, doc.querySelector('body'), CSRFToken.get(doc).token ]
 
 CSRFToken =
   get: (doc = document) ->
