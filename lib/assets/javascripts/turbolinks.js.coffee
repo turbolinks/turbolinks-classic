@@ -34,7 +34,7 @@ fetch = (url, options = {}) ->
     options.showProgressBar = false
     fetchReplacement url, options
   else
-    options.onLoadFunction = resetScrollPosition
+    options.onLoadFunction = resetScrollPosition unless options.change
     fetchReplacement url, options
 
 transitionCacheFor = (url) ->

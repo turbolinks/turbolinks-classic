@@ -258,3 +258,11 @@ suite 'Turbolinks.visit()', ->
     @window.scrollTo(42, 42)
     @Turbolinks.pagesCached(0)
     @Turbolinks.visit('iframe2.html')
+
+  test "doesn't scroll to top with :change", (done) ->
+    @window.scrollTo(42, 42)
+    @document.addEventListener 'page:load', =>
+      assert.equal @window.pageXOffset, 42
+      assert.equal @window.pageYOffset, 42
+      done()
+    @Turbolinks.visit('iframe2.html', change: ['change'])
