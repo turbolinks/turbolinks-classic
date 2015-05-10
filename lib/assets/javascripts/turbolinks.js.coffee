@@ -321,10 +321,14 @@ CSRFToken =
       current.node.setAttribute 'content', latest
 
 createDocument = (html) ->
-  doc = document.documentElement.cloneNode()
-  doc.innerHTML = html
-  doc.head = doc.querySelector 'head'
-  doc.body = doc.querySelector 'body'
+  if /<(html|body)/i.test(html)
+    doc = document.documentElement.cloneNode()
+    doc.innerHTML = html
+  else
+    doc = document.documentElement.cloneNode(true)
+    doc.querySelector('body').innerHTML = html
+  doc.head = doc.querySelector('head')
+  doc.body = doc.querySelector('body')
   doc
 
 # The ComponentUrl class converts a basic URL string into an object

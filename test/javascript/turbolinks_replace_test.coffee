@@ -137,14 +137,14 @@ suite 'Turbolinks.replace()', ->
   test "with :change", (done) ->
     doc = """
       <!DOCTYPE html>
-      <html>
+      <HTML>
       <head>
         <meta charset="utf-8">
         <title>new title</title>
         <meta content="new-token" name="csrf-token">
         <script>var headScript = true</script>
       </head>
-      <body new-attribute>
+      <BODY new-attribute>
         <div id="new-div"></div>
         <div id="div">new content</div>
         <div id="change">new content</div>
@@ -173,7 +173,7 @@ suite 'Turbolinks.replace()', ->
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
       assert.equal afterRemoveNodes.length, 0
-      assert.equal @window.i, 2
+      assert.equal @window.i, 2 # scripts are re-run
       assert.isUndefined @window.bodyScript
       assert.isUndefined @window.headScript
       assert.notOk @$('#new-div')
@@ -190,3 +190,54 @@ suite 'Turbolinks.replace()', ->
       assert.equal @$('body'), body
       done()
     @Turbolinks.replace(doc, change: ['change'])
+
+  test "with :change and html fragment", (done) ->
+    html = """
+      <div id="new-div"></div>
+      <div id="change">new content<script>var insideScript = true</script></div>
+      <div id="change:key">new content</div>
+      <script>var outsideScript = true</script>
+    """
+    body = @$('body')
+    change = @$('#change')
+    temporary = @$('#temporary')
+    afterRemoveNodes = [change, @$('[id="change:key"]')]
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, afterRemoveNodes.shift()
+    @document.addEventListener 'page:change', =>
+      assert.equal afterRemoveNodes.length, 0
+      assert.equal @window.i, 2 # scripts are re-run
+      assert.isUndefined @window.outsideScript
+      assert.equal @window.insideScript, true
+      assert.notOk @$('#new-div')
+      assert.equal @$('#div').textContent, 'div content'
+      assert.equal @$('#change').firstChild.textContent, 'new content'
+      assert.equal @$('[id="change:key"]').textContent, 'new content'
+      assert.equal @$('#permanent').textContent, 'permanent content'
+      assert.equal @$('meta[name="csrf-token"]').getAttribute('content'), 'token'
+      assert.equal @document.title, 'title'
+      assert.equal @$('#temporary'), temporary # temporary nodes are left untouched when not found
+      assert.equal @$('#temporary').textContent, 'temporary content'
+      assert.notEqual @$('#change'), change # changed nodes are cloned
+      assert.equal @$('body'), body
+      done()
+    @Turbolinks.replace(html, change: ['change'])
+
+  test "with :change and html fragment with temporary node", (done) ->
+    html = """
+      <div id="div">new div content</div>
+      <div id="temporary" data-turbolinks-temporary>new temporary content</div>
+    """
+    temporary = @$('#temporary')
+    afterRemoveNodes = [temporary, @$('#div')]
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.isNull event.data.parentNode
+      assert.equal event.data, afterRemoveNodes.shift()
+    @document.addEventListener 'page:change', =>
+      assert.equal afterRemoveNodes.length, 0
+      assert.equal @$('#div').textContent, 'new div content'
+      assert.equal @$('#temporary').textContent, 'new temporary content'
+      assert.notEqual @$('#temporary'), temporary # temporary nodes are cloned when found
+      done()
+    @Turbolinks.replace(html, change: ['div'])
