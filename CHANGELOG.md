@@ -1,5 +1,9 @@
 ## Turbolinks (master)
 
+*   Noscript tags are no longer removed from body on page changes.
+
+    *René Hansen*
+
 *   Deprecated `redirect_via_turbolinks_to` in favor of `redirect_to url, turbolinks: true`.
 
     *Thibaut Courouble*
