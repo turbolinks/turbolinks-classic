@@ -3,7 +3,8 @@ assert = chai.assert
 suite 'Turbolinks.visit()', ->
   setup (done) ->
     @iframe = document.createElement('iframe')
-    @iframe.style.display = 'none'
+    @iframe.setAttribute('scrolling', 'yes')
+    @iframe.setAttribute('style', 'visibility: hidden;')
     @iframe.setAttribute('src', 'iframe.html')
     document.body.appendChild(@iframe)
     @iframe.onload = =>
@@ -215,4 +216,45 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:load', ->
       body.click()
       setTimeout (-> done?()), 0
+    @Turbolinks.visit('iframe2.html')
+
+  # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
+  return if navigator.userAgent.indexOf('PhantomJS') != -1
+
+  test "scrolls to top by default", (done) ->
+    @window.scrollTo(42, 42)
+    assert.equal @window.pageXOffset, 42
+    assert.equal @window.pageYOffset, 42
+    @document.addEventListener 'page:load', =>
+      assert.equal @window.pageXOffset, 0
+      assert.equal @window.pageYOffset, 0
+      done()
+    @Turbolinks.visit('iframe2.html')
+
+  test "restores scroll position on history.back() cache hit", (done) ->
+    change = 0
+    @document.addEventListener 'page:change', =>
+      change += 1
+      if change is 1
+        setTimeout (=> @history.back()), 0
+    @document.addEventListener 'page:restore', =>
+      assert.equal change, 2
+      assert.equal @window.pageXOffset, 42
+      assert.equal @window.pageYOffset, 42
+      done()
+    @window.scrollTo(42, 42)
+    @Turbolinks.visit('iframe2.html')
+
+  test "restores scroll position on history.back() cache miss", (done) ->
+    change = 0
+    @document.addEventListener 'page:change', =>
+      change += 1
+      if change is 1
+        setTimeout (=> @history.back()), 0
+      else if change is 2
+        assert.equal @window.pageXOffset, 42
+        assert.equal @window.pageYOffset, 42
+        done()
+    @window.scrollTo(42, 42)
+    @Turbolinks.pagesCached(0)
     @Turbolinks.visit('iframe2.html')
