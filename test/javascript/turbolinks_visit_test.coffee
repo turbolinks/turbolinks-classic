@@ -259,6 +259,28 @@ suite 'Turbolinks.visit()', ->
     @Turbolinks.pagesCached(0)
     @Turbolinks.visit('iframe2.html')
 
+  test "scrolls to top on transition cache hit", (done) ->
+    load = 0
+    restoreCalled = false
+    @document.addEventListener 'page:load', =>
+      load += 1
+      if load is 1
+        @window.scrollTo(8, 8)
+        setTimeout (=> @Turbolinks.visit('iframe.html')), 0
+      else if load is 2
+        assert.ok restoreCalled
+        assert.equal @window.pageXOffset, 16
+        assert.equal @window.pageYOffset, 16
+        done()
+    @document.addEventListener 'page:restore', =>
+      assert.equal @window.pageXOffset, 0
+      assert.equal @window.pageYOffset, 0
+      @window.scrollTo(16, 16)
+      restoreCalled = true
+    @window.scrollTo(4, 4)
+    @Turbolinks.enableTransitionCache()
+    @Turbolinks.visit('iframe2.html')
+
   test "doesn't scroll to top with :change", (done) ->
     @window.scrollTo(42, 42)
     @document.addEventListener 'page:load', =>

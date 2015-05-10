@@ -30,12 +30,12 @@ fetch = (url, options = {}) ->
   progressBar?.start()
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
-    fetchHistory cachedPage
+    fetchHistory cachedPage, recallScrollPosition: false
     options.showProgressBar = false
-    fetchReplacement url, options
   else
     options.onLoadFunction = resetScrollPosition unless options.change
-    fetchReplacement url, options
+
+  fetchReplacement url, options
 
 transitionCacheFor = (url) ->
   cachedPage = pageCache[url]
@@ -89,11 +89,14 @@ fetchReplacement = (url, options) ->
 
   xhr.send()
 
-fetchHistory = (cachedPage) ->
+fetchHistory = (cachedPage, options) ->
   xhr?.abort()
   changePage createDocument(cachedPage.body), title: cachedPage.title, runScripts: false
   progressBar?.done()
-  recallScrollPosition cachedPage
+  if options.recallScrollPosition
+    recallScrollPosition cachedPage
+  else
+    resetScrollPosition()
   triggerEvent EVENTS.RESTORE
 
 cacheCurrentPage = ->
@@ -587,7 +590,7 @@ onHistoryChange = (event) ->
   if event.state?.turbolinks && event.state.url != currentState.url
     if cachedPage = pageCache[(new ComponentUrl(event.state.url)).absolute]
       cacheCurrentPage()
-      fetchHistory cachedPage
+      fetchHistory cachedPage, recallScrollPosition: true
     else
       visit event.target.location.href
 
