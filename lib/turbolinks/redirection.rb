@@ -8,7 +8,7 @@ module Turbolinks
 
       value = super(url, response_status)
 
-      if turbolinks || (turbolinks != false && request.xhr? && !request.get?)
+      if turbolinks || (turbolinks != false && request.xhr? && (options.size > 0 || !request.get?))
         _perform_turbolinks_response "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
       end
 
@@ -21,7 +21,7 @@ module Turbolinks
 
       super(*args, render_options, &block)
 
-      if turbolinks || (turbolinks != false && options.size > 0 && request.xhr?)
+      if turbolinks || (turbolinks != false && request.xhr? && options.size > 0)
         _perform_turbolinks_response "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
       end
 

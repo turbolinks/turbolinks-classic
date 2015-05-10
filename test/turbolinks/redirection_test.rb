@@ -146,9 +146,9 @@ class RedirectionTest < ActionController::TestCase
     assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo', 'bar'] }"
   end
 
-  def test_redirect_to_via_xhr_and_get_with_change_option
-    xhr :get, :redirect_to_path_with_multiple_change_option
-    assert_redirected_to 'http://test.host/path'
+  def test_redirect_to_via_xhr_and_get_with_single_change_option
+    xhr :get, :redirect_to_path_with_single_change_option
+    assert_turbolinks_visit 'http://test.host/path', "{ change: ['foo'] }"
   end
 
   def test_redirect_to_via_post_and_not_xhr_with_change_option_and_custom_status
