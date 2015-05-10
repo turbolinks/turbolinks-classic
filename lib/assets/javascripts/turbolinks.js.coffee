@@ -142,7 +142,8 @@ changePage = (doc, options) ->
       nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
       swapNodes(targetBody, nodesToBeKept, keep: true)
 
-    existingBody = document.documentElement.replaceChild(targetBody, document.body)
+    existingBody = document.body
+    document.body = targetBody
     onNodeRemoved(existingBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
@@ -172,10 +173,11 @@ swapNodes = (targetBody, existingNodes, options) ->
     if targetNode = targetBody.querySelector('[id="'+nodeId+'"]')
       if options.keep
         existingNode.parentNode.insertBefore(existingNode.cloneNode(true), existingNode)
-        targetBody.ownerDocument.adoptNode(existingNode)
+        existingNode = targetNode.ownerDocument.adoptNode(existingNode)
         targetNode.parentNode.replaceChild(existingNode, targetNode)
       else
         targetNode = targetNode.cloneNode(true)
+        targetNode = existingNode.ownerDocument.importNode(targetNode, true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
         onNodeRemoved(existingNode)
   return
