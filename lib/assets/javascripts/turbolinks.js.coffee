@@ -30,10 +30,11 @@ fetch = (url, options = {}) ->
   progressBar?.start()
 
   if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
-    fetchHistory cachedPage, recallScrollPosition: false
+    fetchHistory cachedPage
     options.showProgressBar = false
+    options.scroll = false
   else
-    options.onLoadFunction = resetScrollPosition unless options.change
+    options.scroll ?= false if options.change
 
   fetchReplacement url, options
 
@@ -70,7 +71,7 @@ fetchReplacement = (url, options) ->
       if options.showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
-      options.onLoadFunction?()
+      updateScrollPosition(options.scroll)
       triggerEvent EVENTS.LOAD
     else
       progressBar?.done()
@@ -89,14 +90,11 @@ fetchReplacement = (url, options) ->
 
   xhr.send()
 
-fetchHistory = (cachedPage, options) ->
+fetchHistory = (cachedPage, options = {}) ->
   xhr?.abort()
   changePage createDocument(cachedPage.body), title: cachedPage.title, runScripts: false
   progressBar?.done()
-  if options.recallScrollPosition
-    recallScrollPosition cachedPage
-  else
-    resetScrollPosition()
+  updateScrollPosition(options.scroll)
   triggerEvent EVENTS.RESTORE
 
 cacheCurrentPage = ->
@@ -242,14 +240,14 @@ manuallyTriggerHashChangeForFirefox = ->
     window.history.replaceState currentState, '', url.withoutHash()
     document.location.hash = url.hash
 
-recallScrollPosition = (page) ->
-  window.scrollTo page.positionX, page.positionY
-
-resetScrollPosition = ->
-  if document.location.hash
-    document.location.href = document.location.href
-  else
-    window.scrollTo 0, 0
+updateScrollPosition = (position) ->
+  if Array.isArray(position)
+    window.scrollTo position[0], position[1]
+  else if position isnt false
+    if document.location.hash
+      document.location.href = document.location.href
+    else
+      window.scrollTo 0, 0
 
 clone = (original) ->
   return original if not original? or typeof original isnt 'object'
@@ -590,7 +588,7 @@ onHistoryChange = (event) ->
   if event.state?.turbolinks && event.state.url != currentState.url
     if cachedPage = pageCache[(new ComponentUrl(event.state.url)).absolute]
       cacheCurrentPage()
-      fetchHistory cachedPage, recallScrollPosition: true
+      fetchHistory cachedPage, scroll: [cachedPage.positionX, cachedPage.positionY]
     else
       visit event.target.location.href
 

@@ -221,15 +221,21 @@ suite 'Turbolinks.visit()', ->
   # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
   return if navigator.userAgent.indexOf('PhantomJS') != -1
 
-  test "scrolls to top by default", (done) ->
+  test "scrolls to target or top by default", (done) ->
     @window.scrollTo(42, 42)
     assert.equal @window.pageXOffset, 42
     assert.equal @window.pageYOffset, 42
+    load = 0
     @document.addEventListener 'page:load', =>
-      assert.equal @window.pageXOffset, 0
-      assert.equal @window.pageYOffset, 0
-      done()
-    @Turbolinks.visit('iframe2.html')
+      load += 1
+      if load is 1
+        assert.closeTo @window.pageYOffset, @$('#change').offsetTop, 100
+        setTimeout (=> @Turbolinks.visit('iframe.html', scroll: null)), 0
+      else if load is 2
+        assert.equal @window.pageXOffset, 0
+        assert.equal @window.pageYOffset, 0
+        done()
+    @Turbolinks.visit('iframe2.html#change', scroll: undefined)
 
   test "restores scroll position on history.back() cache hit", (done) ->
     change = 0
@@ -288,3 +294,11 @@ suite 'Turbolinks.visit()', ->
       assert.equal @window.pageYOffset, 42
       done()
     @Turbolinks.visit('iframe2.html', change: ['change'])
+
+  test "doesn't scroll to top with scroll: false", (done) ->
+    @window.scrollTo(42, 42)
+    @document.addEventListener 'page:load', =>
+      assert.equal @window.pageXOffset, 42
+      assert.equal @window.pageYOffset, 42
+      done()
+    @Turbolinks.visit('iframe2.html', scroll: false)

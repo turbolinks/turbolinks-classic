@@ -132,6 +132,11 @@
 
     *Thibaut Courouble*
 
+*   Add ability to prevent `Turbolinks.visit` from resetting the scroll position.
+
+    ```coffeescript
+    Turbolinks.visit url, scroll: false
+    ```
 
 ## Turbolinks 2.5.3 (December 8, 2014)
 
