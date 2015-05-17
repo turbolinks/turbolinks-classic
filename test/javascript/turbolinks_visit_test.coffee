@@ -29,8 +29,9 @@ suite 'Turbolinks.visit()', ->
       state = turbolinks: true, url: "#{location.protocol}//#{location.host}/javascript/iframe.html"
       assert.deepEqual @history.state, state
       pageReceivedFired = true
-    @document.addEventListener 'page:before-unload', =>
+    @document.addEventListener 'page:before-unload', (event) =>
       assert.isUndefined @window.j
+      assert.deepEqual event.data, [body]
       assert.notOk @$('#new-div')
       assert.notOk @$('body').hasAttribute('new-attribute')
       assert.ok @$('#div')
@@ -71,9 +72,11 @@ suite 'Turbolinks.visit()', ->
   test "successful with :change", (done) ->
     body = @$('body')
     change = @$('#change')
+    change2 = @$('[id="change:key"]')
     temporary = @$('#temporary')
     beforeUnloadFired = false
-    @document.addEventListener 'page:before-unload', =>
+    @document.addEventListener 'page:before-unload', (event) =>
+      assert.deepEqual event.data, [temporary, change, change2]
       assert.equal @window.i, 1
       assert.equal @$('#change').textContent, 'change content'
       assert.equal @$('[id="change:key"]').textContent, 'change content'

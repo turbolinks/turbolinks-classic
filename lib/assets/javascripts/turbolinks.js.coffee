@@ -130,22 +130,27 @@ replace = (html, options = {}) ->
 changePage = (doc, options) ->
   [title, targetBody, csrfToken] = extractTitleAndBody(doc)
   title ?= options.title
+  currentBody = document.body
 
-  triggerEvent EVENTS.BEFORE_UNLOAD
+  if options.change
+    nodesToChange = findNodes(currentBody, '[data-turbolinks-temporary]')
+    nodesToChange.push(findNodesMatchingKeys(currentBody, options.change)...)
+  else
+    nodesToChange = [currentBody]
+
+  triggerEvent EVENTS.BEFORE_UNLOAD, nodesToChange
   document.title = title
 
   if options.change
-    swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
-    swapNodes(targetBody, findNodesMatchingKeys(document.body, options.change), keep: false)
+    swapNodes(targetBody, nodesToChange, keep: false)
   else
     unless options.flush
-      nodesToBeKept = findNodes(document.body, '[data-turbolinks-permanent]')
-      nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
-      swapNodes(targetBody, nodesToBeKept, keep: true)
+      nodesToKeep = findNodes(currentBody, '[data-turbolinks-permanent]')
+      nodesToKeep.push(findNodesMatchingKeys(currentBody, options.keep)...) if options.keep
+      swapNodes(targetBody, nodesToKeep, keep: true)
 
-    existingBody = document.body
     document.body = targetBody
-    onNodeRemoved(existingBody)
+    onNodeRemoved(currentBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
 
