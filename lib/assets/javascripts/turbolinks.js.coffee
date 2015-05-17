@@ -67,12 +67,12 @@ fetchReplacement = (url, options) ->
     if doc = processResponse()
       reflectNewUrl url
       reflectRedirectedUrl()
-      changePage doc, options
+      loadedNodes = changePage doc, options
       if options.showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
       updateScrollPosition(options.scroll)
-      triggerEvent EVENTS.LOAD
+      triggerEvent EVENTS.LOAD, loadedNodes
     else
       progressBar?.done()
       document.location.href = crossOriginRedirect() or url.absolute
@@ -125,7 +125,8 @@ constrainPageCacheTo = (limit) ->
     delete pageCache[key]
 
 replace = (html, options = {}) ->
-  changePage createDocument(html), options
+  loadedNodes = changePage createDocument(html), options
+  triggerEvent EVENTS.LOAD, loadedNodes
 
 changePage = (doc, options) ->
   [title, targetBody, csrfToken] = extractTitleAndBody(doc)
@@ -161,6 +162,7 @@ changePage = (doc, options) ->
 
   triggerEvent EVENTS.CHANGE, changedNodes
   triggerEvent EVENTS.UPDATE
+  return changedNodes
 
 findNodes = (body, selector) ->
   Array::slice.apply(body.querySelectorAll(selector))

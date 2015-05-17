@@ -47,11 +47,12 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:change', (event) =>
       assert.deepEqual event.data, [@document.body]
       pageChangeFired = true
-    @document.addEventListener 'page:load', =>
+    @document.addEventListener 'page:load', (event) =>
       assert.ok pageReceivedFired
       assert.ok beforeUnloadFired
       assert.ok afterRemoveFired
       assert.ok pageChangeFired
+      assert.deepEqual event.data, [@document.body]
       assert.equal @window.i, 1
       assert.equal @window.j, 1
       assert.isUndefined @window.headScript
@@ -90,9 +91,10 @@ suite 'Turbolinks.visit()', ->
     @document.addEventListener 'page:change', (event) =>
       assert.deepEqual event.data, [@$('#temporary'), @$('#change'), @$('[id="change:key"]')]
       pageChangeFired = true
-    @document.addEventListener 'page:load', =>
+    @document.addEventListener 'page:load', (event) =>
       assert.ok beforeUnloadFired
       assert.ok pageChangeFired
+      assert.deepEqual event.data, [@$('#temporary'), @$('#change'), @$('[id="change:key"]')]
       assert.equal @window.i, 2
       assert.isUndefined @window.j
       assert.isUndefined @window.headScript
