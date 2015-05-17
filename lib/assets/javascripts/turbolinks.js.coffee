@@ -142,7 +142,7 @@ changePage = (doc, options) ->
   document.title = title
 
   if options.change
-    swapNodes(targetBody, nodesToChange, keep: false)
+    changedNodes = swapNodes(targetBody, nodesToChange, keep: false)
   else
     unless options.flush
       nodesToKeep = findNodes(currentBody, '[data-turbolinks-permanent]')
@@ -153,12 +153,13 @@ changePage = (doc, options) ->
     onNodeRemoved(currentBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
+    changedNodes = [targetBody]
 
   scriptsToRun = if options.runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
   executeScriptTags(scriptsToRun)
   currentState = window.history.state
 
-  triggerEvent EVENTS.CHANGE
+  triggerEvent EVENTS.CHANGE, changedNodes
   triggerEvent EVENTS.UPDATE
 
 findNodes = (body, selector) ->
@@ -172,6 +173,7 @@ findNodesMatchingKeys = (body, keys) ->
   return matchingNodes
 
 swapNodes = (targetBody, existingNodes, options) ->
+  changedNodes = []
   for existingNode in existingNodes
     unless nodeId = existingNode.getAttribute('id')
       throw new Error("Turbolinks partial replace: turbolinks elements must have an id.")
@@ -186,7 +188,8 @@ swapNodes = (targetBody, existingNodes, options) ->
         targetNode = existingNode.ownerDocument.importNode(targetNode, true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
         onNodeRemoved(existingNode)
-  return
+        changedNodes.push(targetNode)
+  return changedNodes
 
 onNodeRemoved = (node) ->
   if typeof jQuery isnt 'undefined'
@@ -577,7 +580,7 @@ ProgressBarAPI =
 
 installDocumentReadyPageEventTriggers = ->
   document.addEventListener 'DOMContentLoaded', ( ->
-    triggerEvent EVENTS.CHANGE
+    triggerEvent EVENTS.CHANGE, [document.body]
     triggerEvent EVENTS.UPDATE
   ), true
 

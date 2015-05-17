@@ -24,7 +24,7 @@ suite 'Turbolinks.visit()', ->
     body = @$('body')
     permanent = @$('#permanent')
     permanent.addEventListener 'click', -> done()
-    pageReceivedFired = beforeUnloadFired = afterRemoveFired = false
+    pageReceivedFired = beforeUnloadFired = afterRemoveFired = pageChangeFired = false
     @document.addEventListener 'page:receive', =>
       state = turbolinks: true, url: "#{location.protocol}//#{location.host}/javascript/iframe.html"
       assert.deepEqual @history.state, state
@@ -44,10 +44,14 @@ suite 'Turbolinks.visit()', ->
       assert.equal event.data, body
       assert.notEqual permanent, event.data.querySelector('#permanent')
       afterRemoveFired = true
+    @document.addEventListener 'page:change', (event) =>
+      assert.deepEqual event.data, [@document.body]
+      pageChangeFired = true
     @document.addEventListener 'page:load', =>
       assert.ok pageReceivedFired
       assert.ok beforeUnloadFired
       assert.ok afterRemoveFired
+      assert.ok pageChangeFired
       assert.equal @window.i, 1
       assert.equal @window.j, 1
       assert.isUndefined @window.headScript
@@ -74,7 +78,7 @@ suite 'Turbolinks.visit()', ->
     change = @$('#change')
     change2 = @$('[id="change:key"]')
     temporary = @$('#temporary')
-    beforeUnloadFired = false
+    beforeUnloadFired = pageChangeFired = false
     @document.addEventListener 'page:before-unload', (event) =>
       assert.deepEqual event.data, [temporary, change, change2]
       assert.equal @window.i, 1
@@ -83,8 +87,12 @@ suite 'Turbolinks.visit()', ->
       assert.equal @$('#temporary').textContent, 'temporary content'
       assert.equal @document.title, 'title'
       beforeUnloadFired = true
+    @document.addEventListener 'page:change', (event) =>
+      assert.deepEqual event.data, [@$('#temporary'), @$('#change'), @$('[id="change:key"]')]
+      pageChangeFired = true
     @document.addEventListener 'page:load', =>
       assert.ok beforeUnloadFired
+      assert.ok pageChangeFired
       assert.equal @window.i, 2
       assert.isUndefined @window.j
       assert.isUndefined @window.headScript

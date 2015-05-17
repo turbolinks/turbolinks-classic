@@ -138,7 +138,7 @@
     Turbolinks.visit url, scroll: false
     ```
 
-*   Attach affected nodes to the `page:before-unload` event (in `event.data`).
+*   Attach affected nodes to the `page:before-unload` and `page:change` events (in `event.data`).
 
     *Thibaut Courouble*
 
