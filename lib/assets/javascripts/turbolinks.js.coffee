@@ -221,10 +221,8 @@ crossOriginRedirect = ->
 rememberReferer = ->
   referer = document.location.href
 
-rememberCurrentUrl = ->
+rememberCurrentUrlAndState = ->
   window.history.replaceState { turbolinks: true, url: document.location.href }, '', document.location.href
-
-rememberCurrentState = ->
   currentState = window.history.state
 
 # Unlike other browsers, Firefox doesn't trigger hashchange after changing the
@@ -592,18 +590,11 @@ onHistoryChange = (event) ->
       visit event.target.location.href
 
 initializeTurbolinks = ->
-  rememberCurrentUrl()
-  rememberCurrentState()
-
+  rememberCurrentUrlAndState()
   ProgressBar.enable()
 
   document.addEventListener 'click', Click.installHandlerLast, true
-
-  window.addEventListener 'hashchange', (event) ->
-    rememberCurrentUrl()
-    rememberCurrentState()
-  , false
-
+  window.addEventListener 'hashchange', rememberCurrentUrlAndState, false
   window.addEventListener 'popstate', onHistoryChange, false
 
 browserSupportsPushState = window.history and 'pushState' of window.history
