@@ -128,9 +128,9 @@
 
     *Thibaut Courouble*, *Kevin Hughes*
 
-*   Add ability to opt out of Turbolinks in certain controllers by setting `config.auto_include_turbolinks` to `false` in `application.rb` and including `Turbolinks::Controller` in the controllers where Turbolinks is used.
+*   Add ability to opt out of Turbolinks in certain controllers by setting `config.turbolinks.auto_include` to `false` in `application.rb` and including `Turbolinks::Controller` in the controllers where Turbolinks is used.
 
-    *Thibaut Courouble*
+    *Thibaut Courouble*, *Elia Schito*
 
 *   Add ability to prevent `Turbolinks.visit` from resetting the scroll position.
 

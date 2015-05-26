@@ -12,7 +12,7 @@ class TestApplication < Rails::Application
   config.secret_token = Digest::SHA1.hexdigest(Time.now.to_s)
   config.secret_key_base = SecureRandom.hex
   config.eager_load = false
-  config.auto_include_turbolinks = false
+  config.turbolinks.auto_include = false
 
   initialize!
 
