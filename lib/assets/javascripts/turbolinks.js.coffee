@@ -67,12 +67,12 @@ fetchReplacement = (url, options) ->
     if doc = processResponse()
       reflectNewUrl url
       reflectRedirectedUrl()
-      changePage doc, options
+      loadedNodes = changePage doc, options
       if options.showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
       updateScrollPosition(options.scroll)
-      triggerEvent EVENTS.LOAD
+      triggerEvent EVENTS.LOAD, loadedNodes
     else
       progressBar?.done()
       document.location.href = crossOriginRedirect() or url.absolute
@@ -125,36 +125,44 @@ constrainPageCacheTo = (limit) ->
     delete pageCache[key]
 
 replace = (html, options = {}) ->
-  changePage createDocument(html), options
+  loadedNodes = changePage createDocument(html), options
+  triggerEvent EVENTS.LOAD, loadedNodes
 
 changePage = (doc, options) ->
   [title, targetBody, csrfToken] = extractTitleAndBody(doc)
   title ?= options.title
+  currentBody = document.body
 
-  triggerEvent EVENTS.BEFORE_UNLOAD
+  if options.change
+    nodesToChange = findNodes(currentBody, '[data-turbolinks-temporary]')
+    nodesToChange.push(findNodesMatchingKeys(currentBody, options.change)...)
+  else
+    nodesToChange = [currentBody]
+
+  triggerEvent EVENTS.BEFORE_UNLOAD, nodesToChange
   document.title = title
 
   if options.change
-    swapNodes(targetBody, findNodes(document.body, '[data-turbolinks-temporary]'), keep: false)
-    swapNodes(targetBody, findNodesMatchingKeys(document.body, options.change), keep: false)
+    changedNodes = swapNodes(targetBody, nodesToChange, keep: false)
   else
     unless options.flush
-      nodesToBeKept = findNodes(document.body, '[data-turbolinks-permanent]')
-      nodesToBeKept.push(findNodesMatchingKeys(document.body, options.keep)...) if options.keep
-      swapNodes(targetBody, nodesToBeKept, keep: true)
+      nodesToKeep = findNodes(currentBody, '[data-turbolinks-permanent]')
+      nodesToKeep.push(findNodesMatchingKeys(currentBody, options.keep)...) if options.keep
+      swapNodes(targetBody, nodesToKeep, keep: true)
 
-    existingBody = document.body
     document.body = targetBody
-    onNodeRemoved(existingBody)
+    onNodeRemoved(currentBody)
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
+    changedNodes = [targetBody]
 
   scriptsToRun = if options.runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
   executeScriptTags(scriptsToRun)
   currentState = window.history.state
 
-  triggerEvent EVENTS.CHANGE
+  triggerEvent EVENTS.CHANGE, changedNodes
   triggerEvent EVENTS.UPDATE
+  return changedNodes
 
 findNodes = (body, selector) ->
   Array::slice.apply(body.querySelectorAll(selector))
@@ -167,6 +175,7 @@ findNodesMatchingKeys = (body, keys) ->
   return matchingNodes
 
 swapNodes = (targetBody, existingNodes, options) ->
+  changedNodes = []
   for existingNode in existingNodes
     unless nodeId = existingNode.getAttribute('id')
       throw new Error("Turbolinks partial replace: turbolinks elements must have an id.")
@@ -181,7 +190,8 @@ swapNodes = (targetBody, existingNodes, options) ->
         targetNode = existingNode.ownerDocument.importNode(targetNode, true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
         onNodeRemoved(existingNode)
-  return
+        changedNodes.push(targetNode)
+  return changedNodes
 
 onNodeRemoved = (node) ->
   if typeof jQuery isnt 'undefined'
@@ -572,7 +582,7 @@ ProgressBarAPI =
 
 installDocumentReadyPageEventTriggers = ->
   document.addEventListener 'DOMContentLoaded', ( ->
-    triggerEvent EVENTS.CHANGE
+    triggerEvent EVENTS.CHANGE, [document.body]
     triggerEvent EVENTS.UPDATE
   ), true
 
