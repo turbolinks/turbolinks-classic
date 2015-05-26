@@ -11,7 +11,7 @@ var deferTimeout = function() {
 };
 
 var page = require('webpage').create();
-page.onError = null;
+page.onConsoleMessage = function(msg) { console.error(msg); };
 page.open(require('system').args[1], function() {
   page.evaluate(function() {
     mocha.getTests = function(suite, result) {
@@ -33,9 +33,9 @@ page.open(require('system').args[1], function() {
     var tests = page.evaluate(function() {
       var result = [];
       mocha.getTests().forEach(function(test) {
-        if (test.recorded || !test.state) return;
+        if (test.recorded || !(test.state || test.pending)) return;
         test.recorded = true;
-        result.push(test.state === 'passed' ? '.' : 'F');
+        result.push(test.state === 'passed' ? '.' : (test.pending ? 'S' : 'F'));
       });
       return result;
     });
@@ -47,12 +47,17 @@ page.open(require('system').args[1], function() {
 
     var result = page.evaluate(function() {
       if (!mocha.done) return;
-      var result = { failures: [] };
+      var result = { failures: [], pending: [] };
       mocha.getTests().forEach(function(test) {
         if (test.state === 'passed') return;
-        result.failures.push({title: test.fullTitle(), message: test.err.message});
+        if (test.pending)
+          result.pending.push({title: test.fullTitle()});
+        else
+          result.failures.push({title: test.fullTitle(), message: test.err.message});
       });
-      result.stats = [].map.call(document.querySelectorAll('li.passes, li.failures, li.duration'), function(el) { return el.textContent; }).join(', ')
+      result.stats = [].map.call(document.querySelectorAll('li.passes, li.failures, li.duration'), function(el) { return el.textContent; });
+      if (result.pending.length) result.stats.unshift('skips: ' + result.pending.length);
+      result.stats = result.stats.join(', ');
       return result;
     });
 
