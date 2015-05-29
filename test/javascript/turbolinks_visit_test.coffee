@@ -231,6 +231,19 @@ suite 'Turbolinks.visit()', ->
       setTimeout (-> done?()), 0
     @Turbolinks.visit('iframe2.html')
 
+  test "with :title set to a value replaces the title with the value", (done) ->
+    @document.addEventListener 'page:load', =>
+      assert.equal @document.title, 'specified title'
+      done()
+    @Turbolinks.visit('iframe2.html', title: 'specified title')
+
+  test "with :title set to false doesn't replace the title", (done) ->
+    @document.title = 'test'
+    @document.addEventListener 'page:load', =>
+      assert.equal @document.title, 'test'
+      done()
+    @Turbolinks.visit('iframe2.html', title: false)
+
   # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
   return if navigator.userAgent.indexOf('PhantomJS') != -1
 

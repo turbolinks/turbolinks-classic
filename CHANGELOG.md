@@ -1,5 +1,17 @@
 ## Turbolinks (master)
 
+*   `Turbolinks.visit` and `Turbolinks.replace` accept a `title` option.
+
+    *Guillaume Malette*
+
+    ```coffeescript
+    # Specifying a title will overwrite the title
+    Turbolinks.visit(url, title: 'New title')
+
+    # Using `false` as a title will prevent Turbolinks from changing the title
+    Turbolinks.replace(html, title: false)
+    ```
+
 *   Noscript tags are no longer removed from body on page changes.
 
     *René Hansen*
