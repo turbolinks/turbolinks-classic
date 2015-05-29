@@ -129,9 +129,8 @@ replace = (html, options = {}) ->
   triggerEvent EVENTS.LOAD, loadedNodes
 
 changePage = (doc, options) ->
-  title = options.title
   [extractedTitle, targetBody, csrfToken] = extractTitleAndBody(doc)
-  title ?= extractedTitle
+  title = options.title ? extractedTitle
   currentBody = document.body
 
   if options.change
@@ -141,7 +140,7 @@ changePage = (doc, options) ->
     nodesToChange = [currentBody]
 
   triggerEvent EVENTS.BEFORE_UNLOAD, nodesToChange
-  document.title = title if title != false
+  document.title = title if title isnt false
 
   if options.change
     changedNodes = swapNodes(targetBody, nodesToChange, keep: false)
