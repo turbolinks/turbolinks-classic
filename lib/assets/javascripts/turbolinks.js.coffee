@@ -29,7 +29,7 @@ fetch = (url, options = {}) ->
   cacheCurrentPage()
   progressBar?.start()
 
-  if transitionCacheEnabled and cachedPage = transitionCacheFor(url.absolute)
+  if transitionCacheEnabled and !options.change and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
     options.showProgressBar = false
     options.scroll = false

@@ -173,6 +173,16 @@ suite 'Turbolinks.visit()', ->
     @Turbolinks.enableTransitionCache()
     @Turbolinks.visit('iframe2.html')
 
+  test "with :change, skips transition cache", (done) ->
+    restoreCalled = false
+    @document.addEventListener 'page:restore', =>
+      restoreCalled = true
+    @document.addEventListener 'page:load', =>
+      assert.notOk restoreCalled
+      done()
+    @Turbolinks.enableTransitionCache()
+    @Turbolinks.visit('iframe.html', change: 'div')
+
   test "history.back() cache hit", (done) ->
     @$('#permanent').addEventListener 'click', -> done()
     change = 0
