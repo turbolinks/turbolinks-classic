@@ -335,7 +335,7 @@ redirect_to path, turbolinks: false
 # Partially replace any `data-turbolinks-temporary` nodes and nodes with `id`s matching `comments` or `comments:*`.
 redirect_to path, change: 'comments'
 
-# Partially replace any `data-turbolinks-temoprary` nodes and nodes with `id` not matching `something` and `something:*`.
+# Partially replace any `data-turbolinks-temporary` nodes and nodes with `id` not matching `something` and `something:*`.
 redirect_to path, keep: 'something'
 
 # Replace the entire `body` of the document, including `data-turbolinks-permanent` nodes.
