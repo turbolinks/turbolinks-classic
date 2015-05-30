@@ -277,15 +277,15 @@ suite 'Turbolinks.visit()', ->
     @window.scrollTo(42, 42)
     @Turbolinks.visit('iframe2.html')
 
-  test "restores scroll position on history.back() cache miss", (done) ->
-    change = 0
-    @document.addEventListener 'page:change', =>
-      change += 1
-      if change is 1
+  test "doesn't restore scroll position on history.back() cache miss", (done) ->
+    load = 0
+    @document.addEventListener 'page:load', =>
+      load += 1
+      assert.equal @window.pageXOffset, 0
+      assert.equal @window.pageYOffset, 0
+      if load is 1
         setTimeout (=> @history.back()), 0
-      else if change is 2
-        assert.equal @window.pageXOffset, 42
-        assert.equal @window.pageYOffset, 42
+      else if load is 2
         done()
     @window.scrollTo(42, 42)
     @Turbolinks.pagesCached(0)
