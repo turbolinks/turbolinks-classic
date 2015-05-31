@@ -1,6 +1,8 @@
-Turbolinks
-===========
+Turbolinks 3
+============
 [![Build Status](https://travis-ci.org/rails/turbolinks.svg?branch=master)](https://travis-ci.org/rails/turbolinks)
+
+**Note: Turbolinks 3 isn't production-ready yet. Expect breaking changes before the new version is released.**
 
 Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, it keeps the current page instance alive and replaces only the body (or parts of) and the title in the head. Think CGI vs persistent process.
 
