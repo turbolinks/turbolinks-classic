@@ -608,7 +608,7 @@ initializeTurbolinks = ->
   window.addEventListener 'hashchange', rememberCurrentUrlAndState, false
   window.addEventListener 'popstate', onHistoryChange, false
 
-browserSupportsPushState = window.history and 'pushState' of window.history
+browserSupportsPushState = window.history and 'pushState' of window.history and 'state' of window.history
 
 # Copied from https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
 ua = navigator.userAgent
