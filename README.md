@@ -345,8 +345,8 @@ redirect_to path, flush: true
 ```
 
 ```ruby
- # Render with Turbolinks when the request is XHR.
- # Refresh any `data-turbolinks-temporary` nodes and nodes with `id` matching `new_comment`.
+# Render with Turbolinks when the request is XHR.
+# Refresh any `data-turbolinks-temporary` nodes and nodes with `id` matching `new_comment`.
 render view, change: 'new_comment'
 
 # Refresh any `data-turbolinks-temporary` nodes and nodes with `id` not matching `something` and `something:*`.
