@@ -86,7 +86,11 @@
 
     *Kristian Plettenberg-Dussault*, *Thibaut Courouble*, *David Heinemeier Hansson*
 
-*   Add a `page:after-remove` event, triggered after a node (stored in `event.data`) is removed from the DOM, to give user scripts the opportunity to clean up references to these nodes and avoid memory leaks.
+*   Trigger `page:partial-load` instead `page:load` on partial replacement (`Turbolinks.visit()` or `Turbolinks.replace()` with `change` option)
+
+    *Thibaut Courouble*
+
+*   Add a `page:after-remove` event, triggered after an element (stored in `event.data`) is removed from the DOM (partial replacement), or a body element is evicted from the cache, to give user scripts the opportunity to clean up references to these elements and avoid memory leaks.
 
     This event replaces the `page:expire` event for cleaning up cached pages.
 
@@ -150,7 +154,7 @@
     Turbolinks.visit url, scroll: false
     ```
 
-*   Attach affected nodes to the `page:before-unload`, `page:change` and `page:load` events (in `event.data`).
+*   Attach affected elements to the `page:before-unload`, `page:change`, `page:load` and `page:partial-load` events (in `event.data`).
 
     *Thibaut Courouble*
 
