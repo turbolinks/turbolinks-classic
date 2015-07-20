@@ -18,6 +18,7 @@ EVENTS =
   CHANGE:         'page:change'
   UPDATE:         'page:update'
   LOAD:           'page:load'
+  PARTIAL_LOAD:   'page:partial-load'
   RESTORE:        'page:restore'
   BEFORE_UNLOAD:  'page:before-unload'
   AFTER_REMOVE:   'page:after-remove'
@@ -25,8 +26,12 @@ EVENTS =
 fetch = (url, options = {}) ->
   url = new ComponentUrl url
 
+  if options.change or options.keep
+    removeCurrentPageFromCache()
+  else
+    cacheCurrentPage()
+
   rememberReferer()
-  cacheCurrentPage()
   progressBar?.start()
 
   if transitionCacheEnabled and !options.change and cachedPage = transitionCacheFor(url.absolute)
@@ -67,12 +72,13 @@ fetchReplacement = (url, options) ->
     if doc = processResponse()
       reflectNewUrl url
       reflectRedirectedUrl()
-      loadedNodes = changePage doc, options
+      loadedNodes = changePage extractTitleAndBody(doc)..., options
       if options.showProgressBar
         progressBar?.done()
       manuallyTriggerHashChangeForFirefox()
       updateScrollPosition(options.scroll)
-      triggerEvent EVENTS.LOAD, loadedNodes
+      triggerEvent (if options.change then EVENTS.PARTIAL_LOAD else EVENTS.LOAD), loadedNodes
+      constrainPageCacheTo(cacheSize)
     else
       progressBar?.done()
       document.location.href = crossOriginRedirect() or url.absolute
@@ -92,7 +98,7 @@ fetchReplacement = (url, options) ->
 
 fetchHistory = (cachedPage, options = {}) ->
   xhr?.abort()
-  changePage createDocument(cachedPage.body), title: cachedPage.title, runScripts: false
+  changePage cachedPage.title, cachedPage.body, null, runScripts: false
   progressBar?.done()
   updateScrollPosition(options.scroll)
   triggerEvent EVENTS.RESTORE
@@ -102,14 +108,15 @@ cacheCurrentPage = ->
 
   pageCache[currentStateUrl.absolute] =
     url:                      currentStateUrl.relative,
-    body:                     document.body.outerHTML,
+    body:                     document.body,
     title:                    document.title,
     positionY:                window.pageYOffset,
     positionX:                window.pageXOffset,
     cachedAt:                 new Date().getTime(),
     transitionCacheDisabled:  document.querySelector('[data-no-transition-cache]')?
 
-  constrainPageCacheTo cacheSize
+removeCurrentPageFromCache = ->
+  delete pageCache[new ComponentUrl(currentState.url).absolute]
 
 pagesCached = (size = cacheSize) ->
   cacheSize = parseInt(size) if /^[\d]+$/.test size
@@ -122,15 +129,15 @@ constrainPageCacheTo = (limit) ->
   .sort (a, b) -> b - a
 
   for key in pageCacheKeys when pageCache[key].cachedAt <= cacheTimesRecentFirst[limit]
+    onNodeRemoved(pageCache[key].body)
     delete pageCache[key]
 
 replace = (html, options = {}) ->
-  loadedNodes = changePage createDocument(html), options
-  triggerEvent EVENTS.LOAD, loadedNodes
+  loadedNodes = changePage extractTitleAndBody(createDocument(html))..., options
+  triggerEvent (if options.change then EVENTS.PARTIAL_LOAD else EVENTS.LOAD), loadedNodes
 
-changePage = (doc, options) ->
-  [extractedTitle, targetBody, csrfToken] = extractTitleAndBody(doc)
-  title = options.title ? extractedTitle
+changePage = (title, body, csrfToken, options) ->
+  title = options.title ? title
   currentBody = document.body
 
   if options.change
@@ -143,18 +150,17 @@ changePage = (doc, options) ->
   document.title = title if title isnt false
 
   if options.change
-    changedNodes = swapNodes(targetBody, nodesToChange, keep: false)
+    changedNodes = swapNodes(body, nodesToChange, keep: false)
   else
     unless options.flush
       nodesToKeep = findNodes(currentBody, '[data-turbolinks-permanent]')
       nodesToKeep.push(findNodesMatchingKeys(currentBody, options.keep)...) if options.keep
-      swapNodes(targetBody, nodesToKeep, keep: true)
+      swapNodes(body, nodesToKeep, keep: true)
 
-    document.body = targetBody
-    onNodeRemoved(currentBody)
+    document.body = body
     CSRFToken.update csrfToken if csrfToken?
     setAutofocusElement()
-    changedNodes = [targetBody]
+    changedNodes = [body]
 
   scriptsToRun = if options.runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
   executeScriptTags(scriptsToRun)

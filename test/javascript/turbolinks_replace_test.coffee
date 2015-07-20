@@ -38,7 +38,7 @@ suite 'Turbolinks.replace()', ->
     body = @$('body')
     permanent = @$('#permanent')
     permanent.addEventListener 'click', -> done()
-    beforeUnloadFired = afterRemoveFired = false
+    beforeUnloadFired = partialLoadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.isUndefined @window.j
       assert.notOk @$('#new-div')
@@ -48,14 +48,11 @@ suite 'Turbolinks.replace()', ->
       assert.equal @document.title, 'title'
       assert.equal @$('body'), body
       beforeUnloadFired = true
-    @document.addEventListener 'page:after-remove', (event) =>
-      assert.isNull event.data.parentNode
-      assert.equal event.data, body
-      assert.notEqual permanent, event.data.querySelector('#permanent')
-      afterRemoveFired = true
+    @document.addEventListener 'page:partial-load', (event) =>
+      partialLoadFired = true
     @document.addEventListener 'page:load', (event) =>
       assert.ok beforeUnloadFired
-      assert.ok afterRemoveFired
+      assert.notOk partialLoadFired
       assert.deepEqual event.data, [@document.body]
       assert.equal @window.j, 1
       assert.isUndefined @window.headScript
@@ -86,18 +83,15 @@ suite 'Turbolinks.replace()', ->
       </html>
     """
     body = @$('body')
-    beforeUnloadFired = afterRemoveFired = false
+    beforeUnloadFired = partialLoadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @$('#permanent').textContent, 'permanent content'
       beforeUnloadFired = true
-    @document.addEventListener 'page:after-remove', (event) =>
-      assert.isNull event.data.parentNode
-      assert.equal event.data, body
-      assert.ok event.data.querySelector('#permanent')
-      afterRemoveFired = true
+    @document.addEventListener 'page:partial-load', (event) =>
+      partialLoadFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
-      assert.ok afterRemoveFired
+      assert.notOk partialLoadFired
       assert.equal @$('#permanent').textContent, 'new content'
       done()
     @Turbolinks.replace(doc, flush: true)
@@ -118,18 +112,15 @@ suite 'Turbolinks.replace()', ->
     body = @$('body')
     div = @$('#div')
     div.addEventListener 'click', -> done()
-    beforeUnloadFired = afterRemoveFired = false
+    beforeUnloadFired = partialLoadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @$('#div').textContent, 'div content'
       beforeUnloadFired = true
-    @document.addEventListener 'page:after-remove', (event) =>
-      assert.isNull event.data.parentNode
-      assert.equal event.data, body
-      assert.notEqual body, event.data.querySelector('#div')
-      afterRemoveFired = true
+    @document.addEventListener 'page:partial-load', (event) =>
+      partialLoadFired = true
     @document.addEventListener 'page:change', =>
       assert.ok beforeUnloadFired
-      assert.ok afterRemoveFired
+      assert.notOk partialLoadFired
       assert.equal @$('#div').textContent, 'div content'
       assert.equal @$('#div'), div # :keep nodes are transferred
       @$('#div').click() # event listeners on :keep nodes should not be lost
@@ -159,7 +150,7 @@ suite 'Turbolinks.replace()', ->
     body = @$('body')
     change = @$('#change')
     temporary = @$('#temporary')
-    beforeUnloadFired = false
+    beforeUnloadFired = loadFired = false
     @document.addEventListener 'page:before-unload', =>
       assert.equal @window.i, 1
       assert.equal @$('#change').textContent, 'change content'
@@ -172,6 +163,8 @@ suite 'Turbolinks.replace()', ->
       assert.isNull event.data.parentNode
       assert.equal event.data, afterRemoveNodes.shift()
     @document.addEventListener 'page:load', (event) =>
+      loadFired = true
+    @document.addEventListener 'page:partial-load', (event) =>
       assert.ok beforeUnloadFired
       assert.equal afterRemoveNodes.length, 0
       assert.deepEqual event.data, [@$('#temporary'), @$('#change'), @$('[id="change:key"]')]
@@ -190,7 +183,10 @@ suite 'Turbolinks.replace()', ->
       assert.notEqual @$('#temporary'), temporary # temporary nodes are cloned
       assert.notEqual @$('#change'), change # changed nodes are cloned
       assert.equal @$('body'), body
-      done()
+      setTimeout =>
+        assert.notOk loadFired
+        done()
+      , 0
     @Turbolinks.replace(doc, change: ['change'])
 
   test "with :change and html fragment", (done) ->
