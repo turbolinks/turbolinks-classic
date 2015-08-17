@@ -639,7 +639,7 @@ if browserSupportsTurbolinks
   visit = fetch
   initializeTurbolinks()
 else
-  visit = (url) -> document.location.href = url
+  visit = (url = document.location.href) -> document.location.href = url
 
 # Public API
 #   Turbolinks.visit(url)
