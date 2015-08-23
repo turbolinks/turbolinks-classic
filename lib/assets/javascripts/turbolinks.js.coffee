@@ -192,8 +192,11 @@ swapNodes = (targetBody, existingNodes, options) ->
         existingNode = targetNode.ownerDocument.adoptNode(existingNode)
         targetNode.parentNode.replaceChild(existingNode, targetNode)
       else
-        targetNode = targetNode.cloneNode(true)
-        targetNode = existingNode.ownerDocument.importNode(targetNode, true)
+        # Skipping the importNode works in all browsers but is against the spec,
+        # so we're only doing it in IE to work around its "textarea placeholder
+        # becomes its value when the node is duplicated or serialized" bug.
+        unless navigator.userAgent.indexOf('Trident') >= 0
+          targetNode = existingNode.ownerDocument.importNode(targetNode, true)
         existingNode.parentNode.replaceChild(targetNode, existingNode)
         onNodeRemoved(existingNode)
         changedNodes.push(targetNode)

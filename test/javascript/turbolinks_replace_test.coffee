@@ -277,3 +277,52 @@ suite 'Turbolinks.replace()', ->
       assert.equal @document.title, 'title'
       done()
     @Turbolinks.replace(doc, title: false)
+
+  # https://connect.microsoft.com/IE/feedback/details/811408/
+  test "IE textarea placeholder bug", (done) ->
+    doc = """
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>title</title>
+      </head>
+      <body>
+        <div id="form">
+          <textarea placeholder="placeholder" id="textarea1"></textarea>
+          <textarea placeholder="placeholder" id="textarea2">placeholder</textarea>
+          <textarea id="textarea3">value</textarea>
+        </div>
+        <div id="permanent" data-turbolinks-permanent><textarea placeholder="placeholder" id="textarea-permanent"></textarea></div>
+      </body>
+      </html>
+    """
+    change = 0
+    @document.addEventListener 'page:change', =>
+      change += 1
+      if change is 1
+        assert.equal @$('#textarea1').value, ''
+        assert.equal @$('#textarea2').value, 'placeholder'
+        assert.equal @$('#textarea3').value, 'value'
+        assert.equal @$('#textarea-permanent').value, ''
+        @Turbolinks.visit('iframe2.html')
+      else if change is 2
+        assert.equal @$('#textarea-permanent').value, ''
+        setTimeout =>
+          @window.history.back()
+        , 0
+      else if change is 3
+        assert.equal @$('#textarea1').value, ''
+        assert.equal @$('#textarea2').value, 'placeholder'
+        assert.equal @$('#textarea3').value, 'value'
+        assert.equal @$('#textarea-permanent').value, ''
+        @$('#textarea-permanent').value = 'test'
+        @Turbolinks.replace(doc, change: ['form'])
+      else if change is 4
+        assert.equal @$('#textarea1').value, ''
+        assert.equal @$('#textarea2').value, 'placeholder'
+        assert.equal @$('#textarea3').value, 'value'
+        assert.equal @$('#textarea-permanent').value, 'test'
+        assert.equal @$('#form').ownerDocument, @document
+        done()
+    @Turbolinks.replace(doc, flush: true)
