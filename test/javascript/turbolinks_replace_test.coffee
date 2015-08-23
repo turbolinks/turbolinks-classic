@@ -253,7 +253,6 @@ suite 'Turbolinks.replace()', ->
       </html>
     """
     body = @$('body')
-    permanent = @$('#permanent')
     @document.addEventListener 'page:load', (event) =>
       assert.equal @document.title, 'specified title'
       done()
@@ -272,7 +271,6 @@ suite 'Turbolinks.replace()', ->
       </html>
     """
     body = @$('body')
-    permanent = @$('#permanent')
     @document.addEventListener 'page:load', (event) =>
       assert.equal @document.title, 'title'
       done()
@@ -326,3 +324,35 @@ suite 'Turbolinks.replace()', ->
         assert.equal @$('#form').ownerDocument, @document
         done()
     @Turbolinks.replace(doc, flush: true)
+
+  test "works with :change key of node that also has data-turbolinks-temporary", (done) ->
+    html = """
+      <div id="temporary" data-turbolinks-temporary>new temporary content</div>
+    """
+    afterRemoveNodes = [@$('#temporary')]
+    @document.addEventListener 'page:after-remove', (event) =>
+      assert.equal event.data, afterRemoveNodes.shift()
+    @document.addEventListener 'page:change', =>
+      assert.equal afterRemoveNodes.length, 0
+      assert.equal @$('#temporary').textContent, 'new temporary content'
+      done()
+    @Turbolinks.replace(html, change: ['temporary'])
+
+  test "works with :keep key of node that also has data-turbolinks-permanent", (done) ->
+    html = """
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>title</title>
+      </head>
+      <body>
+        <div id="permanent" data-turbolinks-permanent></div>
+      </body>
+      </html>
+    """
+    permanent = @$('#permanent')
+    @document.addEventListener 'page:change', =>
+      assert.equal @$('#permanent'), permanent
+      done()
+    @Turbolinks.replace(html, keep: ['permanent'])

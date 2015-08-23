@@ -143,6 +143,7 @@ changePage = (title, body, csrfToken, options) ->
   if options.change
     nodesToChange = findNodes(currentBody, '[data-turbolinks-temporary]')
     nodesToChange.push(findNodesMatchingKeys(currentBody, options.change)...)
+    nodesToChange = removeDuplicates(nodesToChange)
   else
     nodesToChange = [currentBody]
 
@@ -155,7 +156,7 @@ changePage = (title, body, csrfToken, options) ->
     unless options.flush
       nodesToKeep = findNodes(currentBody, '[data-turbolinks-permanent]')
       nodesToKeep.push(findNodesMatchingKeys(currentBody, options.keep)...) if options.keep
-      swapNodes(body, nodesToKeep, keep: true)
+      swapNodes(body, removeDuplicates(nodesToKeep), keep: true)
 
     document.body = body
     CSRFToken.update csrfToken if csrfToken?
@@ -271,6 +272,11 @@ clone = (original) ->
   copy = new original.constructor()
   copy[key] = clone value for key, value of original
   copy
+
+removeDuplicates = (array) ->
+  result = []
+  result.push(obj) for obj in array when result.indexOf(obj) is -1
+  result
 
 popCookie = (name) ->
   value = document.cookie.match(new RegExp(name+"=(\\w+)"))?[1].toUpperCase() or ''
