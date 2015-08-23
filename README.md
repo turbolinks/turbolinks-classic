@@ -33,7 +33,7 @@ Event                | Argument (`event.data`) | Notes
 `page:load`          | `[newBody]`             | A new body element has been loaded into the DOM. **Does not fire on partial replacement or when a page is restored from cache, so as not to fire twice on the same body.**
 `page:partial-load`  | `[affectedNodes]`       | New elements have been loaded into the DOM via partial replacement.
 `page:restore`       |                         | A cached body element has been loaded into the DOM.
-`page:after-remove`  | `[affectedNode]`        | An element has been removed from the DOM or body evicted from the cache and must be cleaned up. jQuery event listeners are cleaned up automatically.
+`page:after-remove`  | `affectedNode`          | An element has been removed from the DOM or body evicted from the cache and must be cleaned up. jQuery event listeners are cleaned up automatically.
 
 **Example: load a fresh version of a page from the server** 
 - `page:before-change` link clicked (cancellable)
