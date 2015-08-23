@@ -250,7 +250,7 @@ rememberCurrentUrlAndState = ->
 # By forcing Firefox to trigger hashchange, the rest of the code can rely on more
 # consistent behavior across browsers.
 manuallyTriggerHashChangeForFirefox = ->
-  if navigator.userAgent.match(/Firefox/) and !(url = (new ComponentUrl)).hasNoHash()
+  if navigator.userAgent.indexOf('Firefox') != -1 and !(url = (new ComponentUrl)).hasNoHash()
     window.history.replaceState currentState, '', url.withoutHash()
     document.location.hash = url.hash
 
