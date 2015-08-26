@@ -167,8 +167,7 @@ changePage = (title, body, csrfToken, options) ->
     setAutofocusElement()
     changedNodes = [body]
 
-  scriptsToRun = if options.runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
-  executeScriptTags(scriptsToRun)
+  executeScriptTags(getScriptsToRun(options.runScripts))
   currentState = window.history.state
 
   triggerEvent EVENTS.CHANGE, changedNodes
@@ -207,8 +206,21 @@ onNodeRemoved = (node) ->
     jQuery(node).remove()
   triggerEvent(EVENTS.AFTER_REMOVE, node)
 
-executeScriptTags = (selector) ->
-  scripts = document.body.querySelectorAll(selector)
+getScriptsToRun = (runScripts) ->
+  selector = if runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
+  script for script in document.querySelectorAll(selector) when isEvalAlways(script) or not withinPermanent(script)
+
+isEvalAlways = (script) ->
+  script.getAttribute('data-turbolinks-eval') is 'always'
+
+withinPermanent = (element) ->
+  while element?
+    return true if element.hasAttribute?('data-turbolinks-permanent')
+    element = element.parentNode
+
+  return false
+
+executeScriptTags = (scripts) ->
   for script in scripts when script.type in ['', 'text/javascript']
     copy = document.createElement 'script'
     copy.setAttribute attr.name, attr.value for attr in script.attributes
