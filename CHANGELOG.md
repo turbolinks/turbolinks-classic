@@ -158,6 +158,10 @@
 
     *Thibaut Courouble*
 
+*   Force a normal redirection when calling `Turbolinks.visit` with a different-origin URL.
+
+    *Thibaut Courouble*
+
 
 ## Turbolinks 2.5.3 (December 8, 2014)
 

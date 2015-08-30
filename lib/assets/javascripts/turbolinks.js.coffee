@@ -26,6 +26,10 @@ EVENTS =
 fetch = (url, options = {}) ->
   url = new ComponentUrl url
 
+  if url.crossOrigin()
+    document.location.href = url.absolute
+    return
+
   if options.change or options.keep
     removeCurrentPageFromCache()
   else

@@ -340,6 +340,11 @@ suite 'Turbolinks.visit()', ->
       done()
     @Turbolinks.visit('iframe2.html', title: false)
 
+  test "with different-origin URL, forces a normal redirection", (done) ->
+    @window.addEventListener 'unload', ->
+      done()
+    @Turbolinks.visit("http://example.com")
+
   # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
   return if navigator.userAgent.indexOf('PhantomJS') != -1
 
