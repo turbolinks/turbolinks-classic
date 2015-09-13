@@ -3,6 +3,7 @@ cacheSize               = 10
 transitionCacheEnabled  = false
 requestCachingEnabled   = true
 progressBar             = null
+progressBarDelay        = 400
 
 currentState            = null
 loadedAssets            = null
@@ -36,7 +37,7 @@ fetch = (url, options = {}) ->
     cacheCurrentPage()
 
   rememberReferer()
-  progressBar?.start()
+  progressBar?.start(delay: progressBarDelay)
 
   if transitionCacheEnabled and !options.change and cachedPage = transitionCacheFor(url.absolute)
     fetchHistory cachedPage
@@ -500,7 +501,16 @@ class ProgressBar
     @element.classList.remove(className)
     document.head.removeChild(@styleElement)
 
-  start: ->
+  start: ({delay} = {})->
+    clearTimeout(@displayTimeout)
+    if delay
+      @display = false
+      @displayTimeout = setTimeout =>
+        @display = true
+      , delay
+    else
+      @display = true
+
     if @value > 0
       @_reset()
       @_reflow()
@@ -581,7 +591,7 @@ class ProgressBar
       background-color: #0076ff;
       height: 3px;
       opacity: #{@opacity};
-      width: #{@value}%;
+      width: #{if @display then @value else 0}%;
       transition: width #{@speed}ms ease-out, opacity #{@speed / 2}ms ease-in;
       transform: translate3d(0,0,0);
     }
@@ -590,7 +600,8 @@ class ProgressBar
 ProgressBarAPI =
   enable: ProgressBar.enable
   disable: ProgressBar.disable
-  start: -> ProgressBar.enable().start()
+  setDelay: (value) -> progressBarDelay = value
+  start: (options) -> ProgressBar.enable().start(options)
   advanceTo: (value) -> progressBar?.advanceTo(value)
   done: -> progressBar?.done()
 
