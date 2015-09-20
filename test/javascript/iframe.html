@@ -17,6 +17,10 @@
   <div id="change">change content</div>
   <div id="change:key">change content</div>
   <div id="permanent" data-turbolinks-permanent>permanent content</div>
+  <div id="permanent-script" data-turbolinks-permanent>
+    <script>window.countPerm = (window.countPerm || 0) + 1;</script>
+    <script data-turbolinks-eval="always">window.countAlways = (window.countAlways || 0) + 1;</script>
+  </div>
   <div id="temporary" data-turbolinks-temporary>temporary content</div>
   <script>window.i = window.i || 0; window.i++;</script>
   <script data-turbolinks-eval="always">window.k = window.k || 0; window.k++;</script>
