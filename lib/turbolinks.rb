@@ -27,6 +27,8 @@ module Turbolinks
 
     initializer :turbolinks do |app|
       ActiveSupport.on_load(:action_controller) do
+        next if self != ActionController::Base
+
         if app.config.turbolinks.auto_include
           include Controller
         end
