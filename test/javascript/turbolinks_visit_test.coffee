@@ -175,6 +175,7 @@ suite 'Turbolinks.visit()', ->
         assert.equal @window.i, 2
         assert.equal @document.title, 'title'
         assert.equal @$('#permanent'), permanent
+        assert.equal @history.length, @historyLengthOnRestore
         @$('#permanent').click() # event listeners on permanent nodes should not be lost
     @document.addEventListener 'page:restore', =>
       assert.equal load, 1
@@ -183,6 +184,8 @@ suite 'Turbolinks.visit()', ->
       assert.equal @document.title, 'title'
       assert.equal @$('#permanent'), permanent
       assert.equal @$('#div').foo, 'bar' # DOM state is restored
+      assert.equal @window.location.pathname.substr(-11), 'iframe.html'
+      @historyLengthOnRestore = @history.length
       restoreCalled = true
     @Turbolinks.enableTransitionCache()
     @Turbolinks.visit('iframe2.html')

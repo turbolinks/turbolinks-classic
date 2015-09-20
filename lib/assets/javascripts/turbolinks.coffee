@@ -40,6 +40,7 @@ fetch = (url, options = {}) ->
   progressBar?.start(delay: progressBarDelay)
 
   if transitionCacheEnabled and !options.change and cachedPage = transitionCacheFor(url.absolute)
+    reflectNewUrl(url)
     fetchHistory cachedPage
     options.showProgressBar = false
     options.scroll = false
@@ -227,7 +228,7 @@ setAutofocusElement = ->
     autofocusElement.focus()
 
 reflectNewUrl = (url) ->
-  if (url = new ComponentUrl url).absolute isnt referer
+  if (url = new ComponentUrl url).absolute not in [referer, document.location.href]
     window.history.pushState { turbolinks: true, url: url.absolute }, '', url.absolute
 
 reflectRedirectedUrl = ->
