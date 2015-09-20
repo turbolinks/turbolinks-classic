@@ -162,6 +162,9 @@
 
     *Thibaut Courouble*
 
+*   Trigger the `page:before-change` event on manual call to `Turbolinks.visit()`.
+
+    *Thibaut Courouble*
 
 ## Turbolinks 2.5.3 (December 8, 2014)
 

@@ -24,7 +24,7 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 
 Event                | Argument (`event.data`) | Notes
 -------------------- | ----------------------- | -----
-`page:before-change` | `{url}`                 | A Turbolinks-enabled link has been clicked. **Cancellable with `event.preventDefault()`.**
+`page:before-change` | `{url}`                 | The page is about to change. **Cancellable with `event.preventDefault()`.**
 `page:fetch`         | `{url}`                 | A new page is about to be fetched from the server.
 `page:receive`       | `{url}`                 | A page has been fetched from the server, but not yet parsed.
 `page:before-unload` | `[affectedNodes]`       | Nodes are about to be changed.
@@ -36,7 +36,7 @@ Event                | Argument (`event.data`) | Notes
 `page:after-remove`  | `affectedNode`          | An element has been removed from the DOM or body evicted from the cache and must be cleaned up. jQuery event listeners are cleaned up automatically.
 
 **Example: load a fresh version of a page from the server** 
-- `page:before-change` link clicked (cancellable)
+- `page:before-change` link clicked or `Turbolinks.visit()` called (cancellable)
 - `page:fetch` about to send XHR
 - `page:receive` received response from server
 - `page:before-unload` (`[currentBody]`) page has been parsed and is about to be changed

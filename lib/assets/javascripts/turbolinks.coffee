@@ -27,6 +27,8 @@ EVENTS =
 fetch = (url, options = {}) ->
   url = new ComponentUrl url
 
+  return if pageChangePrevented(url.absolute)
+
   if url.crossOrigin()
     document.location.href = url.absolute
     return
@@ -452,7 +454,7 @@ class Click
     return if @event.defaultPrevented
     @_extractLink()
     if @_validForTurbolinks()
-      visit @link.href unless pageChangePrevented(@link.absolute)
+      visit @link.href
       @event.preventDefault()
 
   _extractLink: ->

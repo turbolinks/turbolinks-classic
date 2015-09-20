@@ -24,10 +24,13 @@ suite 'Turbolinks.visit()', ->
     body = @$('body')
     permanent = @$('#permanent')
     permanent.addEventListener 'click', -> done()
-    pageReceivedFired = beforeUnloadFired = afterRemoveFired = pageChangeFired = partialLoadFired = false
+    beforeChangeFired = pageReceivedFired = beforeUnloadFired = afterRemoveFired = pageChangeFired = partialLoadFired = false
+    @document.addEventListener 'page:before-change', =>
+      beforeChangeFired = true
     @document.addEventListener 'page:receive', =>
       state = turbolinks: true, url: "#{location.protocol}//#{location.host}/javascript/iframe.html"
       assert.deepEqual @history.state, state
+      assert.ok beforeChangeFired
       pageReceivedFired = true
     @document.addEventListener 'page:before-unload', (event) =>
       assert.isUndefined @window.j
@@ -347,6 +350,15 @@ suite 'Turbolinks.visit()', ->
     @window.addEventListener 'unload', ->
       done()
     @Turbolinks.visit("http://example.com")
+
+  test "calling preventDefault on the before-change event cancels the visit", (done) ->
+    @document.addEventListener 'page:before-change', (event) ->
+      event.preventDefault()
+      setTimeout (-> done?()), 0
+    @document.addEventListener 'page:fetch', =>
+      done new Error("visit wasn't cancelled")
+      done = null
+    @Turbolinks.visit('iframe2.html')
 
   # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
   return if navigator.userAgent.indexOf('PhantomJS') != -1
