@@ -212,7 +212,7 @@ onNodeRemoved = (node) ->
 
 getScriptsToRun = (runScripts) ->
   selector = if runScripts is false then 'script[data-turbolinks-eval="always"]' else 'script:not([data-turbolinks-eval="false"])'
-  script for script in document.querySelectorAll(selector) when isEvalAlways(script) or not withinPermanent(script)
+  script for script in document.body.querySelectorAll(selector) when isEvalAlways(script) or not withinPermanent(script)
 
 isEvalAlways = (script) ->
   script.getAttribute('data-turbolinks-eval') is 'always'
