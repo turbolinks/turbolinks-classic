@@ -377,6 +377,19 @@ suite 'Turbolinks.visit()', ->
     @originalHistoryLength = @history.length
     @Turbolinks.visit('iframe.html')
 
+  test "with #anchor and history.back()", (done) ->
+    hashchange = 0
+    @window.addEventListener 'hashchange', =>
+      hashchange += 1
+    @document.addEventListener 'page:load', =>
+      assert.equal hashchange, 1
+      setTimeout (=> @history.back()), 0
+    @document.addEventListener 'page:restore', =>
+      assert.equal hashchange, 1
+      done()
+    @location.href = "#{@location.href}#change"
+    setTimeout (=> @Turbolinks.visit('iframe2.html#permanent')), 0
+
   # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
   return if navigator.userAgent.indexOf('PhantomJS') != -1
 

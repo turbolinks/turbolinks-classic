@@ -83,7 +83,6 @@ fetchReplacement = (url, options) ->
       loadedNodes = changePage extractTitleAndBody(doc)..., options
       if options.showProgressBar
         progressBar?.done()
-      manuallyTriggerHashChangeForFirefox()
       updateScrollPosition(options.scroll)
       triggerEvent (if options.change then EVENTS.PARTIAL_LOAD else EVENTS.LOAD), loadedNodes
       constrainPageCacheTo(cacheSize)
@@ -261,24 +260,13 @@ rememberCurrentUrlAndState = ->
   window.history.replaceState { turbolinks: true, url: document.location.href }, '', document.location.href
   currentState = window.history.state
 
-# Unlike other browsers, Firefox doesn't trigger hashchange after changing the
-# location (via pushState) to an anchor on a different page.  For example:
-#
-#   /pages/one  =>  /pages/two#with-hash
-#
-# By forcing Firefox to trigger hashchange, the rest of the code can rely on more
-# consistent behavior across browsers.
-manuallyTriggerHashChangeForFirefox = ->
-  if navigator.userAgent.indexOf('Firefox') != -1 and !(url = (new ComponentUrl)).hasNoHash()
-    window.history.replaceState currentState, '', url.withoutHash()
-    document.location.hash = url.hash
-
 updateScrollPosition = (position) ->
   if Array.isArray(position)
     window.scrollTo position[0], position[1]
   else if position isnt false
     if document.location.hash
       document.location.href = document.location.href
+      rememberCurrentUrlAndState()
     else
       window.scrollTo 0, 0
 
