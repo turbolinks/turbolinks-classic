@@ -364,6 +364,19 @@ suite 'Turbolinks.visit()', ->
       done = null
     @Turbolinks.visit('iframe2.html')
 
+  test "doesn't pushState when URL is the same", (done) ->
+    load = 0
+    @document.addEventListener 'page:load', =>
+      load += 1
+      if load is 1
+        assert.equal @history.length, @originalHistoryLength
+        setTimeout (=> @Turbolinks.visit('iframe.html#test')), 0
+      else if load is 2
+        assert.equal @history.length, @originalHistoryLength + 1
+        done()
+    @originalHistoryLength = @history.length
+    @Turbolinks.visit('iframe.html')
+
   # Temporary until mocha fixes skip() in async tests or PhantomJS fixes scrolling inside iframes.
   return if navigator.userAgent.indexOf('PhantomJS') != -1
 
