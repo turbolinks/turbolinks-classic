@@ -459,6 +459,12 @@ suite 'Turbolinks.visit()', ->
     @Turbolinks.enableTransitionCache()
     @Turbolinks.visit('iframe2.html')
 
+  test "scroll to #anchor with :change", (done) ->
+    @document.addEventListener 'page:partial-load', =>
+      assert.closeTo @window.pageYOffset, @$('#change').offsetTop, 100
+      done()
+    @Turbolinks.visit('iframe2.html#change', change: ['change'])
+
   test "doesn't scroll to top with :change", (done) ->
     @window.scrollTo(42, 42)
     @document.addEventListener 'page:partial-load', =>
