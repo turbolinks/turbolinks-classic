@@ -2,8 +2,6 @@ Turbolinks
 ==========
 [![Build Status](https://travis-ci.org/rails/turbolinks.svg?branch=master)](https://travis-ci.org/rails/turbolinks)
 
-**Note: Turbolinks 3 isn't production-ready yet. Expect breaking changes before the new version is released.**
-
 Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, it keeps the current page instance alive and replaces only the body (or parts of) and the title in the head. Think CGI vs persistent process.
 
 This is similar to [pjax](https://github.com/defunkt/jquery-pjax), but instead of worrying about what element on the page to replace and tailoring the server-side response to fit, we replace the entire body by default, and let you specify which elements to replace on an opt-in basis. This means that you get the bulk of the speed benefits from pjax (no recompiling of the JavaScript or CSS) without having to tailor the server-side response. It just works.
@@ -22,18 +20,18 @@ Events
 
 With Turbolinks pages will change without a full reload, so you can't rely on `DOMContentLoaded` or `jQuery.ready()` to trigger your code. Instead Turbolinks fires events on `document` to provide hooks into the lifecycle of the page.
 
-Event                | Argument (`event.data`) | Notes
--------------------- | ----------------------- | -----
-`page:before-change` | `{url}`                 | The page is about to change. **Cancellable with `event.preventDefault()`.**
-`page:fetch`         | `{url}`                 | A new page is about to be fetched from the server.
-`page:receive`       | `{url}`                 | A page has been fetched from the server, but not yet parsed.
-`page:before-unload` | `[affectedNodes]`       | Nodes are about to be changed.
-`page:change`        | `[affectedNodes]`       | Nodes have changed. **Also fires on `DOMContentLoaded`.**
-`page:update`        |                         | Fired alongside both `page:change` and jQuery's `ajaxSuccess` (if available).
-`page:load`          | `[newBody]`             | A new body element has been loaded into the DOM. **Does not fire on partial replacement or when a page is restored from cache, so as not to fire twice on the same body.**
-`page:partial-load`  | `[affectedNodes]`       | New elements have been loaded into the DOM via partial replacement.
-`page:restore`       |                         | A cached body element has been loaded into the DOM.
-`page:after-remove`  | `affectedNode`          | An element has been removed from the DOM or body evicted from the cache and must be cleaned up. jQuery event listeners are cleaned up automatically.
+Event                | Argument `originalEvent.data` | Notes
+-------------------- | ----------------------------- | -----
+`page:before-change` | `{url}`                       | The page is about to change. **Cancellable with `event.preventDefault()`.**
+`page:fetch`         | `{url}`                       | A new page is about to be fetched from the server.
+`page:receive`       | `{url}`                       | A page has been fetched from the server, but not yet parsed.
+`page:before-unload` | `[affectedNodes]`             | Nodes are about to be changed.
+`page:change`        | `[affectedNodes]`             | Nodes have changed. **Also fires on `DOMContentLoaded`.**
+`page:update`        |                               | Fired alongside both `page:change` and jQuery's `ajaxSuccess` (if available).
+`page:load`          | `[newBody]`                   | A new body element has been loaded into the DOM. **Does not fire on partial replacement or when a page is restored from cache, so as not to fire twice on the same body.**
+`page:partial-load`  | `[affectedNodes]`             | New elements have been loaded into the DOM via partial replacement.
+`page:restore`       |                               | A cached body element has been loaded into the DOM.
+`page:after-remove`  | `affectedNode`                | An element has been removed from the DOM or body evicted from the cache and must be cleaned up. jQuery event listeners are cleaned up automatically.
 
 **Example: load a fresh version of a page from the server** 
 - `page:before-change` link clicked or `Turbolinks.visit()` called (cancellable)
@@ -66,7 +64,7 @@ $(document).on('ready page:load', function(event) {
 });
 
 $(document).on('page:partial-load', function(event) {
-  // apply non-idempotent transformations to the nodes in event.data
+  // apply non-idempotent transformations to the nodes in event.originalEvent.data
 });
 
 $(document).on('page:change', function(event) {
@@ -74,7 +72,7 @@ $(document).on('page:change', function(event) {
 });
 
 $(document).on('page:after-remove', function(event) {
-  // delete all references to the nodes in event.data to prevent memory leaks
+  // delete references to the nodes in event.originalEvent.data to prevent memory leaks
 });
 ```
 
@@ -466,6 +464,15 @@ Turbolinks is designed to work with any browser that fully supports `pushState` 
 Do note that existing JavaScript libraries may not all be compatible with Turbolinks out of the box due to the change in instantiation cycle. You might very well have to modify them to work with Turbolinks's new set of events. For help with this, check out the [Turbolinks Compatibility](http://reed.github.io/turbolinks-compatibility) project.
 
 Turbolinks works with Rails 3.2 and newer.
+
+
+Known issues
+------------
+
+- External scripts are not guaranteed to execute in DOM order ([#513](https://github.com/rails/turbolinks/issues/513))
+- Iframes in `data-turbolinks-permanent` nodes are reloaded on page load ([#511](https://github.com/rails/turbolinks/issues/511))
+- Audio and video elements in `data-turbolinks-permanent` nodes are paused on page load ([#508](https://github.com/rails/turbolinks/issues/508))
+- Partial replacement remove pages from the cache ([#551](https://github.com/rails/turbolinks/issues/551))
 
 
 Installation
