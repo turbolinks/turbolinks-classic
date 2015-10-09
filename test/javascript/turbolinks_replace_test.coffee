@@ -168,7 +168,7 @@ suite 'Turbolinks.replace()', ->
       assert.ok beforeUnloadFired
       assert.equal afterRemoveNodes.length, 0
       assert.deepEqual event.data, [@$('#temporary'), @$('#change'), @$('[id="change:key"]')]
-      assert.equal @window.i, 2 # scripts are re-run
+      assert.equal @window.i, 1 # only scripts within the changed nodes are re-run
       assert.isUndefined @window.bodyScript
       assert.isUndefined @window.headScript
       assert.notOk @$('#new-div')
@@ -205,7 +205,7 @@ suite 'Turbolinks.replace()', ->
       assert.equal event.data, afterRemoveNodes.shift()
     @document.addEventListener 'page:change', =>
       assert.equal afterRemoveNodes.length, 0
-      assert.equal @window.i, 2 # scripts are re-run
+      assert.equal @window.i, 1 # only scripts within the changed nodes are re-run
       assert.isUndefined @window.outsideScript
       assert.equal @window.insideScript, true
       assert.notOk @$('#new-div')

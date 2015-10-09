@@ -109,7 +109,7 @@ suite 'Turbolinks.visit()', ->
       assert.ok pageChangeFired
       assert.equal afterRemoveNodes.length, 0 # after-remove is called immediately on changed nodes
       assert.deepEqual event.data, [@$('#temporary'), @$('#change'), @$('[id="change:key"]')]
-      assert.equal @window.i, 2
+      assert.equal @window.i, 1 # only scripts within the changed nodes are re-run
       assert.equal @window.countPerm, 1
       assert.equal @window.countAlways, 2
       assert.isUndefined @window.j
