@@ -22,7 +22,7 @@ With Turbolinks pages will change without a full reload, so you can't rely on `D
 
 Event                | Argument `originalEvent.data` | Notes
 -------------------- | ----------------------------- | -----
-`page:before-change` | `{url}`                       | The page is about to change. **Cancellable with `event.preventDefault()`.**
+`page:before-change` | `{url}`                       | The page is about to change. **Cancellable with `event.preventDefault()`.** Does not fire on history back/forward.
 `page:fetch`         | `{url}`                       | A new page is about to be fetched from the server.
 `page:receive`       | `{url}`                       | A page has been fetched from the server, but not yet parsed.
 `page:before-unload` | `[affectedNodes]`             | Nodes are about to be changed.
