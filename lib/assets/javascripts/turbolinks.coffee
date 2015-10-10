@@ -52,6 +52,7 @@ fetch = (url, options = {}) ->
   fetchReplacement url, options
 
 transitionCacheFor = (url) ->
+  return if url is currentState.url
   cachedPage = pageCache[url]
   cachedPage if cachedPage and !cachedPage.transitionCacheDisabled
 

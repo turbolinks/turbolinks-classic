@@ -197,6 +197,16 @@ suite 'Turbolinks.visit()', ->
     @Turbolinks.enableTransitionCache()
     @Turbolinks.visit('iframe2.html')
 
+  test "with same URL, skips transition cache", (done) ->
+    restoreCalled = false
+    @document.addEventListener 'page:restore', =>
+      restoreCalled = true
+    @document.addEventListener 'page:load', =>
+      assert.notOk restoreCalled
+      done()
+    @Turbolinks.enableTransitionCache()
+    @Turbolinks.visit('iframe.html')
+
   test "with :change, skips transition cache", (done) ->
     restoreCalled = false
     @document.addEventListener 'page:restore', =>
