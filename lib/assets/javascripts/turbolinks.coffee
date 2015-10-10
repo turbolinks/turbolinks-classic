@@ -266,7 +266,7 @@ updateScrollPosition = (position) ->
   else if position isnt false
     if typeof position is 'string' and (element = document.querySelector(position))
       element.scrollIntoView()
-    if document.location.hash
+    else if document.location.hash
       document.location.href = document.location.href
       rememberCurrentUrlAndState()
     else
@@ -624,7 +624,12 @@ installJqueryAjaxSuccessPageUpdateTrigger = ->
 
 onHistoryChange = (event) ->
   if event.state?.turbolinks && event.state.url != currentState.url
-    if cachedPage = pageCache[(new ComponentUrl(event.state.url)).absolute]
+    previousUrl = new ComponentUrl(currentState.url)
+    newUrl = new ComponentUrl(event.state.url)
+
+    if newUrl.withoutHash() is previousUrl.withoutHash()
+      updateScrollPosition()
+    else if cachedPage = pageCache[newUrl.absolute]
       cacheCurrentPage()
       fetchHistory cachedPage, scroll: [cachedPage.positionX, cachedPage.positionY]
     else
