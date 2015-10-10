@@ -47,7 +47,7 @@ fetch = (url, options = {}) ->
     options.showProgressBar = false
     options.scroll = false
   else
-    options.scroll ?= (url.hash || false) if options.change
+    options.scroll ?= false if options.change and !url.hash
 
   fetchReplacement url, options
 
@@ -264,9 +264,7 @@ updateScrollPosition = (position) ->
   if Array.isArray(position)
     window.scrollTo position[0], position[1]
   else if position isnt false
-    if typeof position is 'string' and (element = document.querySelector(position))
-      element.scrollIntoView()
-    else if document.location.hash
+    if document.location.hash
       document.location.href = document.location.href
       rememberCurrentUrlAndState()
     else
