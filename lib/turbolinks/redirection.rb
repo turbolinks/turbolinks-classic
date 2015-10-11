@@ -8,7 +8,7 @@ module Turbolinks
       turbolinks = (request.xhr? && (options.size > 0 || !request.get?)) if turbolinks.nil?
 
       if turbolinks
-        response.content_type = Mime::JS
+        response.content_type = Mime[:js]
       end
 
       return_value = super(url, response_status)
@@ -27,7 +27,7 @@ module Turbolinks
       turbolinks = (request.xhr? && options.size > 0) if turbolinks.nil?
 
       if turbolinks
-        response.content_type = Mime::JS
+        response.content_type = Mime[:js]
       end
 
       super(*args, render_options, &block)

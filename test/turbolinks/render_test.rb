@@ -62,7 +62,7 @@ class RenderTest < ActionController::TestCase
   end
 
   def test_simple_render_via_xhr_and_post
-    @request.env['HTTP_ACCEPT'] = Mime::HTML
+    @request.env['HTTP_ACCEPT'] = Mime[:html]
     xhr :post, :simple_render
     assert_normal_render 'content'
   end
@@ -73,7 +73,7 @@ class RenderTest < ActionController::TestCase
   end
 
   def test_render_action_via_xhr_and_put
-    @request.env['HTTP_ACCEPT'] = Mime::HTML
+    @request.env['HTTP_ACCEPT'] = Mime[:html]
     xhr :put, :render_action
     assert_normal_render 'content'
   end
@@ -119,13 +119,13 @@ class RenderTest < ActionController::TestCase
   end
 
   def test_simple_render_via_xhr_and_get_does_normal_render
-    @request.env['HTTP_ACCEPT'] = Mime::HTML
+    @request.env['HTTP_ACCEPT'] = Mime[:html]
     xhr :get, :simple_render
     assert_normal_render 'content'
   end
 
   def test_render_via_xhr_and_get_with_change_option_renders_via_turbolinks
-    @request.env['HTTP_ACCEPT'] = Mime::HTML
+    @request.env['HTTP_ACCEPT'] = Mime[:html]
     xhr :get, :render_with_single_change_option
     assert_turbolinks_replace 'content', "{ change: ['foo'] }"
   end
