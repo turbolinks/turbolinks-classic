@@ -5,24 +5,36 @@ module Turbolinks
 
     def redirect_to(url = {}, response_status = {})
       turbolinks, options = _extract_turbolinks_options!(response_status)
+      turbolinks = (request.xhr? && (options.size > 0 || !request.get?)) if turbolinks.nil?
 
-      value = super(url, response_status)
-
-      if turbolinks || (turbolinks != false && request.xhr? && (options.size > 0 || !request.get?))
-        _perform_turbolinks_response "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
+      if turbolinks
+        response.content_type = Mime::JS
       end
 
-      value
+      return_value = super(url, response_status)
+
+      if turbolinks
+        self.status = 200
+        self.response_body = "Turbolinks.visit('#{location}'#{_turbolinks_js_options(options)});"
+      end
+
+      return_value
     end
 
     def render(*args, &block)
       render_options = args.extract_options!
       turbolinks, options = _extract_turbolinks_options!(render_options)
+      turbolinks = (request.xhr? && options.size > 0) if turbolinks.nil?
+
+      if turbolinks
+        response.content_type = Mime::JS
+      end
 
       super(*args, render_options, &block)
 
-      if turbolinks || (turbolinks != false && request.xhr? && options.size > 0)
-        _perform_turbolinks_response "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
+      if turbolinks
+        self.status = 200
+        self.response_body = "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
       end
 
       self.response_body
@@ -39,12 +51,6 @@ module Turbolinks
         options = options.extract!(:keep, :change, :flush).delete_if { |_, value| value.nil? }
         raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
         [turbolinks, options]
-      end
-
-      def _perform_turbolinks_response(body)
-        self.status           = 200
-        self.response_body    = body
-        response.content_type = Mime::JS
       end
 
       def _turbolinks_js_options(options)
