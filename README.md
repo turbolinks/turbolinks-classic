@@ -472,7 +472,7 @@ Known issues
 - External scripts are not guaranteed to execute in DOM order ([#513](https://github.com/rails/turbolinks/issues/513))
 - Iframes in `data-turbolinks-permanent` nodes are reloaded on page load ([#511](https://github.com/rails/turbolinks/issues/511))
 - Audio and video elements in `data-turbolinks-permanent` nodes are paused on page load ([#508](https://github.com/rails/turbolinks/issues/508))
-- Partial replacement remove pages from the cache ([#551](https://github.com/rails/turbolinks/issues/551))
+- Partial replacement removes pages from the cache ([#551](https://github.com/rails/turbolinks/issues/551))
 
 
 Installation
