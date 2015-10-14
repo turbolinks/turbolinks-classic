@@ -2,6 +2,7 @@ module Turbolinks
   # Provides a means of using Turbolinks to perform renders and redirects.
   # The server will respond with a JavaScript call to Turbolinks.visit/replace().
   module Redirection
+    MUTATION_MODES = [:change, :append, :prepend].freeze
 
     def redirect_to(url = {}, response_status = {})
       turbolinks, options = _extract_turbolinks_options!(response_status)
@@ -49,19 +50,28 @@ module Turbolinks
     private
       def _extract_turbolinks_options!(options)
         turbolinks = options.delete(:turbolinks)
-        options = options.extract!(:keep, :change, :flush).delete_if { |_, value| value.nil? }
-        raise ArgumentError, "cannot combine :keep, :change and :flush options" if options.size > 1
+        options = options.extract!(:keep, :change, :append, :prepend, :flush).delete_if { |_, value| value.nil? }
+
+        raise ArgumentError, "cannot combine :keep and :flush options" if options[:keep] && options[:flush]
+
+        MUTATION_MODES.each do |mutation_mode_option|
+          raise ArgumentError, "cannot combine :keep and :#{mutation_mode_option} options" if options[:keep] && options[mutation_mode_option]
+          raise ArgumentError, "cannot combine :flush and :#{mutation_mode_option} options" if options[:flush] && options[mutation_mode_option]
+        end if options[:keep] || options[:flush]
+
         [turbolinks, options]
       end
 
       def _turbolinks_js_options(options)
-        if options[:change]
-          ", { change: ['#{Array(options[:change]).join("', '")}'] }"
-        elsif options[:keep]
-          ", { keep: ['#{Array(options[:keep]).join("', '")}'] }"
-        elsif options[:flush]
-          ", { flush: true }"
-        end
+        js_options = {}
+
+        js_options[:change] = Array(options[:change]) if options[:change]
+        js_options[:append] = Array(options[:append]) if options[:append]
+        js_options[:prepend] = Array(options[:prepend]) if options[:prepend]
+        js_options[:keep] = Array(options[:keep]) if options[:keep]
+        js_options[:flush] = true if options[:flush]
+
+        ", #{js_options.to_json}" if js_options.present?
       end
   end
 end

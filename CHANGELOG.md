@@ -1,5 +1,23 @@
 ## Turbolinks (master)
 
+*   Turbolinks supports `append` and `prepend` options.
+
+    ```coffeescript
+    # Specifying the `append` or `prepend` option to `Turbolinks.replace` and `Turbolinks.visit` causes the children of the matching nodes in the new document to be appended/prepended to the corresponding node in the existing document.
+
+    Turbolinks.visit(url, prepend: ['change'])
+    Turbolinks.replace(url, append: ['change'])
+    ```
+
+    ```ruby
+    # In Ruby, the target nodes' ids are passed via `append` or `prepend`.
+
+    render render_options, append: 'comment-list'
+    redirect_to path, prepend: 'comment-list'
+    ```
+
+    *Alec Larsen*
+
 *   `Turbolinks.visit` and `Turbolinks.replace` accept a `title` option.
 
     *Guillaume Malette*
