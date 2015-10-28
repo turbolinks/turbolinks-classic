@@ -28,13 +28,14 @@ module Turbolinks
 
       if turbolinks
         response.content_type = Mime[:js]
-      end
 
-      super(*args, render_options, &block)
+        render_options = _normalize_render(*args, render_options, &block)
+        body = render_to_body(render_options)
 
-      if turbolinks
         self.status = 200
-        self.response_body = "Turbolinks.replace('#{view_context.j(response.body)}'#{_turbolinks_js_options(options)});"
+        self.response_body = "Turbolinks.replace('#{view_context.j(body)}'#{_turbolinks_js_options(options)});"
+      else
+        super(*args, render_options, &block)
       end
 
       self.response_body
