@@ -376,3 +376,41 @@ suite 'Turbolinks.replace()', ->
       assert.equal @window.count, 1 # using importNode before swapping the nodes would double-eval scripts in Chrome/Safari
       done()
     @Turbolinks.replace(doc, change: ['change'])
+
+  test "appends elements on change when the append option is passed", (done) ->
+    doc = """
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>title</title>
+      </head>
+      <body>
+        <div id="list"><div id="another-list-item">inserted list item</div></div>
+      </body>
+      </html>
+    """
+    @Turbolinks.replace(doc, append: ['list'])
+    assert.equal @$('#list').children.length, 2 # children is similar to childNodes except it does not include text nodes
+    assert.equal @$('#list').children[0].textContent, 'original list item'
+    assert.equal @$('#list').children[1].textContent, 'inserted list item'
+
+    done()
+
+  test "prepends elements on change when the prepend option is passed", (done) ->
+    doc = """
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>title</title>
+      </head>
+      <body>
+        <div id="list"><div id="another-list-item">inserted list item</div></div>
+      </body>
+      </html>
+    """
+    @Turbolinks.replace(doc, prepend: ['list'])
+    assert.equal @$('#list').children.length, 2 # children is similar to childNodes except it does not include text nodes
+    assert.equal @$('#list').children[0].textContent, 'inserted list item'
+    assert.equal @$('#list').children[1].textContent, 'original list item'
+
+    done()

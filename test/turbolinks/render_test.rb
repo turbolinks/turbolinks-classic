@@ -51,6 +51,14 @@ class RenderController < TestController
   def render_with_flush_false
     render action: :action, flush: false
   end
+
+  def render_with_append
+    render :action, append: ['foo', 'bar']
+  end
+
+  def render_with_prepend
+    render :action, prepend: ['foo', 'bar']
+  end
 end
 
 class RenderTest < ActionController::TestCase
@@ -100,22 +108,22 @@ class RenderTest < ActionController::TestCase
 
   def test_render_via_xhr_and_post_with_single_change_option_renders_via_turbolinks
     xhr :post, :render_with_single_change_option
-    assert_turbolinks_replace 'content', "{ change: ['foo'] }"
+    assert_turbolinks_replace 'content', '{"change":["foo"]}'
   end
 
   def test_render_via_xhr_and_put_with_multiple_change_option_renders_via_turbolinks
     xhr :put, :render_with_multiple_change_option
-    assert_turbolinks_replace 'content', "{ change: ['foo', 'bar'] }"
+    assert_turbolinks_replace 'content', '{"change":["foo","bar"]}'
   end
 
   def test_render_via_xhr_and_put_with_single_keep_option_renders_via_turbolinks
     xhr :put, :render_with_single_keep_option
-    assert_turbolinks_replace 'content', "{ keep: ['foo'] }"
+    assert_turbolinks_replace 'content', '{"keep":["foo"]}'
   end
 
   def test_render_via_xhr_and_delete_with_multiple_keep_option_renders_via_turbolinks
     xhr :delete, :render_with_multiple_keep_option
-    assert_turbolinks_replace 'content', "{ keep: ['foo', 'bar'] }"
+    assert_turbolinks_replace 'content', '{"keep":["foo","bar"]}'
   end
 
   def test_simple_render_via_xhr_and_get_does_normal_render
@@ -127,7 +135,7 @@ class RenderTest < ActionController::TestCase
   def test_render_via_xhr_and_get_with_change_option_renders_via_turbolinks
     @request.env['HTTP_ACCEPT'] = Mime[:html]
     xhr :get, :render_with_single_change_option
-    assert_turbolinks_replace 'content', "{ change: ['foo'] }"
+    assert_turbolinks_replace 'content', '{"change":["foo"]}'
   end
 
   def test_render_via_post_and_not_xhr_with_keep_option_does_normal_render
@@ -147,7 +155,7 @@ class RenderTest < ActionController::TestCase
 
   def test_render_via_xhr_and_post_with_flush_true_renders_via_turbolinks
     xhr :post, :render_with_flush_true
-    assert_turbolinks_replace 'content', "{ flush: true }"
+    assert_turbolinks_replace 'content', '{"flush":true}'
   end
 
   def test_render_via_get_and_not_xhr_with_flush_true_does_normal_render
@@ -190,6 +198,16 @@ class RenderTest < ActionController::TestCase
     @controller.response = @response
     result = @controller.render(text: 'test', turbolinks: true)
     assert_equal ["Turbolinks.replace('test');"], result
+  end
+
+  def test_render_with_append
+    xhr :post, :render_with_append
+    assert_turbolinks_replace 'content', '{"append":["foo","bar"]}'
+  end
+
+  def test_render_with_prepend
+    xhr :post, :render_with_prepend
+    assert_turbolinks_replace 'content', '{"prepend":["foo","bar"]}'
   end
 
   private

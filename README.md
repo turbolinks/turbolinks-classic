@@ -327,10 +327,17 @@ Turbolinks.replace(html, options);
 
 **Server-side partial replacement**
 
-Partial replacement decisions can also be made server-side by using `redirect_to` or `render` with `change`, `keep`, or `flush` options.
+Partial replacement decisions can also be made server-side by using `redirect_to` or `render` with `change`, `append`, `prepend`, `keep`, or `flush` options.
 
 ```ruby
 class CommentsController < ActionController::Base
+  def index
+    @comments = Comment.page(params[:page]).per(25)
+    
+    # Turbolinks appends the nodes in `comment_list`; useful for infinate scrolling
+    render :index, append: ['comment_list']
+  end
+
   def create
     @comment = Comment.new(comment_params)
 
@@ -417,6 +424,8 @@ Function    | Arguments                          | Notes
 Option            | Type                  | Notes
 ----------------- | --------------------- | -----
 `change`          | `Array`               | Replace only the nodes with the given ids.
+`append`          | `Array`               | Append the children of nodes with the given ids.
+`prepend`         | `Array`               | Prepend the children of nodes with the given ids.
 `keep`            | `Array`               | Replace the body but keep the nodes with the given ids.
 `flush`           | `Boolean`             | Replace the body, including `data-turbolinks-permanent` nodes.
 `title`           | `Boolean` or `String` | If `false`, don't update the `document` title. If a string, set the value as title.
