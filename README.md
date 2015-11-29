@@ -334,7 +334,7 @@ class CommentsController < ActionController::Base
   def index
     @comments = Comment.page(params[:page]).per(25)
     
-    # Turbolinks appends the nodes in `comment_list`; useful for infinate scrolling
+    # Turbolinks appends the nodes in `comment_list`; useful for infinite scrolling
     render :index, append: ['comment_list']
   end
 
