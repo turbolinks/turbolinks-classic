@@ -6,7 +6,7 @@
     # Specifying the `append` or `prepend` option to `Turbolinks.replace` and `Turbolinks.visit` causes the children of the matching nodes in the new document to be appended/prepended to the corresponding node in the existing document.
 
     Turbolinks.visit(url, prepend: ['change'])
-    Turbolinks.replace(url, append: ['change'])
+    Turbolinks.replace(html, append: ['change'])
     ```
 
     ```ruby
