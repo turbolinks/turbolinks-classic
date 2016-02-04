@@ -1,6 +1,10 @@
+Turbolinks Classic is now deprecated
+====================================
+
+Turbolinks 5 is a ground-up rewrite with a new flow, new events, but the same core idea. It's available at [turbolinks/turbolinks](https://github.com/turbolinks/turbolinks). This repository remains available for existing applications built on what we now call Turbolinks Classic.
+
 Turbolinks
-==========
-[![Build Status](https://travis-ci.org/rails/turbolinks.svg?branch=master)](https://travis-ci.org/rails/turbolinks)
+----------
 
 Turbolinks makes following links in your web application faster. Instead of letting the browser recompile the JavaScript and CSS between each page change, it keeps the current page instance alive and replaces only the body (or parts of) and the title in the head. Think CGI vs persistent process.
 
