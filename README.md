@@ -84,7 +84,7 @@ $(document).on('page:after-remove', function(event) {
 Page Cache
 ----------
 
-By default, Turbolinks keeps 10 pages in memory (the full body element is kept in memory, so as not to lose state). On [popstate](https://developer.mozilla.org/en-US/docs/DOM/Manipulating_the_browser_history#The_popstate_event), it attempts to restore pages from the cache. When a page exists in the cache, the following events are triggered:
+By default, Turbolinks keeps 10 pages in memory (the full body element is kept in memory, so as not to lose state). On [popstate](https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_popstate_event), it attempts to restore pages from the cache. When a page exists in the cache, the following events are triggered:
 
 - `page:before-unload` (`[currentBody]`) page is about to be changed
 - `page:change` (`[cachedBody]`) body from cached page is in place
@@ -482,10 +482,10 @@ Turbolinks works with Rails 3.2 and newer.
 Known issues
 ------------
 
-- External scripts are not guaranteed to execute in DOM order ([#513](https://github.com/rails/turbolinks/issues/513))
-- Iframes in `data-turbolinks-permanent` nodes are reloaded on page load ([#511](https://github.com/rails/turbolinks/issues/511))
-- Audio and video elements in `data-turbolinks-permanent` nodes are paused on page load ([#508](https://github.com/rails/turbolinks/issues/508))
-- Partial replacement removes pages from the cache ([#551](https://github.com/rails/turbolinks/issues/551))
+- External scripts are not guaranteed to execute in DOM order ([#513](https://github.com/turbolinks/turbolinks-classic/issues/513))
+- Iframes in `data-turbolinks-permanent` nodes are reloaded on page load ([#511](https://github.com/turbolinks/turbolinks-classic/issues/511))
+- Audio and video elements in `data-turbolinks-permanent` nodes are paused on page load ([#508](https://github.com/turbolinks/turbolinks-classic/issues/508))
+- Partial replacement removes pages from the cache ([#551](https://github.com/turbolinks/turbolinks-classic/issues/551))
 
 
 Installation
