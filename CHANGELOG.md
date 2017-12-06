@@ -1,4 +1,8 @@
-## Turbolinks (master)
+## Turbolinks 2.5.4 (December 6, 2017)
+
+*   Support Rails 5.1+
+
+    *Ondřej Pražák*
 
 ## Turbolinks 2.5.3 (December 8, 2013)
 
